@@ -1,10 +1,10 @@
 package kz.bittrade.views;
 
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
 import kz.bittrade.BitTradeFx;
@@ -121,6 +121,7 @@ public class SettingsView extends VerticalLayout implements View {
         Panel settingsPanel = new Panel("User settings");
         settingsPanel.setContent(vertical);
         settingsPanel.setWidth("41%");
+        settingsPanel.setIcon(VaadinIcons.COGS);
 
         addComponent(settingsPanel);
         setComponentAlignment(settingsPanel, Alignment.TOP_CENTER);

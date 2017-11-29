@@ -2,14 +2,13 @@ package kz.bittrade.views;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.SerializableComparator;
 import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.*;
-import com.vaadin.ui.Timer;
 import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
@@ -22,7 +21,8 @@ import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
 
@@ -40,9 +40,10 @@ public class MainView extends VerticalLayout implements View {
     private int refreshSec;
 
     public MainView() {
+        addStyleName("content-common");
+
         settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
-        setSizeFull();
 
         refreshProgressBar = new ProgressBar(0.0f);
         refreshProgressBar.setVisible(false);
@@ -59,7 +60,7 @@ public class MainView extends VerticalLayout implements View {
                 });
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 
-        Button btnSettings = new Button("App settings");
+        Button btnSettings = new Button("API settings");
         btnSettings.addClickListener(
                 e -> getUI().getNavigator().navigateTo("settings"));
 
@@ -124,20 +125,15 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.setWidth("100%");
         currInfoGrid.setHeightByRows(mainui.getCurrencyPairsHolderList().size());
 
-        HorizontalLayout middleLayer = new HorizontalLayout();
-        middleLayer.setDefaultComponentAlignment(MIDDLE_LEFT);
-        middleLayer.addComponent(btnRefreshUserInfo);
-        middleLayer.addComponent(btnSettings);
+        HorizontalLayout secondLayer = new HorizontalLayout();
+        secondLayer.setDefaultComponentAlignment(MIDDLE_LEFT);
+        secondLayer.addComponent(btnRefreshUserInfo);
+        secondLayer.addComponent(btnSettings);
 
         labelWexTotalUSD = new Label("0 $", ContentMode.HTML);
         VerticalLayout topLayer = new VerticalLayout();
         topLayer.addComponent(new HorizontalLayout(new Label("Total WexNz USD: "), labelWexTotalUSD));
-        topLayer.addComponent(middleLayer);
-
-        Panel topPanel = new Panel("Available user balance");
-        topPanel.setContent(topLayer);
-        topPanel.setWidth("100%");
-
+        topLayer.addComponent(secondLayer);
 
         HorizontalLayout refreshLayer = new HorizontalLayout(labelRefresh, refreshProgressBar);
         refreshLayer.setComponentAlignment(labelRefresh, MIDDLE_LEFT);
@@ -150,22 +146,30 @@ public class MainView extends VerticalLayout implements View {
         bottomLayer.setComponentAlignment(btnRefreshTable, MIDDLE_LEFT);
         bottomLayer.setComponentAlignment(chkAutoRefresh, MIDDLE_LEFT);
         bottomLayer.setComponentAlignment(labelRefreshSec, MIDDLE_LEFT);
-        bottomLayer.setMargin(new MarginInfo(true, false, false, false));
 
-        GridLayout marketsGridLayout = new GridLayout(1, 4);
-        marketsGridLayout.setWidth("100%");
-        marketsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        marketsGridLayout.addComponent(topPanel, 0, 0);
-        marketsGridLayout.addComponent(currInfoGrid, 0, 1);
-        marketsGridLayout.addComponent(refreshLayer, 0, 2);
-        marketsGridLayout.addComponent(bottomLayer, 0, 3);
-        marketsGridLayout.setMargin(new MarginInfo(false, false, false, true));
+        VerticalLayout middleLayer = new VerticalLayout();
+        middleLayer.addComponent(currInfoGrid);
+        middleLayer.addComponent(refreshLayer);
+        middleLayer.addComponent(bottomLayer);
 
-        addComponent(marketsGridLayout);
+        Panel topPanel = new Panel("Available user balance");
+        topPanel.setContent(topLayer);
+        topPanel.setWidth("80%");
+        topPanel.setIcon(VaadinIcons.DOLLAR);
+
+        Panel middlePanel = new Panel("Coin markets monitoring");
+        middlePanel.setContent(middleLayer);
+        middlePanel.setWidth("80%");
+        middlePanel.setIcon(VaadinIcons.SPLINE_AREA_CHART);
+
+        setSpacing(true);
+        addComponent(topPanel);
+        addComponent(middlePanel);
+        setComponentAlignment(topPanel, Alignment.TOP_CENTER);
+        setComponentAlignment(middlePanel, Alignment.MIDDLE_CENTER);
+
         initTimer();
     }
-
-
 
     private void initTimer() {
         timer = new Timer();
