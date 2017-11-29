@@ -124,17 +124,20 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.setWidth("100%");
         currInfoGrid.setHeightByRows(mainui.getCurrencyPairsHolderList().size());
 
-        labelWexTotalUSD = new Label("0 $", ContentMode.HTML);
-        VerticalLayout topLayer = new VerticalLayout();
-        topLayer.addComponent(new Label("<b>Available user balance</b>", ContentMode.HTML));
-        topLayer.addComponent(new HorizontalLayout(new Label("Total WexNz USD: "), labelWexTotalUSD));
-        topLayer.setMargin(new MarginInfo(false, false, true, false));
-
         HorizontalLayout middleLayer = new HorizontalLayout();
         middleLayer.setDefaultComponentAlignment(MIDDLE_LEFT);
         middleLayer.addComponent(btnRefreshUserInfo);
         middleLayer.addComponent(btnSettings);
-        middleLayer.setMargin(new MarginInfo(false, false, true, false));
+
+        labelWexTotalUSD = new Label("0 $", ContentMode.HTML);
+        VerticalLayout topLayer = new VerticalLayout();
+        topLayer.addComponent(new HorizontalLayout(new Label("Total WexNz USD: "), labelWexTotalUSD));
+        topLayer.addComponent(middleLayer);
+
+        Panel topPanel = new Panel("Available user balance");
+        topPanel.setContent(topLayer);
+        topPanel.setWidth("100%");
+
 
         HorizontalLayout refreshLayer = new HorizontalLayout(labelRefresh, refreshProgressBar);
         refreshLayer.setComponentAlignment(labelRefresh, MIDDLE_LEFT);
@@ -149,14 +152,13 @@ public class MainView extends VerticalLayout implements View {
         bottomLayer.setComponentAlignment(labelRefreshSec, MIDDLE_LEFT);
         bottomLayer.setMargin(new MarginInfo(true, false, false, false));
 
-        GridLayout marketsGridLayout = new GridLayout(1, 5);
+        GridLayout marketsGridLayout = new GridLayout(1, 4);
         marketsGridLayout.setWidth("100%");
         marketsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        marketsGridLayout.addComponent(topLayer, 0, 0);
-        marketsGridLayout.addComponent(middleLayer, 0, 1);
-        marketsGridLayout.addComponent(currInfoGrid, 0, 2);
-        marketsGridLayout.addComponent(refreshLayer, 0, 3);
-        marketsGridLayout.addComponent(bottomLayer, 0, 4);
+        marketsGridLayout.addComponent(topPanel, 0, 0);
+        marketsGridLayout.addComponent(currInfoGrid, 0, 1);
+        marketsGridLayout.addComponent(refreshLayer, 0, 2);
+        marketsGridLayout.addComponent(bottomLayer, 0, 3);
         marketsGridLayout.setMargin(new MarginInfo(false, false, false, true));
 
         addComponent(marketsGridLayout);
