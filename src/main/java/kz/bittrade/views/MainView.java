@@ -1,10 +1,9 @@
-package kz.bittrade.Views;
+package kz.bittrade.views;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.Page;
 import com.vaadin.server.SerializableComparator;
 import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.ContentMode;

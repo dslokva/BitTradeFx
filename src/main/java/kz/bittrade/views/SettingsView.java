@@ -1,4 +1,4 @@
-package kz.bittrade.Views;
+package kz.bittrade.views;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
