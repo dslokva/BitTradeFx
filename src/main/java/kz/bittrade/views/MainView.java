@@ -109,7 +109,6 @@ public class MainView extends VerticalLayout implements View {
         CheckBox chkAutoRefresh = new CheckBox("Auto refresh every 30 sec");
         chkAutoRefresh.addValueChangeListener(event -> {
             boolean notChecked = !chkAutoRefresh.getValue();
-
             btnRefreshTable.setEnabled(notChecked);
             if (notChecked) {
                 timer.cancel();
@@ -393,7 +392,7 @@ public class MainView extends VerticalLayout implements View {
 
         JsonObject result = privateLib.performAuthorizedRequest(postData);
         if (result != null) {
-            //privateLib.log("getInfo result: ".concat(result.toString()));
+            privateLib.log("getInfo result: ".concat(result.toString()));
             WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
             if (wexUserInfo != null && wexUserInfo.getSuccess() == 1) {
                 labelWexTotalUSD.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getUsd()) + "</b>");
@@ -404,15 +403,19 @@ public class MainView extends VerticalLayout implements View {
                 labelWexTotalZEC.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getZec()) + "</b>");
                 labelWexTotalDSH.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getDsh()) + "</b>");
             } else {
-                labelWexTotalUSD.setValue("<b>error</b>");
-                labelWexTotalBTC.setValue("<b>error</b>");
-                labelWexTotalBCH.setValue("<b>error</b>");
-                labelWexTotalETH.setValue("<b>error</b>");
-                labelWexTotalLTC.setValue("<b>error</b>");
-                labelWexTotalZEC.setValue("<b>error</b>");
-                labelWexTotalDSH.setValue("<b>error</b>");
+                setWexLabelsError();
             }
-        }
+        } else setWexLabelsError();
+    }
+
+    private void setWexLabelsError() {
+        labelWexTotalUSD.setValue("<b>error</b>");
+        labelWexTotalBTC.setValue("<b>error</b>");
+        labelWexTotalBCH.setValue("<b>error</b>");
+        labelWexTotalETH.setValue("<b>error</b>");
+        labelWexTotalLTC.setValue("<b>error</b>");
+        labelWexTotalZEC.setValue("<b>error</b>");
+        labelWexTotalDSH.setValue("<b>error</b>");
     }
 
     @Override

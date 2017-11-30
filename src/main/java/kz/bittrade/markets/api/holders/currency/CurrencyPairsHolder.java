@@ -57,7 +57,7 @@ public class CurrencyPairsHolder {
         while (i.hasNext()) {
             next = (String) i.next();
             Double nextValue = map.get(next);
-            if (nextValue.compareTo(candidate) > 0 && nextValue > 0) {
+            if (nextValue.compareTo(candidate) > 0 && nextValue > 0 && candidate >= 0) {
                 candidate = nextValue;
                 lastKey = next;
             }
@@ -74,7 +74,7 @@ public class CurrencyPairsHolder {
         while (i.hasNext()) {
             next = (String) i.next();
             Double nextValue = map.get(next);
-            if (nextValue.compareTo(candidate) < 0 && nextValue > 0) {
+            if (nextValue.compareTo(candidate) < 0 && nextValue > 0 || candidate == 0) {
                 candidate = nextValue;
                 lastKey = next;
             }
@@ -142,10 +142,6 @@ public class CurrencyPairsHolder {
             result = "<b>" + String.format("%.4f", maxDoublePrice - minDoublePrice) + "</b>";
         }
         return result;
-    }
-
-    public double getDeltaDouble() {
-        return maxDoublePrice - minDoublePrice;
     }
 
     public double getDeltaDoublePercent() {

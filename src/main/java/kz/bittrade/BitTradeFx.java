@@ -104,13 +104,13 @@ public class BitTradeFx extends UI {
         public void run() {
             try {
                 synchronized (RefreshThread.this) {
-                    for (CurrencyPairsHolder currencyPairsHolder : currencyPairsHolderList) {
+                    for (CurrencyPairsHolder currencyPairsHolder : currencyPairsToRefresh) {
                         String oldName = currencyPairsHolder.getName();
                         currencyPairsHolder.setName("<b><font color ='#000066'> * " + oldName + "</font></b>");
                         Thread.sleep(60);
                         access(() -> {
                             float current = refreshProgressBar.getValue();
-                            refreshProgressBar.setValue(current + (1.0f / currencyPairsHolderList.size()));
+                            refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
                             currInfoGrid.getDataProvider().refreshAll();
                             push();
                         });
@@ -120,8 +120,10 @@ public class BitTradeFx extends UI {
                     }
                 }
                 access(() -> {
-                    refreshLabel.setValue("Updated at: " + settings.getNowString());
-                    //refreshLabel.setValue("Partially updated at: " + settings.getNowString());
+                    if (currencyPairsToRefresh.size() > 1)
+                        refreshLabel.setValue("Updated at: " + settings.getNowString());
+                    else refreshLabel.setValue("Partially updated at: " + settings.getNowString());
+
                     refreshProgressBar.setVisible(false);
                     refreshProgressBar.setValue(0);
 
