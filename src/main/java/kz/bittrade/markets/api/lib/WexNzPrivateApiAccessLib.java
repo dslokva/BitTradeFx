@@ -113,7 +113,7 @@ public final class WexNzPrivateApiAccessLib extends ApiAccessLib {
         headers.put("Key", this.key);
 
         String postDataStr = getPostDataAsString(postData);
-        String sign = HashHelper.getHmacSHA512(postDataStr, this.secret);
+        String sign = HashHelper.getHmacSHA(postDataStr, secret, BFConstants.ALGORITHM_HMACSHA512);
 
         if(sign == null) {
             log("Failed to calculate Hmac-SHA512 of post data: \"".concat(postDataStr).concat("\""));

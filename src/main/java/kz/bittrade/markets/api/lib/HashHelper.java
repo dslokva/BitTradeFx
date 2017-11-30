@@ -9,15 +9,14 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashHelper {
 
-    private static final String HMAC_SHA512 = "HmacSHA512";
 
-    public static String getHmacSHA512(String str, String secret) {
+    public static String getHmacSHA(String str, String secret, String algo) {
         Mac macInst = null;
         String result = "";
 
         try {
-            macInst = Mac.getInstance(HMAC_SHA512);
-            macInst.init(new SecretKeySpec(secret.getBytes("UTF-8"), HMAC_SHA512));
+            macInst = Mac.getInstance(algo);
+            macInst.init(new SecretKeySpec(secret.getBytes("UTF-8"), algo));
 
             result = DatatypeConverter.printHexBinary((macInst.doFinal(str.getBytes("UTF-8")))).toLowerCase();
         } catch (NoSuchAlgorithmException e) {

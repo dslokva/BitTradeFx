@@ -17,15 +17,17 @@ import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import kz.bittrade.markets.api.holders.user.WexNzGetInfo;
+import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
-
+import static com.vaadin.ui.Alignment.MIDDLE_RIGHT;
 
 public class MainView extends VerticalLayout implements View {
     private static AppSettingsHolder settings;
@@ -34,6 +36,8 @@ public class MainView extends VerticalLayout implements View {
     private Grid<CurrencyPairsHolder> currInfoGrid;
     private ProgressBar refreshProgressBar;
     private Label labelWexTotalUSD;
+    private Label labelWexTotalBTC;
+    private Label labelWexTotalETH;
     private Label labelRefreshSec;
     private Label labelRefresh;
     private Timer timer;
@@ -44,6 +48,10 @@ public class MainView extends VerticalLayout implements View {
 
         settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
+
+        labelWexTotalUSD = new Label("0 $", ContentMode.HTML);
+        labelWexTotalBTC = new Label("0", ContentMode.HTML);
+        labelWexTotalETH = new Label("0", ContentMode.HTML);
 
         refreshProgressBar = new ProgressBar(0.0f);
         refreshProgressBar.setVisible(false);
@@ -125,14 +133,30 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.setWidth("100%");
         currInfoGrid.setHeightByRows(mainui.getCurrencyPairsHolderList().size());
 
-        HorizontalLayout secondLayer = new HorizontalLayout();
-        secondLayer.setDefaultComponentAlignment(MIDDLE_LEFT);
-        secondLayer.addComponent(btnRefreshUserInfo);
-        secondLayer.addComponent(btnSettings);
+        HorizontalLayout wexUSDLabels = new HorizontalLayout(new Label("Total USD: "), labelWexTotalUSD);
+        HorizontalLayout wexETHLabels = new HorizontalLayout(new Label("Total BTC: "), labelWexTotalBTC);
+        HorizontalLayout wexBTCLabels = new HorizontalLayout(new Label("Total ETH: "), labelWexTotalETH);
 
-        labelWexTotalUSD = new Label("0 $", ContentMode.HTML);
+        VerticalLayout wexBalanceVertical = new VerticalLayout();
+        wexBalanceVertical.setSpacing(true);
+        wexBalanceVertical.addComponent(wexUSDLabels);
+        wexBalanceVertical.addComponent(wexETHLabels);
+        wexBalanceVertical.addComponent(wexBTCLabels);
+
+        Panel wexBalancePanel = new Panel("WEX.nz");
+        wexBalancePanel.setContent(wexBalanceVertical);
+        wexBalancePanel.setWidth("20%");
+        wexBalancePanel.addStyleName(ValoTheme.PANEL_WELL);
+
+        GridLayout secondLayer = new GridLayout(2, 1);
+        secondLayer.setWidth("100%");
+        secondLayer.addComponent(btnRefreshUserInfo, 0, 0);
+        secondLayer.addComponent(btnSettings, 1, 0);
+        secondLayer.setComponentAlignment(btnRefreshUserInfo, MIDDLE_LEFT);
+        secondLayer.setComponentAlignment(btnSettings, MIDDLE_RIGHT);
+
         VerticalLayout topLayer = new VerticalLayout();
-        topLayer.addComponent(new HorizontalLayout(new Label("Total WexNz USD: "), labelWexTotalUSD));
+        topLayer.addComponent(wexBalancePanel);
         topLayer.addComponent(secondLayer);
 
         HorizontalLayout refreshLayer = new HorizontalLayout(labelRefresh, refreshProgressBar);
@@ -181,7 +205,7 @@ public class MainView extends VerticalLayout implements View {
                 labelRefreshSec.setValue("");
             } else {
                 refreshSec++;
-                labelRefreshSec.setValue("(next in: "+String.valueOf(30-refreshSec)+")");
+                labelRefreshSec.setValue("(next in: " + String.valueOf(30 - refreshSec) + ")");
             }
         });
     }
@@ -199,6 +223,22 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void updateUserBalances() {
+        updateWexBalance();
+        updateBitfinexBalance();
+    }
+
+    private void updateBitfinexBalance() {
+        BitfinexPrivateApiAccessLib bitLib = new BitfinexPrivateApiAccessLib(settings.getProperty(BFConstants.BIT_API_KEY),
+                settings.getProperty(BFConstants.BIT_API_SECRET));
+        try {
+            String reslt = bitLib.sendRequestV1Balances();
+            System.out.println(reslt);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateWexBalance() {
         String nonce = settings.getProperty(BFConstants.WEX_API_NONCE);
         if (Objects.equals(nonce, "")) nonce = "-1";
         int intNonce = Integer.parseInt(nonce);
@@ -212,12 +252,16 @@ public class MainView extends VerticalLayout implements View {
 
         JsonObject result = privateLib.performAuthorizedRequest(postData);
         if (result != null) {
-            privateLib.log("getInfo result: ".concat(result.toString()));
+            //privateLib.log("getInfo result: ".concat(result.toString()));
             WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
             if (wexUserInfo != null && wexUserInfo.getSuccess() == 1) {
                 labelWexTotalUSD.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getUsd()) + "$</b>");
+                labelWexTotalBTC.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getBtc()) + "</b>");
+                labelWexTotalETH.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getEth()) + "</b>");
             } else {
-                labelWexTotalUSD.setValue("<b> %-( error</b>");
+                labelWexTotalUSD.setValue("<b>error</b>");
+                labelWexTotalBTC.setValue("<b>error</b>");
+                labelWexTotalETH.setValue("<b>error</b>");
             }
         }
     }

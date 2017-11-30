@@ -72,7 +72,7 @@ public class SettingsView extends VerticalLayout implements View {
         coinbaseSettingsGridLayout.addComponent(txtKraSecretKey, 1, 1);
         coinbaseSettingsGridLayout.setSpacing(true);
 
-        Button btnBack = new Button("<- Back");
+        Button btnBack = new Button("Back");
         btnBack.addStyleName(ValoTheme.BUTTON_PRIMARY);
         btnBack.addClickListener(
                 e -> mainui.getNavigator().navigateTo("main"));

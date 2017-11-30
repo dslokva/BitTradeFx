@@ -22,4 +22,6 @@ public final class BFConstants {
     public static final String KRA_API_BASIC_URL = "https://api.kraken.com/0/public/";
 
     public static final String AUTO_SORT = "autoSortDeltaPercent";
+    public static final String ALGORITHM_HMACSHA384 = "HmacSHA384";
+    public static final String ALGORITHM_HMACSHA512 = "HmacSHA512";
 }
