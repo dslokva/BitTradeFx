@@ -48,6 +48,14 @@ public class MainView extends VerticalLayout implements View {
     private Label labelWexTotalZEC;
     private Label labelWexTotalDSH;
 
+    private Label labelBitTotalUSD;
+    private Label labelBitTotalBTC;
+    private Label labelBitTotalBCH;
+    private Label labelBitTotalETH;
+    private Label labelBitTotalLTC;
+    private Label labelBitTotalZEC;
+    private Label labelBitTotalDSH;
+
     public MainView() {
         addStyleName("content-common");
 
@@ -61,6 +69,14 @@ public class MainView extends VerticalLayout implements View {
         labelWexTotalLTC = new Label("0", ContentMode.HTML);
         labelWexTotalZEC = new Label("0", ContentMode.HTML);
         labelWexTotalDSH = new Label("0", ContentMode.HTML);
+
+        labelBitTotalUSD = new Label("0", ContentMode.HTML);
+        labelBitTotalBTC = new Label("0", ContentMode.HTML);
+        labelBitTotalETH = new Label("0", ContentMode.HTML);
+        labelBitTotalBCH = new Label("0", ContentMode.HTML);
+        labelBitTotalLTC = new Label("0", ContentMode.HTML);
+        labelBitTotalZEC = new Label("0", ContentMode.HTML);
+        labelBitTotalDSH = new Label("0", ContentMode.HTML);
 
         refreshProgressBar = new ProgressBar(0.0f);
         refreshProgressBar.setVisible(false);
@@ -81,7 +97,8 @@ public class MainView extends VerticalLayout implements View {
         btnSettings.addClickListener(
                 e -> getUI().getNavigator().navigateTo("settings"));
 
-        Button btnRefreshUserInfo = new Button("Update user info");
+        Button btnRefreshUserInfo = new Button("Refresh all");
+        btnRefreshUserInfo.addStyleName(ValoTheme.BUTTON_FRIENDLY);
         btnRefreshUserInfo.addClickListener(
                 e -> updateUserBalances());
 
@@ -160,10 +177,70 @@ public class MainView extends VerticalLayout implements View {
         wexBalanceVertical.addComponent(wexZECLabels);
         wexBalanceVertical.addComponent(wexDSHLabels);
 
-        Panel wexBalancePanel = new Panel("WEX.nz");
-        wexBalancePanel.setContent(wexBalanceVertical);
-        wexBalancePanel.setWidth("20%");
-        wexBalancePanel.addStyleName(ValoTheme.PANEL_WELL);
+        HorizontalLayout bitUSDLabels = new HorizontalLayout(new Label("Total USD: "), labelBitTotalUSD);
+        HorizontalLayout bitBTCLabels = new HorizontalLayout(new Label("Total BTC: "), labelBitTotalBTC);
+        HorizontalLayout bitBCHLabels = new HorizontalLayout(new Label("Total BCH: "), labelBitTotalBCH);
+        HorizontalLayout bitETHLabels = new HorizontalLayout(new Label("Total ETH: "), labelBitTotalETH);
+        HorizontalLayout bitLTCLabels = new HorizontalLayout(new Label("Total LTC: "), labelBitTotalLTC);
+        HorizontalLayout bitZECLabels = new HorizontalLayout(new Label("Total ZEC: "), labelBitTotalZEC);
+        HorizontalLayout bitDSHLabels = new HorizontalLayout(new Label("Total DSH: "), labelBitTotalDSH);
+
+        VerticalLayout bitBalanceVertical = new VerticalLayout();
+        bitBalanceVertical.setSpacing(true);
+        bitBalanceVertical.addComponent(bitUSDLabels);
+        bitBalanceVertical.addComponent(bitBTCLabels);
+        bitBalanceVertical.addComponent(bitBCHLabels);
+        bitBalanceVertical.addComponent(bitETHLabels);
+        bitBalanceVertical.addComponent(bitLTCLabels);
+        bitBalanceVertical.addComponent(bitZECLabels);
+        bitBalanceVertical.addComponent(bitDSHLabels);
+
+        Button btnWexBalanceRefresh = new Button();
+        btnWexBalanceRefresh.setIcon(VaadinIcons.REFRESH);
+        btnWexBalanceRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        btnWexBalanceRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
+        btnWexBalanceRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+        btnWexBalanceRefresh.addClickListener((Button.ClickListener) clickEvent -> updateWexBalance());
+
+        Button btnBitBalanceRefresh = new Button();
+        btnBitBalanceRefresh.setIcon(VaadinIcons.REFRESH);
+        btnBitBalanceRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        btnBitBalanceRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
+        btnBitBalanceRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+        btnBitBalanceRefresh.addClickListener((Button.ClickListener) clickEvent -> updateBitfinexBalance());
+
+        HorizontalLayout wexBalancePanelCaption = new HorizontalLayout();
+        wexBalancePanelCaption.addStyleName("v-panel-caption");
+        wexBalancePanelCaption.setWidth("100%");
+        Label labelw = new Label("WEX");
+        wexBalancePanelCaption.addComponent(labelw);
+        wexBalancePanelCaption.setExpandRatio(labelw, 1);
+        wexBalancePanelCaption.addComponent(btnWexBalanceRefresh);
+
+        HorizontalLayout bitBalancePanelCaption = new HorizontalLayout();
+        bitBalancePanelCaption.addStyleName("v-panel-caption");
+        bitBalancePanelCaption.setWidth("100%");
+        Label labelb = new Label("Bitfinex");
+        bitBalancePanelCaption.addComponent(labelb);
+        bitBalancePanelCaption.setExpandRatio(labelb, 1);
+        bitBalancePanelCaption.addComponent(btnBitBalanceRefresh);
+
+        CssLayout wexBalancePanel = new CssLayout();
+        wexBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
+        wexBalancePanel.addComponent(wexBalancePanelCaption);
+        wexBalancePanel.addComponent(wexBalanceVertical);
+        wexBalancePanel.setWidth("14em");
+
+        CssLayout bitBalancePanel = new CssLayout();
+        bitBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
+        bitBalancePanel.addComponent(bitBalancePanelCaption);
+        bitBalancePanel.addComponent(bitBalanceVertical);
+        bitBalancePanel.setWidth("14em");
+
+        GridLayout horizontalBalanceGrid = new GridLayout(3, 1);
+        horizontalBalanceGrid.addComponent(wexBalancePanel, 0, 0);
+        horizontalBalanceGrid.addComponent(bitBalancePanel, 1, 0);
+        horizontalBalanceGrid.setWidth("60%");
 
         GridLayout secondLayer = new GridLayout(2, 1);
         secondLayer.setWidth("100%");
@@ -173,7 +250,7 @@ public class MainView extends VerticalLayout implements View {
         secondLayer.setComponentAlignment(btnSettings, MIDDLE_RIGHT);
 
         VerticalLayout topLayer = new VerticalLayout();
-        topLayer.addComponent(wexBalancePanel);
+        topLayer.addComponent(horizontalBalanceGrid);
         topLayer.addComponent(secondLayer);
 
         HorizontalLayout refreshLayer = new HorizontalLayout(labelRefresh, refreshProgressBar);
@@ -209,10 +286,10 @@ public class MainView extends VerticalLayout implements View {
         setComponentAlignment(topPanel, Alignment.TOP_CENTER);
         setComponentAlignment(middlePanel, Alignment.MIDDLE_CENTER);
 
-        initTimer();
+        initAutoRefreshTimer();
     }
 
-    private void initTimer() {
+    private void initAutoRefreshTimer() {
         timer = new Timer();
         addExtension(timer);
         timer.run(() -> {
@@ -293,7 +370,6 @@ public class MainView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-
 //        PublicApiAccessLib.setBasicUrl("https://poloniex.com/");
 //        PublicApiAccessLib.clearHeaders();
 //        JsonObject result = PublicApiAccessLib.performBasicRequest("public", "?command=returnTicker");
