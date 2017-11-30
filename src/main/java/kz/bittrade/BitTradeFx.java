@@ -128,7 +128,7 @@ public class BitTradeFx extends UI {
                     refreshProgressBar.setValue(0);
 
                     if (Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)))
-                        currInfoGrid.sort(currInfoGrid.getColumns().get(2), SortDirection.DESCENDING);
+                        currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();

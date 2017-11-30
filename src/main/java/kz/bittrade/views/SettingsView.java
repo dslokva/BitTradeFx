@@ -26,6 +26,13 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkAutoSortByDeltaPercent;
     private BitTradeFx mainui;
 
+    private CheckBox chkEnableBTC;
+    private CheckBox chkEnableBCH;
+    private CheckBox chkEnableLTC;
+    private CheckBox chkEnableETH;
+    private CheckBox chkEnableZEC;
+    private CheckBox chkEnableDSH;
+    
     public SettingsView()  {
         addStyleName("content-common");
         String txtBoxWidth = "500px";
@@ -45,6 +52,13 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraApiKey.setWidth(txtBoxWidth);
         txtKraSecretKey.setWidth(txtBoxWidth);
 
+        chkEnableBTC = new CheckBox("BTC", true);
+        chkEnableBCH = new CheckBox("BCH", true);
+        chkEnableLTC = new CheckBox("LTC", true);
+        chkEnableETH = new CheckBox("ETH", true);
+        chkEnableZEC = new CheckBox("ZEC", true);
+        chkEnableDSH = new CheckBox("DSH", true);
+        
         settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
 
@@ -108,20 +122,53 @@ public class SettingsView extends VerticalLayout implements View {
         btnsGrid.setComponentAlignment(btnSave, MIDDLE_LEFT);
         btnsGrid.setComponentAlignment(btnBack, MIDDLE_RIGHT);
 
-        VerticalLayout vertical = new VerticalLayout();
-        vertical.addComponent(new Label("Keys for <b>[WEX.nz]</b> market:", ContentMode.HTML));
-        vertical.addComponent(wexnzSettingsGridLayout);
-        vertical.addComponent(new Label("Keys for <b>[Bitfinex.com]</b> market:", ContentMode.HTML));
-        vertical.addComponent(bitfinexSettingsGridLayout);
-        vertical.addComponent(new Label("Keys for <b>[Kraken.com]</b> market:", ContentMode.HTML));
-        vertical.addComponent(coinbaseSettingsGridLayout);
-        vertical.addComponent(chkAutoSortByDeltaPercent);
-        vertical.addComponent(btnsGrid);
+        VerticalLayout apiVerticalHolder = new VerticalLayout();
+        apiVerticalHolder.addComponent(new Label("Keys for <b>[WEX.nz]</b> market:", ContentMode.HTML));
+        apiVerticalHolder.addComponent(wexnzSettingsGridLayout);
+        apiVerticalHolder.addComponent(new Label("Keys for <b>[Bitfinex.com]</b> market:", ContentMode.HTML));
+        apiVerticalHolder.addComponent(bitfinexSettingsGridLayout);
+        apiVerticalHolder.addComponent(new Label("Keys for <b>[Kraken.com]</b> market:", ContentMode.HTML));
+        apiVerticalHolder.addComponent(coinbaseSettingsGridLayout);
 
-        Panel settingsPanel = new Panel("User settings");
-        settingsPanel.setContent(vertical);
+        GridLayout coinCheckBoxesGrid = new GridLayout(6, 1);
+        coinCheckBoxesGrid.addComponent(chkEnableBTC);
+        coinCheckBoxesGrid.addComponent(chkEnableBCH);
+        coinCheckBoxesGrid.addComponent(chkEnableLTC);
+        coinCheckBoxesGrid.addComponent(chkEnableETH);
+        coinCheckBoxesGrid.addComponent(chkEnableZEC);
+        coinCheckBoxesGrid.addComponent(chkEnableDSH);
+        coinCheckBoxesGrid.setWidth("100%");
+
+        VerticalLayout verticalDumb = new VerticalLayout();
+        verticalDumb.addComponent(coinCheckBoxesGrid);
+
+        Panel coinCheckBoxesPanel = new Panel("Enabled coins for monitoring");
+        coinCheckBoxesPanel.addStyleName(ValoTheme.PANEL_WELL);
+        coinCheckBoxesPanel.setContent(verticalDumb);
+
+        VerticalLayout otherVerticalHolder = new VerticalLayout();
+        otherVerticalHolder.addComponent(chkAutoSortByDeltaPercent);
+        otherVerticalHolder.addComponent(coinCheckBoxesPanel);
+
+        Panel keySettingsPanel = new Panel("User API");
+        keySettingsPanel.setContent(apiVerticalHolder);
+        keySettingsPanel.setWidth("100%");
+        keySettingsPanel.setIcon(VaadinIcons.LOCK);
+
+        Panel appSettingsPanel = new Panel("Other");
+        appSettingsPanel.setContent(otherVerticalHolder);
+        appSettingsPanel.setWidth("100%");
+        appSettingsPanel.setIcon(VaadinIcons.COGS);
+
+        VerticalLayout allPanelsHolder = new VerticalLayout();
+        allPanelsHolder.addComponent(keySettingsPanel);
+        allPanelsHolder.addComponent(appSettingsPanel);
+        allPanelsHolder.addComponent(btnsGrid);
+
+        Panel settingsPanel = new Panel("Application settings");
+        settingsPanel.setContent(allPanelsHolder);
         settingsPanel.setWidth("41%");
-        settingsPanel.setIcon(VaadinIcons.COGS);
+        settingsPanel.setIcon(VaadinIcons.OPTIONS);
 
         addComponent(settingsPanel);
         setComponentAlignment(settingsPanel, Alignment.TOP_CENTER);

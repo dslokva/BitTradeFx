@@ -97,7 +97,7 @@ public class MainView extends VerticalLayout implements View {
                 });
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 
-        Button btnSettings = new Button("API settings");
+        Button btnSettings = new Button("Settings");
         btnSettings.addClickListener(
                 e -> getUI().getNavigator().navigateTo("settings"));
 
