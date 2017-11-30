@@ -13,8 +13,6 @@ import com.vaadin.shared.Position;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
-import kz.bittrade.views.MainView;
-import kz.bittrade.views.SettingsView;
 import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
@@ -22,6 +20,8 @@ import kz.bittrade.markets.api.holders.currency.pairs.BitfinexCurrencyPair;
 import kz.bittrade.markets.api.holders.currency.pairs.KrakenCurrencyPair;
 import kz.bittrade.markets.api.holders.currency.pairs.WexNzCurrencyPair;
 import kz.bittrade.markets.api.lib.PublicApiAccessLib;
+import kz.bittrade.views.MainView;
+import kz.bittrade.views.SettingsView;
 
 import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
@@ -60,10 +60,45 @@ public class BitTradeFx extends UI {
         return currencyPairsHolderList;
     }
 
+    public void refreshCurrencyGrid() {
+        if (!refreshThread.isAlive()) {
+            refreshThread = new RefreshThread();
+            refreshThread.refreshAll();
+        } else
+            showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
+    }
+
+    public void refreshCurrencyRow(CurrencyPairsHolder currencyPairRow) {
+        if (!refreshThread.isAlive()) {
+            refreshThread = new RefreshThread();
+            refreshThread.refreshOne(currencyPairRow);
+
+        } else
+            showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
+    }
+
+    private void refreshCurrencyInfo(CurrencyPairsHolder item) {
+        refreshBitfinexCurrencyInfo(item);
+        refreshWexNzCurrencyInfo(item);
+        refreshKrakenCurrencyInfo(item);
+        item.defineMinMaxPrice();
+    }
+
     public class RefreshThread extends Thread {
         Grid<CurrencyPairsHolder> currInfoGrid = mainView.getCurrInfoGrid();
         ProgressBar refreshProgressBar = mainView.getRefreshProgressBar();
         Label refreshLabel = mainView.getLabelRefresh();
+        List<CurrencyPairsHolder> currencyPairsToRefresh = new ArrayList();
+
+        void refreshAll() {
+            currencyPairsToRefresh = currencyPairsHolderList;
+            start();
+        }
+
+        void refreshOne(CurrencyPairsHolder currencyPairRow) {
+            currencyPairsToRefresh.add(currencyPairRow);
+            start();
+        }
 
         @Override
         public void run() {
@@ -86,6 +121,7 @@ public class BitTradeFx extends UI {
                 }
                 access(() -> {
                     refreshLabel.setValue("Updated at: " + settings.getNowString());
+                    //refreshLabel.setValue("Partially updated at: " + settings.getNowString());
                     refreshProgressBar.setVisible(false);
                     refreshProgressBar.setValue(0);
 
@@ -157,21 +193,6 @@ public class BitTradeFx extends UI {
             }
         }
         if (!resultParsedWell) currencyPairsHolder.getBitfinexPair().setLastPriceError(true);
-    }
-
-    public void refreshCurrencyGrid() {
-        if (!refreshThread.isAlive()) {
-            refreshThread = new RefreshThread();
-            refreshThread.start();
-        }
-        else showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
-    }
-
-    public void refreshCurrencyInfo(CurrencyPairsHolder item) {
-        refreshBitfinexCurrencyInfo(item);
-        refreshWexNzCurrencyInfo(item);
-        refreshKrakenCurrencyInfo(item);
-        item.defineMinMaxPrice();
     }
 
     private void initCurrencyPairs() {
