@@ -38,4 +38,20 @@ public class WexNzUserFunds {
     public double getEth() {
         return eth;
     }
+
+    public double getZec() {
+        return zec;
+    }
+
+    public double getBch() {
+        return bch;
+    }
+
+    public double getLtc() {
+        return ltc;
+    }
+
+    public double getDsh() {
+        return dsh;
+    }
 }

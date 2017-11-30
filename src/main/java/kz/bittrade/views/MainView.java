@@ -35,13 +35,18 @@ public class MainView extends VerticalLayout implements View {
 
     private Grid<CurrencyPairsHolder> currInfoGrid;
     private ProgressBar refreshProgressBar;
-    private Label labelWexTotalUSD;
-    private Label labelWexTotalBTC;
-    private Label labelWexTotalETH;
     private Label labelRefreshSec;
     private Label labelRefresh;
     private Timer timer;
     private int refreshSec;
+
+    private Label labelWexTotalUSD;
+    private Label labelWexTotalBTC;
+    private Label labelWexTotalBCH;
+    private Label labelWexTotalETH;
+    private Label labelWexTotalLTC;
+    private Label labelWexTotalZEC;
+    private Label labelWexTotalDSH;
 
     public MainView() {
         addStyleName("content-common");
@@ -49,9 +54,13 @@ public class MainView extends VerticalLayout implements View {
         settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
 
-        labelWexTotalUSD = new Label("0 $", ContentMode.HTML);
+        labelWexTotalUSD = new Label("0", ContentMode.HTML);
         labelWexTotalBTC = new Label("0", ContentMode.HTML);
         labelWexTotalETH = new Label("0", ContentMode.HTML);
+        labelWexTotalBCH = new Label("0", ContentMode.HTML);
+        labelWexTotalLTC = new Label("0", ContentMode.HTML);
+        labelWexTotalZEC = new Label("0", ContentMode.HTML);
+        labelWexTotalDSH = new Label("0", ContentMode.HTML);
 
         refreshProgressBar = new ProgressBar(0.0f);
         refreshProgressBar.setVisible(false);
@@ -134,14 +143,22 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.setHeightByRows(mainui.getCurrencyPairsHolderList().size());
 
         HorizontalLayout wexUSDLabels = new HorizontalLayout(new Label("Total USD: "), labelWexTotalUSD);
-        HorizontalLayout wexETHLabels = new HorizontalLayout(new Label("Total BTC: "), labelWexTotalBTC);
-        HorizontalLayout wexBTCLabels = new HorizontalLayout(new Label("Total ETH: "), labelWexTotalETH);
+        HorizontalLayout wexBTCLabels = new HorizontalLayout(new Label("Total BTC: "), labelWexTotalBTC);
+        HorizontalLayout wexBCHLabels = new HorizontalLayout(new Label("Total BCH: "), labelWexTotalBCH);
+        HorizontalLayout wexETHLabels = new HorizontalLayout(new Label("Total ETH: "), labelWexTotalETH);
+        HorizontalLayout wexLTCLabels = new HorizontalLayout(new Label("Total LTC: "), labelWexTotalLTC);
+        HorizontalLayout wexZECLabels = new HorizontalLayout(new Label("Total ZEC: "), labelWexTotalZEC);
+        HorizontalLayout wexDSHLabels = new HorizontalLayout(new Label("Total DSH: "), labelWexTotalDSH);
 
         VerticalLayout wexBalanceVertical = new VerticalLayout();
         wexBalanceVertical.setSpacing(true);
         wexBalanceVertical.addComponent(wexUSDLabels);
-        wexBalanceVertical.addComponent(wexETHLabels);
         wexBalanceVertical.addComponent(wexBTCLabels);
+        wexBalanceVertical.addComponent(wexBCHLabels);
+        wexBalanceVertical.addComponent(wexETHLabels);
+        wexBalanceVertical.addComponent(wexLTCLabels);
+        wexBalanceVertical.addComponent(wexZECLabels);
+        wexBalanceVertical.addComponent(wexDSHLabels);
 
         Panel wexBalancePanel = new Panel("WEX.nz");
         wexBalancePanel.setContent(wexBalanceVertical);
@@ -255,13 +272,21 @@ public class MainView extends VerticalLayout implements View {
             //privateLib.log("getInfo result: ".concat(result.toString()));
             WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
             if (wexUserInfo != null && wexUserInfo.getSuccess() == 1) {
-                labelWexTotalUSD.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getUsd()) + "$</b>");
+                labelWexTotalUSD.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getUsd()) + "</b>");
                 labelWexTotalBTC.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getBtc()) + "</b>");
+                labelWexTotalBCH.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getBch()) + "</b>");
                 labelWexTotalETH.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getEth()) + "</b>");
+                labelWexTotalLTC.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getLtc()) + "</b>");
+                labelWexTotalZEC.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getZec()) + "</b>");
+                labelWexTotalDSH.setValue("<b>" + String.format("%.6f", wexUserInfo.getInfo().getFunds().getDsh()) + "</b>");
             } else {
                 labelWexTotalUSD.setValue("<b>error</b>");
                 labelWexTotalBTC.setValue("<b>error</b>");
+                labelWexTotalBCH.setValue("<b>error</b>");
                 labelWexTotalETH.setValue("<b>error</b>");
+                labelWexTotalLTC.setValue("<b>error</b>");
+                labelWexTotalZEC.setValue("<b>error</b>");
+                labelWexTotalDSH.setValue("<b>error</b>");
             }
         }
     }
