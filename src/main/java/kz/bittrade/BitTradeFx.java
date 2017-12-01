@@ -104,6 +104,7 @@ public class BitTradeFx extends UI {
         item.defineMinMaxPrice();
     }
 
+
     public class AfterInitThread extends Thread {
         @Override
         public void run() {
