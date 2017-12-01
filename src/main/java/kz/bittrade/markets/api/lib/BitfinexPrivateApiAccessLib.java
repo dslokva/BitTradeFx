@@ -75,11 +75,13 @@ public final class BitfinexPrivateApiAccessLib extends ApiAccessLib {
             throw new IOException(e.getClass().getName(), e);
         } catch (IOException e) {
 
-            String errMsg = e.getLocalizedMessage();
+            String errMsg = e.toString();
 
             if (conn != null) {
                 try {
-                    sResponse = convertStreamToString(conn.getErrorStream());
+                    InputStream errorStream = conn.getErrorStream();
+                    if (errorStream != null) sResponse = convertStreamToString(errorStream);
+                    else sResponse = "Network error";
                     errMsg += " -> " + sResponse;
                     log(TAG + " " + errMsg);
                     return sResponse;

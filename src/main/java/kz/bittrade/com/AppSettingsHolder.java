@@ -17,6 +17,7 @@ public final class AppSettingsHolder {
         settings = new Properties();
         localStorage = new LocalStorageExtension();
         localStorage.extend(UI.getCurrent());
+
         readLocalStorage();
     }
 
@@ -40,47 +41,29 @@ public final class AppSettingsHolder {
     }
 
     private void readLocalStorage() {
-        localStorage.get(BFConstants.WEX_API_KEY, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.WEX_API_KEY, value);
-            }
-        });
-        localStorage.get(BFConstants.WEX_API_SECRET, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.WEX_API_SECRET, value);
-            }
-        });
-        localStorage.get(BFConstants.WEX_API_NONCE, value -> {
-            if (value == null) value = "-1";
-            settings.setProperty(BFConstants.WEX_API_NONCE, value);
-        });
+        getValueFromLocalStorage(BFConstants.WEX_API_KEY);
+        getValueFromLocalStorage(BFConstants.WEX_API_SECRET);
+        getValueFromLocalStorage(BFConstants.WEX_API_NONCE);
 
+        getValueFromLocalStorage(BFConstants.BIT_API_KEY);
+        getValueFromLocalStorage(BFConstants.BIT_API_SECRET);
 
-        localStorage.get(BFConstants.BIT_API_KEY, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.BIT_API_KEY, value);
-            }
-        });
-        localStorage.get(BFConstants.BIT_API_SECRET, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.BIT_API_SECRET, value);
-            }
-        });
+        getValueFromLocalStorage(BFConstants.KRA_API_KEY);
+        getValueFromLocalStorage(BFConstants.KRA_API_SECRET);
 
-        localStorage.get(BFConstants.KRA_API_KEY, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.KRA_API_KEY, value);
-            }
-        });
-        localStorage.get(BFConstants.KRA_API_SECRET, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.KRA_API_SECRET, value);
-            }
-        });
-        localStorage.get(BFConstants.AUTO_SORT, value -> {
-            if (value != null) {
-                settings.setProperty(BFConstants.AUTO_SORT, value);
-            }
+        getValueFromLocalStorage(BFConstants.AUTO_SORT);
+
+        getValueFromLocalStorage(BFConstants.BTC_ENABLED);
+        getValueFromLocalStorage(BFConstants.BCH_ENABLED);
+        getValueFromLocalStorage(BFConstants.LTC_ENABLED);
+        getValueFromLocalStorage(BFConstants.ETH_ENABLED);
+        getValueFromLocalStorage(BFConstants.ZEC_ENABLED);
+        getValueFromLocalStorage(BFConstants.DSH_ENABLED);
+    }
+
+    private void getValueFromLocalStorage(String propName) {
+        localStorage.get(propName, value -> {
+            if (value != null) settings.setProperty(propName, value);
         });
     }
 
@@ -89,5 +72,9 @@ public final class AppSettingsHolder {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+6"));
         return sdf.format(date);
+    }
+
+    public Boolean isPropertyEnabled(String propName) {
+        return Boolean.valueOf(getProperty(propName));
     }
 }

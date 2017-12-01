@@ -1,6 +1,7 @@
 package kz.bittrade.com;
 
 public final class BFConstants {
+    /* Simple markets Id's */
     public static final String WEX = "1";
     public static final String BITFINEX = "2";
     public static final String KRAKEN = "3";
@@ -22,6 +23,14 @@ public final class BFConstants {
     public static final String KRA_API_BASIC_URL = "https://api.kraken.com/0/public/";
 
     public static final String AUTO_SORT = "autoSortDeltaPercent";
+
     public static final String ALGORITHM_HMACSHA384 = "HmacSHA384";
     public static final String ALGORITHM_HMACSHA512 = "HmacSHA512";
+
+    public static final String BTC_ENABLED = "BTCEnabled";
+    public static final String BCH_ENABLED = "BCHEnabled";
+    public static final String LTC_ENABLED = "LTCEnabled";
+    public static final String ETH_ENABLED = "ETHEnabled";
+    public static final String ZEC_ENABLED = "ZECEnabled";
+    public static final String DSH_ENABLED = "DSHEnabled";
 }

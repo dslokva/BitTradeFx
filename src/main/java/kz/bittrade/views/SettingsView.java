@@ -12,8 +12,7 @@ import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
 
-import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
-import static com.vaadin.ui.Alignment.MIDDLE_RIGHT;
+import static com.vaadin.ui.Alignment.*;
 
 public class SettingsView extends VerticalLayout implements View {
     private TextField txtWexApiKey;
@@ -32,8 +31,8 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkEnableETH;
     private CheckBox chkEnableZEC;
     private CheckBox chkEnableDSH;
-    
-    public SettingsView()  {
+
+    public SettingsView() {
         addStyleName("content-common");
         String txtBoxWidth = "500px";
 
@@ -52,13 +51,15 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraApiKey.setWidth(txtBoxWidth);
         txtKraSecretKey.setWidth(txtBoxWidth);
 
-        chkEnableBTC = new CheckBox("BTC", true);
-        chkEnableBCH = new CheckBox("BCH", true);
-        chkEnableLTC = new CheckBox("LTC", true);
-        chkEnableETH = new CheckBox("ETH", true);
-        chkEnableZEC = new CheckBox("ZEC", true);
-        chkEnableDSH = new CheckBox("DSH", true);
-        
+        chkEnableBTC = new CheckBox("BTC");
+        chkEnableBCH = new CheckBox("BCH");
+        chkEnableLTC = new CheckBox("LTC");
+        chkEnableETH = new CheckBox("ETH");
+        chkEnableZEC = new CheckBox("ZEC");
+        chkEnableDSH = new CheckBox("DSH");
+
+        chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
+
         settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
 
@@ -106,19 +107,25 @@ public class SettingsView extends VerticalLayout implements View {
                         settings.setProperty(BFConstants.BIT_API_SECRET, txtBitSecretKey.getValue());
                         settings.setProperty(BFConstants.KRA_API_KEY, txtKraApiKey.getValue());
                         settings.setProperty(BFConstants.KRA_API_SECRET, txtKraSecretKey.getValue());
-                        mainui.showNotification("Settings", "Values are sent to local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
+
+                        settings.setProperty(BFConstants.BTC_ENABLED, chkEnableBTC.getValue().toString());
+                        settings.setProperty(BFConstants.BCH_ENABLED, chkEnableBCH.getValue().toString());
+                        settings.setProperty(BFConstants.LTC_ENABLED, chkEnableLTC.getValue().toString());
+                        settings.setProperty(BFConstants.ETH_ENABLED, chkEnableETH.getValue().toString());
+                        settings.setProperty(BFConstants.ZEC_ENABLED, chkEnableZEC.getValue().toString());
+                        settings.setProperty(BFConstants.DSH_ENABLED, chkEnableDSH.getValue().toString());
+
+                        settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
+
+                        mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
                     }
                 }
         );
 
-        chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
-        chkAutoSortByDeltaPercent.addValueChangeListener(event ->
-                settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString()));
-
         GridLayout btnsGrid = new GridLayout(2, 1);
         btnsGrid.setWidth("100%");
-        btnsGrid.addComponent(btnSave,0,0);
-        btnsGrid.addComponent(btnBack,1,0);
+        btnsGrid.addComponent(btnSave, 0, 0);
+        btnsGrid.addComponent(btnBack, 1, 0);
         btnsGrid.setComponentAlignment(btnSave, MIDDLE_LEFT);
         btnsGrid.setComponentAlignment(btnBack, MIDDLE_RIGHT);
 
@@ -141,6 +148,7 @@ public class SettingsView extends VerticalLayout implements View {
 
         VerticalLayout verticalDumb = new VerticalLayout();
         verticalDumb.addComponent(coinCheckBoxesGrid);
+        verticalDumb.setComponentAlignment(coinCheckBoxesGrid, MIDDLE_CENTER);
 
         Panel coinCheckBoxesPanel = new Panel("Enabled coins for monitoring");
         coinCheckBoxesPanel.addStyleName(ValoTheme.PANEL_WELL);
@@ -190,6 +198,13 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraSecretKey.setValue(settings.getProperty(BFConstants.KRA_API_SECRET));
 
         chkAutoSortByDeltaPercent.setValue(Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)));
+
+        chkEnableBTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BTC_ENABLED)));
+        chkEnableBCH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BCH_ENABLED)));
+        chkEnableLTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.LTC_ENABLED)));
+        chkEnableETH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ETH_ENABLED)));
+        chkEnableZEC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ZEC_ENABLED)));
+        chkEnableDSH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.DSH_ENABLED)));
     }
 
 }

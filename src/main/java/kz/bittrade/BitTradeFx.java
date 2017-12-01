@@ -6,9 +6,7 @@ import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.navigator.Navigator;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinServlet;
+import com.vaadin.server.*;
 import com.vaadin.shared.Position;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.shared.data.sort.SortDirection;
@@ -23,6 +21,7 @@ import kz.bittrade.markets.api.lib.PublicApiAccessLib;
 import kz.bittrade.views.MainView;
 import kz.bittrade.views.SettingsView;
 
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +40,7 @@ public class BitTradeFx extends UI {
         getPage().setTitle("BitTradeFx");
         currencyPairsHolderList = new ArrayList<>();
         settings = AppSettingsHolder.getInstance();
+
         initCurrencyPairs();
         mainView = new MainView();
         refreshThread = new RefreshThread();
@@ -49,11 +49,31 @@ public class BitTradeFx extends UI {
         navigator.addView("", mainView);
         navigator.addView("main", mainView);
         navigator.addView("settings", new SettingsView());
+        //Note: Read LocalStorage values at first app run (during first call in browser) available only after init() method fully complete.
+        //I think that because registerRpc call completes only after extend(), but this magic not for me. So AfterInitThread - is a my own lifehack.
+        new AfterInitThread().start();
     }
 
     @WebServlet(urlPatterns = "/*", name = "BitTradeFxServlet", asyncSupported = true)
     @VaadinServletConfiguration(ui = BitTradeFx.class, productionMode = true)
-    public static class MyUIServlet extends VaadinServlet {
+    public static class MyUIServlet extends VaadinServlet implements SessionInitListener, SessionDestroyListener {
+        @Override
+        protected void servletInitialized() throws ServletException {
+            super.servletInitialized();
+            getService().addSessionInitListener(this);
+            getService().addSessionDestroyListener(this);
+        }
+
+        @Override
+        public void sessionInit(SessionInitEvent event)
+                throws ServiceException {
+            System.out.println("session start");
+        }
+
+        @Override
+        public void sessionDestroy(SessionDestroyEvent event) {
+            System.out.println("session end");
+        }
     }
 
     public List<CurrencyPairsHolder> getCurrencyPairsHolderList() {
@@ -84,11 +104,23 @@ public class BitTradeFx extends UI {
         item.defineMinMaxPrice();
     }
 
+    public class AfterInitThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(1000);
+                System.out.println("inited: " + settings.isPropertyEnabled(BFConstants.ETH_ENABLED));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public class RefreshThread extends Thread {
         Grid<CurrencyPairsHolder> currInfoGrid = mainView.getCurrInfoGrid();
         ProgressBar refreshProgressBar = mainView.getRefreshProgressBar();
         Label refreshLabel = mainView.getLabelRefresh();
-        List<CurrencyPairsHolder> currencyPairsToRefresh = new ArrayList();
+        List<CurrencyPairsHolder> currencyPairsToRefresh = new ArrayList<>();
 
         void refreshAll() {
             currencyPairsToRefresh = currencyPairsHolderList;
@@ -127,7 +159,7 @@ public class BitTradeFx extends UI {
                     refreshProgressBar.setVisible(false);
                     refreshProgressBar.setValue(0);
 
-                    if (Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)))
+                    if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
                         currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
                 });
             } catch (InterruptedException e) {
