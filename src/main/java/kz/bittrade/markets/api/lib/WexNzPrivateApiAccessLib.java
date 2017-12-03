@@ -120,7 +120,7 @@ public final class WexNzPrivateApiAccessLib extends ApiAccessLib {
             return null;
         }
 
-        log("Calculated Hmac-SHA512: \"".concat(sign).concat("\" of data: \"").concat(postDataStr).concat("\""));
+        //log("Calculated Hmac-SHA512: \"".concat(sign).concat("\" of data: \"").concat(postDataStr).concat("\""));
         headers.put("Sign", sign);
         return headers;
     }

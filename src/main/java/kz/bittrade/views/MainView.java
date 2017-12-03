@@ -27,7 +27,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
 import static com.vaadin.ui.Alignment.MIDDLE_RIGHT;
@@ -40,6 +43,8 @@ public class MainView extends VerticalLayout implements View {
     private ProgressBar refreshProgressBar;
     private Label labelRefreshSec;
     private Label labelRefresh;
+    private Button btnRefreshTable;
+    private CheckBox chkAutoRefresh;
     private Timer timer;
     private int refreshSec;
 
@@ -81,7 +86,7 @@ public class MainView extends VerticalLayout implements View {
         labelRefresh = new Label("");
         labelRefreshSec = new Label("");
 
-        Button btnRefreshTable = new Button("Refresh all");
+        btnRefreshTable = new Button("Refresh all");
         btnRefreshTable.addClickListener(
                 e -> {
                     labelRefresh.setValue("Refreshing, please wait");
@@ -92,14 +97,14 @@ public class MainView extends VerticalLayout implements View {
 
         Button btnSettings = new Button("Settings");
         btnSettings.addClickListener(
-                e -> getUI().getNavigator().navigateTo("settings"));
+                e -> getUI().getNavigator().navigateTo(BFConstants.SETTINGS_VIEW));
 
         Button btnRefreshUserInfo = new Button("Refresh all");
         btnRefreshUserInfo.addStyleName(ValoTheme.BUTTON_FRIENDLY);
         btnRefreshUserInfo.addClickListener(
                 e -> updateUserBalances());
 
-        CheckBox chkAutoRefresh = new CheckBox("Auto refresh every 30 sec");
+        chkAutoRefresh = new CheckBox("Auto refresh every 30 sec");
         chkAutoRefresh.addValueChangeListener(event -> {
             boolean notChecked = !chkAutoRefresh.getValue();
             btnRefreshTable.setEnabled(notChecked);
@@ -134,14 +139,14 @@ public class MainView extends VerticalLayout implements View {
                 .setResizable(false);
 
         currInfoGrid.addColumn(CurrencyPairsHolder::getName, new HtmlRenderer()).setCaption("Pair name")
-                .setWidth(150)
+                .setWidth(120)
                 .setResizable(false);
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
                 .setCaption("Delta $")
-                .setWidth(110);
+                .setWidth(100);
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaStringPercent, new HtmlRenderer())
                 .setCaption("Delta %")
-                .setWidth(110)
+                .setWidth(100)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
                             @Override
@@ -155,10 +160,10 @@ public class MainView extends VerticalLayout implements View {
                 .setWidth(180);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
                 .setCaption("Trade Bitfinex.com")
-                .setWidth(190);
+                .setWidth(180);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
                 .setCaption("Trade Kraken.com")
-                .setWidth(190);
+                .setWidth(180);
 
         currInfoGrid.addColumn(CurrencyPairsHolder -> "Calculate",
                 new ButtonRenderer(clickEvent -> {
@@ -166,7 +171,6 @@ public class MainView extends VerticalLayout implements View {
                 })).setCaption("Actions");
 
         currInfoGrid.setWidth("100%");
-        currInfoGrid.setHeightByRows(mainui.getCurrencyPairsHolderList().size());
 
         GridLayout wexBalanceLabelsGrid = new GridLayout(2, 7);
         wexBalanceLabelsGrid.addComponent(new Label("Total USD: "), 0, 0);
@@ -475,13 +479,53 @@ public class MainView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-        //todo: change coins right after change their visibility in settings
-        System.out.println("enter main - " + settings.isPropertyEnabled(BFConstants.ETH_ENABLED));
+        smartInitCurrencyPairs();
 //        PublicApiAccessLib.setBasicUrl("https://poloniex.com/");
 //        PublicApiAccessLib.clearHeaders();
 //        JsonObject result = PublicApiAccessLib.performBasicRequest("public", "?command=returnTicker");
 //        System.out.println(result.toString());
     }
 
+    private void smartInitCurrencyPairs() {
+        /* Remove section */
+        List<CurrencyPairsHolder> currencyPairsHolderList = mainui.getCurrencyPairsHolderList();
+        HashMap<String, Boolean> map = settings.getCoinSelectStateMap();
 
+        currencyPairsHolderList.removeIf(new Predicate<CurrencyPairsHolder>() {
+            @Override
+            public boolean test(CurrencyPairsHolder pairHolder) {
+                return map.get(pairHolder.getName()).equals(Boolean.FALSE);
+            }
+        });
+
+        /* Add section */
+        for (String name : map.keySet()) {
+            if (!containsName(currencyPairsHolderList, name) && map.get(name).equals(Boolean.TRUE)) {
+                currencyPairsHolderList.add(mainui.initNewCurrencyPair(name));
+            }
+        }
+
+        /* Refresh section */
+        setMainGridRowCount(currencyPairsHolderList.size());
+    }
+
+    public void setMainGridRowCount(int cphSize) {
+        if (cphSize > 0) {
+            currInfoGrid.setHeightByRows(cphSize);
+            labelRefresh.removeStyleName(ValoTheme.LABEL_FAILURE);
+            labelRefresh.setValue("");
+        } else {
+            currInfoGrid.setHeightByRows(1);
+            labelRefresh.setValue("At least one coin must be selected for monitoring!");
+            labelRefresh.addStyleName(ValoTheme.LABEL_FAILURE);
+
+        }
+        btnRefreshTable.setEnabled(cphSize > 0);
+        chkAutoRefresh.setEnabled(cphSize > 0);
+        currInfoGrid.getDataProvider().refreshAll();
+    }
+
+    private boolean containsName(final List<CurrencyPairsHolder> list, final String name) {
+        return list.stream().map(CurrencyPairsHolder::getName).anyMatch(name::equals);
+    }
 }

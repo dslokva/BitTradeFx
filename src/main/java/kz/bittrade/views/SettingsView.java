@@ -1,5 +1,6 @@
 package kz.bittrade.views;
 
+import com.vaadin.data.HasValue;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -51,12 +52,18 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraApiKey.setWidth(txtBoxWidth);
         txtKraSecretKey.setWidth(txtBoxWidth);
 
-        chkEnableBTC = new CheckBox("BTC");
-        chkEnableBCH = new CheckBox("BCH");
-        chkEnableLTC = new CheckBox("LTC");
-        chkEnableETH = new CheckBox("ETH");
-        chkEnableZEC = new CheckBox("ZEC");
-        chkEnableDSH = new CheckBox("DSH");
+        chkEnableBTC = new CheckBox(BFConstants.BITCOIN);
+        chkEnableBTC.addValueChangeListener(getCheckListener());
+        chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
+        chkEnableBCH.addValueChangeListener(getCheckListener());
+        chkEnableLTC = new CheckBox(BFConstants.LITECOIN);
+        chkEnableLTC.addValueChangeListener(getCheckListener());
+        chkEnableETH = new CheckBox(BFConstants.ETHERIUM);
+        chkEnableETH.addValueChangeListener(getCheckListener());
+        chkEnableZEC = new CheckBox(BFConstants.ZCASH);
+        chkEnableZEC.addValueChangeListener(getCheckListener());
+        chkEnableDSH = new CheckBox(BFConstants.DASH_COIN);
+        chkEnableDSH.addValueChangeListener(getCheckListener());
 
         chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
 
@@ -90,7 +97,7 @@ public class SettingsView extends VerticalLayout implements View {
         Button btnBack = new Button("Back");
         btnBack.addStyleName(ValoTheme.BUTTON_PRIMARY);
         btnBack.addClickListener(
-                e -> mainui.getNavigator().navigateTo("main"));
+                e -> mainui.getNavigator().navigateTo(BFConstants.MAIN_VIEW));
 
         Button btnSave = new Button("Save");
         btnSave.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -108,12 +115,12 @@ public class SettingsView extends VerticalLayout implements View {
                         settings.setProperty(BFConstants.KRA_API_KEY, txtKraApiKey.getValue());
                         settings.setProperty(BFConstants.KRA_API_SECRET, txtKraSecretKey.getValue());
 
-                        settings.setProperty(BFConstants.BTC_ENABLED, chkEnableBTC.getValue().toString());
-                        settings.setProperty(BFConstants.BCH_ENABLED, chkEnableBCH.getValue().toString());
-                        settings.setProperty(BFConstants.LTC_ENABLED, chkEnableLTC.getValue().toString());
-                        settings.setProperty(BFConstants.ETH_ENABLED, chkEnableETH.getValue().toString());
-                        settings.setProperty(BFConstants.ZEC_ENABLED, chkEnableZEC.getValue().toString());
-                        settings.setProperty(BFConstants.DSH_ENABLED, chkEnableDSH.getValue().toString());
+                        settings.setProperty(BFConstants.BITCOIN, chkEnableBTC.getValue().toString());
+                        settings.setProperty(BFConstants.BITCOIN_CASH, chkEnableBCH.getValue().toString());
+                        settings.setProperty(BFConstants.LITECOIN, chkEnableLTC.getValue().toString());
+                        settings.setProperty(BFConstants.ETHERIUM, chkEnableETH.getValue().toString());
+                        settings.setProperty(BFConstants.ZCASH, chkEnableZEC.getValue().toString());
+                        settings.setProperty(BFConstants.DASH_COIN, chkEnableDSH.getValue().toString());
 
                         settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
 
@@ -175,11 +182,21 @@ public class SettingsView extends VerticalLayout implements View {
 
         Panel settingsPanel = new Panel("Application settings");
         settingsPanel.setContent(allPanelsHolder);
-        settingsPanel.setWidth("41%");
+        settingsPanel.setWidth("50%");
         settingsPanel.setIcon(VaadinIcons.OPTIONS);
 
         addComponent(settingsPanel);
         setComponentAlignment(settingsPanel, Alignment.TOP_CENTER);
+    }
+
+    private HasValue.ValueChangeListener<Boolean> getCheckListener() {
+        return new HasValue.ValueChangeListener<Boolean>() {
+            @Override
+            public void valueChange(HasValue.ValueChangeEvent<Boolean> valueChangeEvent) {
+                CheckBox chkBox = (CheckBox) valueChangeEvent.getComponent();
+                settings.updateCoinSelectState(chkBox);
+            }
+        };
     }
 
     @Override
@@ -199,12 +216,14 @@ public class SettingsView extends VerticalLayout implements View {
 
         chkAutoSortByDeltaPercent.setValue(Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)));
 
-        chkEnableBTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BTC_ENABLED)));
-        chkEnableBCH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BCH_ENABLED)));
-        chkEnableLTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.LTC_ENABLED)));
-        chkEnableETH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ETH_ENABLED)));
-        chkEnableZEC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ZEC_ENABLED)));
-        chkEnableDSH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.DSH_ENABLED)));
+        chkEnableBTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN)));
+        chkEnableBCH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN_CASH)));
+        chkEnableLTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.LITECOIN)));
+        chkEnableETH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ETHERIUM)));
+        chkEnableZEC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ZCASH)));
+        chkEnableDSH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.DASH_COIN)));
+
+        settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
     }
 
 }

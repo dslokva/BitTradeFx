@@ -41,14 +41,13 @@ public class BitTradeFx extends UI {
         currencyPairsHolderList = new ArrayList<>();
         settings = AppSettingsHolder.getInstance();
 
-        initCurrencyPairs();
         mainView = new MainView();
         refreshThread = new RefreshThread();
 
         navigator = new Navigator(this, this);
         navigator.addView("", mainView);
-        navigator.addView("main", mainView);
-        navigator.addView("settings", new SettingsView());
+        navigator.addView(BFConstants.MAIN_VIEW, mainView);
+        navigator.addView(BFConstants.SETTINGS_VIEW, new SettingsView());
         //Note: Read LocalStorage values at first app run (during first call in browser) available only after init() method fully complete.
         //I think that because registerRpc call completes only after extend(), but this magic not for me. So AfterInitThread - is a my own lifehack.
         new AfterInitThread().start();
@@ -104,17 +103,23 @@ public class BitTradeFx extends UI {
         item.defineMinMaxPrice();
     }
 
+    private void initCurrencyPairs() {
+        currencyPairsHolderList.clear();
 
-    public class AfterInitThread extends Thread {
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(1000);
-                System.out.println("inited: " + settings.isPropertyEnabled(BFConstants.ETH_ENABLED));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        if (settings.isPropertyEnabled(BFConstants.BITCOIN))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.BITCOIN));
+        if (settings.isPropertyEnabled(BFConstants.BITCOIN_CASH))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.BITCOIN_CASH));
+        if (settings.isPropertyEnabled(BFConstants.LITECOIN))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.LITECOIN));
+        if (settings.isPropertyEnabled(BFConstants.ETHERIUM))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ETHERIUM));
+        if (settings.isPropertyEnabled(BFConstants.ZCASH))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ZCASH));
+        if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.DASH_COIN));
+
+        mainView.setMainGridRowCount(currencyPairsHolderList.size());
     }
 
     public class RefreshThread extends Thread {
@@ -230,23 +235,74 @@ public class BitTradeFx extends UI {
         if (!resultParsedWell) currencyPairsHolder.getBitfinexPair().setLastPriceError(true);
     }
 
-    private void initCurrencyPairs() {
-        currencyPairsHolderList.clear();
-        currencyPairsHolderList.add(initNewCurrencyPair("Bitcoin", "btcusd", "btc_usd", "XBTUSD"));
-        currencyPairsHolderList.add(initNewCurrencyPair("Bitcoin Cash", "bchusd", "bch_usd", "BCHUSD"));
-        currencyPairsHolderList.add(initNewCurrencyPair("Litecoin", "ltcusd", "ltc_usd", "LTCUSD"));
-        currencyPairsHolderList.add(initNewCurrencyPair("Etherium", "ethusd", "eth_usd", "ETHUSD"));
-        currencyPairsHolderList.add(initNewCurrencyPair("ZCash", "zecusd", "zec_usd", "ZECUSD"));
-        currencyPairsHolderList.add(initNewCurrencyPair("DashCoin", "dshusd", "dsh_usd", "DASHUSD"));
-    }
-
-    private CurrencyPairsHolder initNewCurrencyPair(String pairName, String bitfinexTicker, String wexnzTicker, String krakenTicker) {
+    public CurrencyPairsHolder initNewCurrencyPair(String pairName) {
         CurrencyPairsHolder ccp = new CurrencyPairsHolder();
         ccp.setName(pairName);
+        String bitfinexTicker = "";
+        String wexnzTicker = "";
+        String krakenTicker = "";
+
+        switch (pairName) {
+            case BFConstants.BITCOIN: {
+                bitfinexTicker = "btcusd";
+                wexnzTicker = "btc_usd";
+                krakenTicker = "XBTUSD";
+                break;
+            }
+            case BFConstants.BITCOIN_CASH: {
+                bitfinexTicker = "bchusd";
+                wexnzTicker = "bch_usd";
+                krakenTicker = "BCHUSD";
+                break;
+            }
+            case BFConstants.LITECOIN: {
+                bitfinexTicker = "ltcusd";
+                wexnzTicker = "ltc_usd";
+                krakenTicker = "LTCUSD";
+                break;
+            }
+            case BFConstants.ETHERIUM: {
+                bitfinexTicker = "ethusd";
+                wexnzTicker = "eth_usd";
+                krakenTicker = "ETHUSD";
+                break;
+            }
+            case BFConstants.ZCASH: {
+                bitfinexTicker = "zecusd";
+                wexnzTicker = "zec_usd";
+                krakenTicker = "ZECUSD";
+                break;
+            }
+            case BFConstants.DASH_COIN: {
+                bitfinexTicker = "dshusd";
+                wexnzTicker = "dsh_usd";
+                krakenTicker = "DASHUSD";
+                break;
+            }
+            default: {
+                bitfinexTicker = "";
+                wexnzTicker = "";
+                krakenTicker = "";
+                System.out.println("Unknown coin name given while pairHolder init method.");
+            }
+        }
         ccp.getBitfinexPair().setTickerName(bitfinexTicker);
         ccp.getWexnzPair().setTickerName(wexnzTicker);
         ccp.getKrakenPair().setTickerName(krakenTicker);
         return ccp;
+    }
+
+    public class AfterInitThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(1000);
+                System.out.println("inited: " + settings.isPropertyEnabled(BFConstants.ETHERIUM));
+                initCurrencyPairs();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void showNotification(String caption, String description, int delay, Position position, String styleName) {

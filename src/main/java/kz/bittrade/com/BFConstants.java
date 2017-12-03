@@ -27,10 +27,13 @@ public final class BFConstants {
     public static final String ALGORITHM_HMACSHA384 = "HmacSHA384";
     public static final String ALGORITHM_HMACSHA512 = "HmacSHA512";
 
-    public static final String BTC_ENABLED = "BTCEnabled";
-    public static final String BCH_ENABLED = "BCHEnabled";
-    public static final String LTC_ENABLED = "LTCEnabled";
-    public static final String ETH_ENABLED = "ETHEnabled";
-    public static final String ZEC_ENABLED = "ZECEnabled";
-    public static final String DSH_ENABLED = "DSHEnabled";
+    public static final String BITCOIN = "Bitcoin";
+    public static final String BITCOIN_CASH = "Bitcoin Cash";
+    public static final String LITECOIN = "Litecoin";
+    public static final String ETHERIUM = "Etherium";
+    public static final String ZCASH = "ZCash";
+    public static final String DASH_COIN = "Dash Coin";
+
+    public static final String MAIN_VIEW = "main";
+    public static final String SETTINGS_VIEW = "settings";
 }

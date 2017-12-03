@@ -1,10 +1,12 @@
 package kz.bittrade.com;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.UI;
 import kz.bittrade.com.localstorage.LocalStorageExtension;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Properties;
 import java.util.TimeZone;
 
@@ -12,8 +14,10 @@ public final class AppSettingsHolder {
     private static AppSettingsHolder instance;
     private static LocalStorageExtension localStorage;
     private static Properties settings;
+    private HashMap<String, Boolean> chkCoinSelectState;
 
     private AppSettingsHolder() {
+        chkCoinSelectState = new HashMap<>();
         settings = new Properties();
         localStorage = new LocalStorageExtension();
         localStorage.extend(UI.getCurrent());
@@ -53,12 +57,12 @@ public final class AppSettingsHolder {
 
         getValueFromLocalStorage(BFConstants.AUTO_SORT);
 
-        getValueFromLocalStorage(BFConstants.BTC_ENABLED);
-        getValueFromLocalStorage(BFConstants.BCH_ENABLED);
-        getValueFromLocalStorage(BFConstants.LTC_ENABLED);
-        getValueFromLocalStorage(BFConstants.ETH_ENABLED);
-        getValueFromLocalStorage(BFConstants.ZEC_ENABLED);
-        getValueFromLocalStorage(BFConstants.DSH_ENABLED);
+        getValueFromLocalStorage(BFConstants.BITCOIN);
+        getValueFromLocalStorage(BFConstants.BITCOIN_CASH);
+        getValueFromLocalStorage(BFConstants.LITECOIN);
+        getValueFromLocalStorage(BFConstants.ETHERIUM);
+        getValueFromLocalStorage(BFConstants.ZCASH);
+        getValueFromLocalStorage(BFConstants.DASH_COIN);
     }
 
     private void getValueFromLocalStorage(String propName) {
@@ -76,5 +80,15 @@ public final class AppSettingsHolder {
 
     public Boolean isPropertyEnabled(String propName) {
         return Boolean.valueOf(getProperty(propName));
+    }
+
+    public void updateCoinSelectState(CheckBox... chkBoxes) {
+        for (CheckBox chkBox : chkBoxes) {
+            chkCoinSelectState.put(chkBox.getCaption(), chkBox.getValue());
+        }
+    }
+
+    public HashMap<String, Boolean> getCoinSelectStateMap() {
+        return chkCoinSelectState;
     }
 }
