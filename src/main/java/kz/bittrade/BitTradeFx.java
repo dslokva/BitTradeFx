@@ -79,19 +79,11 @@ public class BitTradeFx extends UI {
         return currencyPairsHolderList;
     }
 
-    public void refreshCurrencyGrid() {
+    public void refreshCurrencyGrid(CurrencyPairsHolder currencyPairRow) {
         if (!refreshThread.isAlive()) {
             refreshThread = new RefreshThread();
-            refreshThread.refreshAll();
-        } else
-            showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
-    }
-
-    public void refreshCurrencyRow(CurrencyPairsHolder currencyPairRow) {
-        if (!refreshThread.isAlive()) {
-            refreshThread = new RefreshThread();
-            refreshThread.refreshOne(currencyPairRow);
-
+            if (currencyPairRow == null) refreshThread.refreshAll();
+            else refreshThread.refreshOne(currencyPairRow);
         } else
             showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
     }
@@ -167,6 +159,7 @@ public class BitTradeFx extends UI {
 
                     if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
                         currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
+                    push();
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();

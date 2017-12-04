@@ -91,7 +91,7 @@ public class MainView extends VerticalLayout implements View {
                 e -> {
                     labelRefresh.setValue("Refreshing, please wait");
                     refreshProgressBar.setVisible(true);
-                    mainui.refreshCurrencyGrid();
+                    mainui.refreshCurrencyGrid(null);
                 });
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 
@@ -131,7 +131,7 @@ public class MainView extends VerticalLayout implements View {
             button.addClickListener(click -> {
                 labelRefresh.setValue("Refreshing, please wait");
                 refreshProgressBar.setVisible(true);
-                mainui.refreshCurrencyRow(currencyPairRow);
+                mainui.refreshCurrencyGrid(currencyPairRow);
             });
             return button;
         }).setCaption("")
@@ -362,7 +362,7 @@ public class MainView extends VerticalLayout implements View {
         addExtension(timer);
         timer.run(() -> {
             if (refreshSec >= 30) {
-                mainui.refreshCurrencyGrid();
+                mainui.refreshCurrencyGrid(null);
                 refreshSec = 0;
                 labelRefreshSec.setValue("");
             } else {

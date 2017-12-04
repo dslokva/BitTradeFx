@@ -1,6 +1,5 @@
 package kz.bittrade.views;
 
-import com.vaadin.data.HasValue;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -53,17 +52,11 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraSecretKey.setWidth(txtBoxWidth);
 
         chkEnableBTC = new CheckBox(BFConstants.BITCOIN);
-        chkEnableBTC.addValueChangeListener(getCheckListener());
         chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
-        chkEnableBCH.addValueChangeListener(getCheckListener());
         chkEnableLTC = new CheckBox(BFConstants.LITECOIN);
-        chkEnableLTC.addValueChangeListener(getCheckListener());
         chkEnableETH = new CheckBox(BFConstants.ETHERIUM);
-        chkEnableETH.addValueChangeListener(getCheckListener());
         chkEnableZEC = new CheckBox(BFConstants.ZCASH);
-        chkEnableZEC.addValueChangeListener(getCheckListener());
         chkEnableDSH = new CheckBox(BFConstants.DASH_COIN);
-        chkEnableDSH.addValueChangeListener(getCheckListener());
 
         chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
 
@@ -103,29 +96,34 @@ public class SettingsView extends VerticalLayout implements View {
         btnSave.addStyleName(ValoTheme.BUTTON_FRIENDLY);
         btnSave.addClickListener(
                 e -> {
-                    if (!WexNzPrivateApiAccessLib.isValidAPIKey(txtWexApiKey.getValue()))
-                        Notification.show("Wex.nz API key has invalid structure!", Notification.Type.ERROR_MESSAGE);
-                    else if (!WexNzPrivateApiAccessLib.isValidSecret(txtWexSecretKey.getValue()))
-                        Notification.show("Wex.nz Secret key has invalid structure!", Notification.Type.ERROR_MESSAGE);
+                    String wexApiKey = txtWexApiKey.getValue();
+                    String wexSecretKey = txtWexSecretKey.getValue();
+
+                    if (!wexApiKey.equals("") && !WexNzPrivateApiAccessLib.isValidAPIKey(wexApiKey)) {
+                        mainui.showNotification("Settings", "Wex.nz API key has invalid structure!", 3000, Position.BOTTOM_RIGHT, "tray failure");
+                    } else if (!wexSecretKey.equals("") && !WexNzPrivateApiAccessLib.isValidSecret(wexSecretKey))
+                        mainui.showNotification("Settings", "Wex.nz Secret key has invalid structure!", 3000, Position.BOTTOM_RIGHT, "tray failure");
                     else {
-                        settings.setProperty(BFConstants.WEX_API_KEY, txtWexApiKey.getValue());
-                        settings.setProperty(BFConstants.WEX_API_SECRET, txtWexSecretKey.getValue());
-                        settings.setProperty(BFConstants.BIT_API_KEY, txtBitApiKey.getValue());
-                        settings.setProperty(BFConstants.BIT_API_SECRET, txtBitSecretKey.getValue());
-                        settings.setProperty(BFConstants.KRA_API_KEY, txtKraApiKey.getValue());
-                        settings.setProperty(BFConstants.KRA_API_SECRET, txtKraSecretKey.getValue());
-
-                        settings.setProperty(BFConstants.BITCOIN, chkEnableBTC.getValue().toString());
-                        settings.setProperty(BFConstants.BITCOIN_CASH, chkEnableBCH.getValue().toString());
-                        settings.setProperty(BFConstants.LITECOIN, chkEnableLTC.getValue().toString());
-                        settings.setProperty(BFConstants.ETHERIUM, chkEnableETH.getValue().toString());
-                        settings.setProperty(BFConstants.ZCASH, chkEnableZEC.getValue().toString());
-                        settings.setProperty(BFConstants.DASH_COIN, chkEnableDSH.getValue().toString());
-
-                        settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
-
-                        mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
+                        settings.setProperty(BFConstants.WEX_API_KEY, wexApiKey);
+                        settings.setProperty(BFConstants.WEX_API_SECRET, wexSecretKey);
                     }
+
+                    settings.setProperty(BFConstants.BIT_API_KEY, txtBitApiKey.getValue());
+                    settings.setProperty(BFConstants.BIT_API_SECRET, txtBitSecretKey.getValue());
+                    settings.setProperty(BFConstants.KRA_API_KEY, txtKraApiKey.getValue());
+                    settings.setProperty(BFConstants.KRA_API_SECRET, txtKraSecretKey.getValue());
+
+                    settings.setProperty(BFConstants.BITCOIN, chkEnableBTC.getValue().toString());
+                    settings.setProperty(BFConstants.BITCOIN_CASH, chkEnableBCH.getValue().toString());
+                    settings.setProperty(BFConstants.LITECOIN, chkEnableLTC.getValue().toString());
+                    settings.setProperty(BFConstants.ETHERIUM, chkEnableETH.getValue().toString());
+                    settings.setProperty(BFConstants.ZCASH, chkEnableZEC.getValue().toString());
+                    settings.setProperty(BFConstants.DASH_COIN, chkEnableDSH.getValue().toString());
+
+                    settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
+
+                    settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
+                    mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
                 }
         );
 
@@ -187,16 +185,6 @@ public class SettingsView extends VerticalLayout implements View {
 
         addComponent(settingsPanel);
         setComponentAlignment(settingsPanel, Alignment.TOP_CENTER);
-    }
-
-    private HasValue.ValueChangeListener<Boolean> getCheckListener() {
-        return new HasValue.ValueChangeListener<Boolean>() {
-            @Override
-            public void valueChange(HasValue.ValueChangeEvent<Boolean> valueChangeEvent) {
-                CheckBox chkBox = (CheckBox) valueChangeEvent.getComponent();
-                settings.updateCoinSelectState(chkBox);
-            }
-        };
     }
 
     @Override
