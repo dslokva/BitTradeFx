@@ -41,7 +41,6 @@ public final class AppSettingsHolder {
     private void readLocalStorage() {
         getValueFromLocalStorage(BFConstants.WEX_API_KEY);
         getValueFromLocalStorage(BFConstants.WEX_API_SECRET);
-        getValueFromLocalStorage(BFConstants.WEX_API_NONCE);
 
         getValueFromLocalStorage(BFConstants.BIT_API_KEY);
         getValueFromLocalStorage(BFConstants.BIT_API_SECRET);

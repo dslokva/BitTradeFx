@@ -1,8 +1,6 @@
 package kz.bittrade.markets.api.lib;
 
 import com.google.gson.JsonObject;
-import com.vaadin.ui.UI;
-import kz.bittrade.BitTradeFx;
 import kz.bittrade.com.BFConstants;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -17,18 +15,17 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
 
 public final class WexNzPrivateApiAccessLib extends ApiAccessLib {
     private String key = null;
     private String secret = null;
-    private int nonce = -1;
+    private long nonce = 0;
 
-    public WexNzPrivateApiAccessLib(String key, String secret, int nonce) {
+    public WexNzPrivateApiAccessLib(String key, String secret) {
         this.key = key;
         this.secret = secret;
-        this.nonce = nonce;
     }
+
 
     public static boolean isValidAPIKey(String str) {
         return str.matches(BFConstants.WEX_API_KEY_PATTERN);
@@ -38,16 +35,15 @@ public final class WexNzPrivateApiAccessLib extends ApiAccessLib {
         return str.matches(BFConstants.WEX_API_SECRET_PATTERN);
     }
 
-    private int getNonce() {
-        int newNonce;
-        if (nonce == -1) {
-            newNonce = (new Random()).nextInt(Integer.MAX_VALUE / 10);
+    private long getNonce() {
+        long newNonce;
+        if (nonce == 0) {
+            //todo: non secure...
+            newNonce = System.currentTimeMillis() / 1000;
         } else {
             newNonce = ++nonce;
         }
 
-        BitTradeFx mainui = (BitTradeFx) UI.getCurrent();
-        mainui.getSettings().setProperty(BFConstants.WEX_API_NONCE, String.valueOf(newNonce));
         return newNonce;
     }
 

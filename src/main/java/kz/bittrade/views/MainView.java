@@ -29,7 +29,6 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
@@ -438,12 +437,8 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void updateWexBalance() {
-        String nonce = settings.getProperty(BFConstants.WEX_API_NONCE);
-        if (Objects.equals(nonce, "")) nonce = "-1";
-        int intNonce = Integer.parseInt(nonce);
-
         WexNzPrivateApiAccessLib privateLib = new WexNzPrivateApiAccessLib(settings.getProperty(BFConstants.WEX_API_KEY),
-                settings.getProperty(BFConstants.WEX_API_SECRET), intNonce);
+                settings.getProperty(BFConstants.WEX_API_SECRET));
 
         ArrayList<NameValuePair> postData = new ArrayList<>();
         postData.add(new BasicNameValuePair("method", "getInfo"));
