@@ -11,6 +11,7 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 public final class AppSettingsHolder {
+    //куку епта!
     private LocalStorageExtension localStorage;
     private Properties settings;
     private HashMap<String, Boolean> chkCoinSelectState;
