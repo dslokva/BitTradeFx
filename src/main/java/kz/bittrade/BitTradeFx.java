@@ -39,7 +39,7 @@ public class BitTradeFx extends UI {
     protected void init(VaadinRequest request) {
         getPage().setTitle("BitTradeFx");
         currencyPairsHolderList = new ArrayList<>();
-        settings = AppSettingsHolder.getInstance();
+        settings = new AppSettingsHolder();
 
         mainView = new MainView();
         refreshThread = new RefreshThread();
@@ -73,6 +73,10 @@ public class BitTradeFx extends UI {
         public void sessionDestroy(SessionDestroyEvent event) {
             System.out.println("session end");
         }
+    }
+
+    public AppSettingsHolder getSettings() {
+        return settings;
     }
 
     public List<CurrencyPairsHolder> getCurrencyPairsHolderList() {

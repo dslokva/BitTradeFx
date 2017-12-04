@@ -36,7 +36,7 @@ import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
 import static com.vaadin.ui.Alignment.MIDDLE_RIGHT;
 
 public class MainView extends VerticalLayout implements View {
-    private static AppSettingsHolder settings;
+    private AppSettingsHolder settings;
     private BitTradeFx mainui;
 
     private Grid<CurrencyPairsHolder> currInfoGrid;
@@ -75,8 +75,8 @@ public class MainView extends VerticalLayout implements View {
     public MainView() {
         addStyleName("content-common");
 
-        settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
+        settings = mainui.getSettings();
 
         initBalanceLabels();
 

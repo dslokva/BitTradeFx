@@ -3,6 +3,7 @@ package kz.bittrade.views;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
@@ -21,7 +22,7 @@ public class SettingsView extends VerticalLayout implements View {
     private PasswordField txtBitSecretKey;
     private TextField txtKraApiKey;
     private PasswordField txtKraSecretKey;
-    private static AppSettingsHolder settings;
+    private AppSettingsHolder settings;
     private CheckBox chkAutoSortByDeltaPercent;
     private BitTradeFx mainui;
 
@@ -60,8 +61,8 @@ public class SettingsView extends VerticalLayout implements View {
 
         chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
 
-        settings = AppSettingsHolder.getInstance();
         mainui = (BitTradeFx) UI.getCurrent();
+        settings = mainui.getSettings();
 
         GridLayout wexnzSettingsGridLayout = new GridLayout(2, 2);
         wexnzSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
@@ -100,12 +101,14 @@ public class SettingsView extends VerticalLayout implements View {
                     String wexSecretKey = txtWexSecretKey.getValue();
 
                     if (!wexApiKey.equals("") && !WexNzPrivateApiAccessLib.isValidAPIKey(wexApiKey)) {
-                        mainui.showNotification("Settings", "Wex.nz API key has invalid structure!", 3000, Position.BOTTOM_RIGHT, "tray failure");
+                        txtWexApiKey.setComponentError(new UserError("Wex.nz API key has invalid structure!"));
                     } else if (!wexSecretKey.equals("") && !WexNzPrivateApiAccessLib.isValidSecret(wexSecretKey))
-                        mainui.showNotification("Settings", "Wex.nz Secret key has invalid structure!", 3000, Position.BOTTOM_RIGHT, "tray failure");
+                        txtWexSecretKey.setComponentError(new UserError("Wex.nz Secret key has invalid structure!"));
                     else {
                         settings.setProperty(BFConstants.WEX_API_KEY, wexApiKey);
                         settings.setProperty(BFConstants.WEX_API_SECRET, wexSecretKey);
+                        txtWexApiKey.setComponentError(null);
+                        txtWexSecretKey.setComponentError(null);
                     }
 
                     settings.setProperty(BFConstants.BIT_API_KEY, txtBitApiKey.getValue());

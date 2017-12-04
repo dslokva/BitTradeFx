@@ -1,7 +1,8 @@
 package kz.bittrade.markets.api.lib;
 
 import com.google.gson.JsonObject;
-import kz.bittrade.com.AppSettingsHolder;
+import com.vaadin.ui.UI;
+import kz.bittrade.BitTradeFx;
 import kz.bittrade.com.BFConstants;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -45,7 +46,8 @@ public final class WexNzPrivateApiAccessLib extends ApiAccessLib {
             newNonce = ++nonce;
         }
 
-        AppSettingsHolder.getInstance().setProperty(BFConstants.WEX_API_NONCE, String.valueOf(newNonce));
+        BitTradeFx mainui = (BitTradeFx) UI.getCurrent();
+        mainui.getSettings().setProperty(BFConstants.WEX_API_NONCE, String.valueOf(newNonce));
         return newNonce;
     }
 

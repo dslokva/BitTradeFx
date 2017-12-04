@@ -11,25 +11,18 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 public final class AppSettingsHolder {
-    private static AppSettingsHolder instance;
-    private static LocalStorageExtension localStorage;
-    private static Properties settings;
+    private LocalStorageExtension localStorage;
+    private Properties settings;
     private HashMap<String, Boolean> chkCoinSelectState;
 
-    private AppSettingsHolder() {
+    public AppSettingsHolder() {
         chkCoinSelectState = new HashMap<>();
         settings = new Properties();
+
         localStorage = new LocalStorageExtension();
         localStorage.extend(UI.getCurrent());
 
         readLocalStorage();
-    }
-
-    public static synchronized AppSettingsHolder getInstance() {
-        if (instance == null) {
-            instance = new AppSettingsHolder();
-        }
-        return instance;
     }
 
     public synchronized void setProperty(String key, String value) {
