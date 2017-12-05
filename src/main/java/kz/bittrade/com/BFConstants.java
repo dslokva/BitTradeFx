@@ -2,13 +2,16 @@ package kz.bittrade.com;
 
 public final class BFConstants {
     /* Simple markets Id's */
-    public static final String WEX = "1";
-    public static final String BITFINEX = "2";
-    public static final String KRAKEN = "3";
+    public static final String WEX_ID = "1";
+    public static final String BITFINEX_ID = "2";
+    public static final String KRAKEN_ID = "3";
+
+    public static final String WEX = "WEX";
+    public static final String BITFINEX = "Bitfinex";
+    public static final String KRAKEN = "Kraken";
 
     public static final String WEX_API_KEY = "wexApiKey";
     public static final String WEX_API_SECRET = "wexApiSecret";
-    public static final String WEX_API_NONCE = "wexApiNonce";
     public static final String WEX_API_BASIC_URL = "https://wex.nz/api/3/";
     public static final String WEX_API_PRIVATE_URL = "https://wex.nz/tapi/";
     public static final String WEX_API_KEY_PATTERN = "([A-Z|0-9]{8}-){4}[A-Z|0-9]{8}";
@@ -36,4 +39,9 @@ public final class BFConstants {
 
     public static final String MAIN_VIEW = "main";
     public static final String SETTINGS_VIEW = "settings";
+
+    public static final String WEX_GRID_COLUMN = "wex_column";
+    public static final String BITFINEX_GRID_COLUMN = "bitfinex_column";
+    public static final String KRAKEN_GRID_COLUMN = "kraken_column";
+
 }

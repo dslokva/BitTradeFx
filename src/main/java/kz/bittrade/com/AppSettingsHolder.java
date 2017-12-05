@@ -11,13 +11,15 @@ import java.util.Properties;
 import java.util.TimeZone;
 
 public final class AppSettingsHolder {
-    //куку епта!
     private LocalStorageExtension localStorage;
     private Properties settings;
-    private HashMap<String, Boolean> chkCoinSelectState;
+    private HashMap<String, Boolean> selectedCoinsMap;
+    private HashMap<String, Boolean> enabledMarketsMap;
 
     public AppSettingsHolder() {
-        chkCoinSelectState = new HashMap<>();
+        selectedCoinsMap = new HashMap<>();
+        enabledMarketsMap = new HashMap<>();
+
         settings = new Properties();
 
         localStorage = new LocalStorageExtension();
@@ -38,6 +40,10 @@ public final class AppSettingsHolder {
         return value;
     }
 
+    public Boolean isPropertyEnabled(String propName) {
+        return Boolean.valueOf(getProperty(propName));
+    }
+
     private void readLocalStorage() {
         getValueFromLocalStorage(BFConstants.WEX_API_KEY);
         getValueFromLocalStorage(BFConstants.WEX_API_SECRET);
@@ -56,6 +62,10 @@ public final class AppSettingsHolder {
         getValueFromLocalStorage(BFConstants.ETHERIUM);
         getValueFromLocalStorage(BFConstants.ZCASH);
         getValueFromLocalStorage(BFConstants.DASH_COIN);
+
+        getValueFromLocalStorage(BFConstants.WEX);
+        getValueFromLocalStorage(BFConstants.BITFINEX);
+        getValueFromLocalStorage(BFConstants.KRAKEN);
     }
 
     private void getValueFromLocalStorage(String propName) {
@@ -71,17 +81,23 @@ public final class AppSettingsHolder {
         return sdf.format(date);
     }
 
-    public Boolean isPropertyEnabled(String propName) {
-        return Boolean.valueOf(getProperty(propName));
-    }
-
     public void updateCoinSelectState(CheckBox... chkBoxes) {
         for (CheckBox chkBox : chkBoxes) {
-            chkCoinSelectState.put(chkBox.getCaption(), chkBox.getValue());
+            selectedCoinsMap.put(chkBox.getCaption(), chkBox.getValue());
+        }
+    }
+
+    public void updateMarketSelectMap(CheckBox... chkBoxes) {
+        for (CheckBox chkBox : chkBoxes) {
+            enabledMarketsMap.put(chkBox.getCaption(), chkBox.getValue());
         }
     }
 
     public HashMap<String, Boolean> getCoinSelectStateMap() {
-        return chkCoinSelectState;
+        return selectedCoinsMap;
+    }
+
+    public HashMap<String, Boolean> getEnabledMarketsMap() {
+        return enabledMarketsMap;
     }
 }

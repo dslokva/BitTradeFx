@@ -18,7 +18,7 @@ public class KrakenCurrencyPair extends CommonCurrencyPair {
     }
 
     public String getLastPrice() {
-        return info != null ? String.valueOf(info.getLastPrice()) : "0.0";
+        return info != null ? String.format("%.2f", info.getLastPrice()) : "0.00";
     }
 
     public double getLastPriceDouble() {

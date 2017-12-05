@@ -27,6 +27,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
@@ -137,7 +138,7 @@ public class MainView extends VerticalLayout implements View {
                 .setWidth(60)
                 .setResizable(false);
 
-        currInfoGrid.addColumn(CurrencyPairsHolder::getName, new HtmlRenderer()).setCaption("Pair name")
+        currInfoGrid.addColumn(CurrencyPairsHolder::getDisplayName, new HtmlRenderer()).setCaption("Pair name")
                 .setWidth(120)
                 .setResizable(false);
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
@@ -155,14 +156,17 @@ public class MainView extends VerticalLayout implements View {
                         }
                 );
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceWex, new HtmlRenderer())
-                .setCaption("Trade WEX.nz")
-                .setWidth(180);
+                .setCaption(BFConstants.WEX)
+                .setWidth(180)
+                .setId(BFConstants.WEX_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
-                .setCaption("Trade Bitfinex.com")
-                .setWidth(180);
+                .setCaption(BFConstants.BITFINEX)
+                .setWidth(180)
+                .setId(BFConstants.BITFINEX_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
-                .setCaption("Trade Kraken.com")
-                .setWidth(180);
+                .setCaption(BFConstants.KRAKEN)
+                .setWidth(180)
+                .setId(BFConstants.KRAKEN_GRID_COLUMN);
 
         currInfoGrid.addColumn(CurrencyPairsHolder -> "Calculate",
                 new ButtonRenderer(clickEvent -> {
@@ -240,7 +244,7 @@ public class MainView extends VerticalLayout implements View {
         bitBalanceVerticalStub.addComponent(bitBalanceGrid);
 
         Button btnWexBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateWexBalance());
-        HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, "WEX");
+        HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, "WEX_ID");
 
         Button btnBitBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateBitfinexBalance());
         HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, "Bitfinex");
@@ -474,11 +478,19 @@ public class MainView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
+        System.out.println("enter");
         smartInitCurrencyPairs();
+        initMarketColumns();
 //        PublicApiAccessLib.setBasicUrl("https://poloniex.com/");
 //        PublicApiAccessLib.clearHeaders();
 //        JsonObject result = PublicApiAccessLib.performBasicRequest("public", "?command=returnTicker");
 //        System.out.println(result.toString());
+    }
+
+    public void initMarketColumns() {
+        currInfoGrid.getColumn(BFConstants.WEX_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.WEX));
+        currInfoGrid.getColumn(BFConstants.BITFINEX_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.BITFINEX));
+        currInfoGrid.getColumn(BFConstants.KRAKEN_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.KRAKEN));
     }
 
     private void smartInitCurrencyPairs() {
@@ -501,22 +513,31 @@ public class MainView extends VerticalLayout implements View {
         }
 
         /* Refresh section */
-        setMainGridRowCount(currencyPairsHolderList.size());
+        setMainGridCorrectRowCount();
     }
 
-    public void setMainGridRowCount(int cphSize) {
-        if (cphSize > 0) {
-            currInfoGrid.setHeightByRows(cphSize);
+    public void setMainGridCorrectRowCount() {
+        int marketsCount = Collections.frequency(settings.getEnabledMarketsMap().values(), Boolean.TRUE);
+        int cphSize = Collections.frequency(settings.getCoinSelectStateMap().values(), Boolean.TRUE);
+
+        boolean emptyTable = (cphSize == 0 || marketsCount == 0);
+
+        if (!emptyTable) {
             labelRefresh.removeStyleName(ValoTheme.LABEL_FAILURE);
             labelRefresh.setValue("");
         } else {
-            currInfoGrid.setHeightByRows(1);
-            labelRefresh.setValue("At least one coin must be selected for monitoring!");
+            labelRefresh.setValue("At least one Coin and Market must be selected for monitoring! (check settings)");
             labelRefresh.addStyleName(ValoTheme.LABEL_FAILURE);
 
         }
-        btnRefreshTable.setEnabled(cphSize > 0);
-        chkAutoRefresh.setEnabled(cphSize > 0);
+        if (cphSize > 0) currInfoGrid.setHeightByRows(cphSize);
+        else currInfoGrid.setHeightByRows(1);
+
+        if (marketsCount == 0) currInfoGrid.setVisible(false);
+        else currInfoGrid.setVisible(true);
+
+        btnRefreshTable.setEnabled(!emptyTable);
+        chkAutoRefresh.setEnabled(!emptyTable);
         currInfoGrid.getDataProvider().refreshAll();
     }
 

@@ -32,6 +32,7 @@ public class BitTradeFx extends UI {
     Navigator navigator;
     private List<CurrencyPairsHolder> currencyPairsHolderList;
     private MainView mainView;
+    private SettingsView settingsView;
     private AppSettingsHolder settings;
     private RefreshThread refreshThread;
 
@@ -42,12 +43,13 @@ public class BitTradeFx extends UI {
         settings = new AppSettingsHolder();
 
         mainView = new MainView();
+        settingsView = new SettingsView();
         refreshThread = new RefreshThread();
 
         navigator = new Navigator(this, this);
         navigator.addView("", mainView);
         navigator.addView(BFConstants.MAIN_VIEW, mainView);
-        navigator.addView(BFConstants.SETTINGS_VIEW, new SettingsView());
+        navigator.addView(BFConstants.SETTINGS_VIEW, settingsView);
         //Note: Read LocalStorage values at first app run (during first call in browser) available only after init() method fully complete.
         //I think that because registerRpc call completes only after extend(), but this magic not for me. So AfterInitThread - is a my own lifehack.
         new AfterInitThread().start();
@@ -75,14 +77,6 @@ public class BitTradeFx extends UI {
         }
     }
 
-    public AppSettingsHolder getSettings() {
-        return settings;
-    }
-
-    public List<CurrencyPairsHolder> getCurrencyPairsHolderList() {
-        return currencyPairsHolderList;
-    }
-
     public void refreshCurrencyGrid(CurrencyPairsHolder currencyPairRow) {
         if (!refreshThread.isAlive()) {
             refreshThread = new RefreshThread();
@@ -93,10 +87,22 @@ public class BitTradeFx extends UI {
     }
 
     private void refreshCurrencyInfo(CurrencyPairsHolder item) {
-        refreshBitfinexCurrencyInfo(item);
-        refreshWexNzCurrencyInfo(item);
-        refreshKrakenCurrencyInfo(item);
-        item.defineMinMaxPrice();
+        boolean wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
+        boolean bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
+        boolean kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
+
+        if (wexEnabled) {
+            refreshWexNzCurrencyInfo(item);
+        }
+
+        if (bitEnabled) {
+            refreshBitfinexCurrencyInfo(item);
+        }
+
+        if (kraEnabled) {
+            refreshKrakenCurrencyInfo(item);
+        }
+        item.defineMinMaxPrice(settings.getEnabledMarketsMap());
     }
 
     private void initCurrencyPairs() {
@@ -115,87 +121,28 @@ public class BitTradeFx extends UI {
         if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
             currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.DASH_COIN));
 
-        mainView.setMainGridRowCount(currencyPairsHolderList.size());
-    }
-
-    public class RefreshThread extends Thread {
-        Grid<CurrencyPairsHolder> currInfoGrid = mainView.getCurrInfoGrid();
-        ProgressBar refreshProgressBar = mainView.getRefreshProgressBar();
-        Label refreshLabel = mainView.getLabelRefresh();
-        List<CurrencyPairsHolder> currencyPairsToRefresh = new ArrayList<>();
-
-        void refreshAll() {
-            currencyPairsToRefresh = currencyPairsHolderList;
-            start();
-        }
-
-        void refreshOne(CurrencyPairsHolder currencyPairRow) {
-            currencyPairsToRefresh.add(currencyPairRow);
-            start();
-        }
-
-        @Override
-        public void run() {
-            try {
-                synchronized (RefreshThread.this) {
-                    for (CurrencyPairsHolder currencyPairsHolder : currencyPairsToRefresh) {
-                        String oldName = currencyPairsHolder.getName();
-                        currencyPairsHolder.setName("<b><font color ='#000066'> * " + oldName + "</font></b>");
-                        Thread.sleep(60);
-                        access(() -> {
-                            float current = refreshProgressBar.getValue();
-                            refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
-                            currInfoGrid.getDataProvider().refreshAll();
-                            push();
-                        });
-                        Thread.sleep(60);
-                        refreshCurrencyInfo(currencyPairsHolder);
-                        currencyPairsHolder.setName(oldName);
-                    }
-                }
-                access(() -> {
-                    if (currencyPairsToRefresh.size() > 1)
-                        refreshLabel.setValue("Updated at: " + settings.getNowString());
-                    else refreshLabel.setValue("Partially updated at: " + settings.getNowString());
-
-                    refreshProgressBar.setVisible(false);
-                    refreshProgressBar.setValue(0);
-
-                    if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
-                        currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
-                    push();
-                });
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        mainView.setMainGridCorrectRowCount();
     }
 
     private void refreshWexNzCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        boolean resultParsedWell;
         PublicApiAccessLib.setBasicUrl(BFConstants.WEX_API_BASIC_URL);
 
-        resultParsedWell = false;
         String tickerName = currencyPairsHolder.getWexnzPair().getTickerName();
         JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
 
         if (result != null) {
             WexNzCurrencyPair wexNzCurrencyPair = new Gson().fromJson(result, WexNzCurrencyPair.class);
             if (wexNzCurrencyPair.getInfo() != null) {
-                resultParsedWell = true;
                 wexNzCurrencyPair.setTickerName(tickerName);
-                wexNzCurrencyPair.setMarketId(BFConstants.WEX);
+                wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
                 currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
             }
         }
-        if (!resultParsedWell) currencyPairsHolder.getWexnzPair().setLastPriceError(true);
     }
 
     private void refreshKrakenCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        boolean resultParsedWell;
         PublicApiAccessLib.setBasicUrl(BFConstants.KRA_API_BASIC_URL);
 
-        resultParsedWell = false;
         String tickerName = currencyPairsHolder.getKrakenPair().getTickerName();
         JsonObject result = PublicApiAccessLib.performBasicRequest("Ticker?pair=", tickerName);
 
@@ -203,19 +150,15 @@ public class BitTradeFx extends UI {
             KrakenCurrencyPair krakenCurrencyPair = new Gson().fromJson(result, KrakenCurrencyPair.class);
 
             if (krakenCurrencyPair.getInfo() != null) {
-                resultParsedWell = true;
                 krakenCurrencyPair.setTickerName(tickerName);
-                krakenCurrencyPair.setMarketId(BFConstants.KRAKEN);
+                krakenCurrencyPair.setMarketId(BFConstants.KRAKEN_ID);
                 currencyPairsHolder.setKrakenPair(krakenCurrencyPair);
             }
         }
-        if (!resultParsedWell) currencyPairsHolder.getKrakenPair().setLastPriceError(true);
     }
 
     private void refreshBitfinexCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        boolean resultParsedWell;
         PublicApiAccessLib.setBasicUrl(BFConstants.BIT_API_BASIC_URL);
-        resultParsedWell = false;
 
         String tickerName = currencyPairsHolder.getBitfinexPair().getTickerName();
         JsonObject result = PublicApiAccessLib.performBasicRequest("pubticker/", tickerName);
@@ -223,18 +166,17 @@ public class BitTradeFx extends UI {
         if (result != null) {
             BitfinexCurrencyPair bitfinexCurrencyPair = new Gson().fromJson(result, BitfinexCurrencyPair.class);
             if (bitfinexCurrencyPair != null) {
-                resultParsedWell = true;
                 bitfinexCurrencyPair.setTickerName(tickerName);
-                bitfinexCurrencyPair.setMarketId(BFConstants.BITFINEX);
+                bitfinexCurrencyPair.setMarketId(BFConstants.BITFINEX_ID);
                 currencyPairsHolder.setBitfinexPair(bitfinexCurrencyPair);
             }
         }
-        if (!resultParsedWell) currencyPairsHolder.getBitfinexPair().setLastPriceError(true);
     }
 
     public CurrencyPairsHolder initNewCurrencyPair(String pairName) {
         CurrencyPairsHolder ccp = new CurrencyPairsHolder();
         ccp.setName(pairName);
+        ccp.setDisplayName(pairName);
         String bitfinexTicker = "";
         String wexnzTicker = "";
         String krakenTicker = "";
@@ -289,17 +231,12 @@ public class BitTradeFx extends UI {
         return ccp;
     }
 
-    public class AfterInitThread extends Thread {
-        @Override
-        public void run() {
-            try {
-                Thread.sleep(1000);
-                System.out.println("inited: " + settings.isPropertyEnabled(BFConstants.ETHERIUM));
-                initCurrencyPairs();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+    public AppSettingsHolder getSettings() {
+        return settings;
+    }
+
+    public List<CurrencyPairsHolder> getCurrencyPairsHolderList() {
+        return currencyPairsHolderList;
     }
 
     public void showNotification(String caption, String description, int delay, Position position, String styleName) {
@@ -309,4 +246,75 @@ public class BitTradeFx extends UI {
         notification.setStyleName(styleName);
         notification.show(Page.getCurrent());
     }
+
+    public class AfterInitThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(1500);
+                access(() -> {
+                    System.out.println("after sleep init");
+                    settingsView.updateValuesToUI();
+                    mainView.initMarketColumns();
+                    initCurrencyPairs();
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class RefreshThread extends Thread {
+        Grid<CurrencyPairsHolder> currInfoGrid = mainView.getCurrInfoGrid();
+        ProgressBar refreshProgressBar = mainView.getRefreshProgressBar();
+        Label refreshLabel = mainView.getLabelRefresh();
+        List<CurrencyPairsHolder> currencyPairsToRefresh = new ArrayList<>();
+
+        void refreshAll() {
+            currencyPairsToRefresh = currencyPairsHolderList;
+            start();
+        }
+
+        void refreshOne(CurrencyPairsHolder currencyPairRow) {
+            currencyPairsToRefresh.add(currencyPairRow);
+            start();
+        }
+
+        @Override
+        public void run() {
+            try {
+                synchronized (RefreshThread.this) {
+                    for (CurrencyPairsHolder currencyPairsHolder : currencyPairsToRefresh) {
+                        String oldName = currencyPairsHolder.getDisplayName();
+                        currencyPairsHolder.setDisplayName("<b><font color ='#000066'> * " + oldName + "</font></b>");
+                        Thread.sleep(60);
+                        access(() -> {
+                            float current = refreshProgressBar.getValue();
+                            refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
+                            currInfoGrid.getDataProvider().refreshAll();
+                            push();
+                        });
+                        Thread.sleep(60);
+                        refreshCurrencyInfo(currencyPairsHolder);
+                        currencyPairsHolder.setDisplayName(oldName);
+                    }
+                }
+                access(() -> {
+                    if (currencyPairsToRefresh.size() > 1)
+                        refreshLabel.setValue("Updated at: " + settings.getNowString());
+                    else refreshLabel.setValue("Partially updated at: " + settings.getNowString());
+
+                    refreshProgressBar.setVisible(false);
+                    refreshProgressBar.setValue(0);
+
+                    if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
+                        currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
+                    push();
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 }

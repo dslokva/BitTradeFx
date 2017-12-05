@@ -33,6 +33,10 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkEnableZEC;
     private CheckBox chkEnableDSH;
 
+    private CheckBox chkEnableWex;
+    private CheckBox chkEnableBit;
+    private CheckBox chkEnableKra;
+
     public SettingsView() {
         addStyleName("content-common");
         String txtBoxWidth = "500px";
@@ -58,6 +62,10 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableETH = new CheckBox(BFConstants.ETHERIUM);
         chkEnableZEC = new CheckBox(BFConstants.ZCASH);
         chkEnableDSH = new CheckBox(BFConstants.DASH_COIN);
+
+        chkEnableWex = new CheckBox(BFConstants.WEX);
+        chkEnableBit = new CheckBox(BFConstants.BITFINEX);
+        chkEnableKra = new CheckBox(BFConstants.KRAKEN);
 
         chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
 
@@ -123,9 +131,15 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.ZCASH, chkEnableZEC.getValue().toString());
                     settings.setProperty(BFConstants.DASH_COIN, chkEnableDSH.getValue().toString());
 
+                    settings.setProperty(BFConstants.WEX, chkEnableWex.getValue().toString());
+                    settings.setProperty(BFConstants.BITFINEX, chkEnableBit.getValue().toString());
+                    settings.setProperty(BFConstants.KRAKEN, chkEnableKra.getValue().toString());
+
                     settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
 
                     settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
+                    settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra);
+
                     mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
                 }
         );
@@ -138,7 +152,7 @@ public class SettingsView extends VerticalLayout implements View {
         btnsGrid.setComponentAlignment(btnBack, MIDDLE_RIGHT);
 
         VerticalLayout apiVerticalHolder = new VerticalLayout();
-        apiVerticalHolder.addComponent(new Label("Keys for <b>[WEX.nz]</b> market:", ContentMode.HTML));
+        apiVerticalHolder.addComponent(new Label("Keys for <b>[WEX_ID.nz]</b> market:", ContentMode.HTML));
         apiVerticalHolder.addComponent(wexnzSettingsGridLayout);
         apiVerticalHolder.addComponent(new Label("Keys for <b>[Bitfinex.com]</b> market:", ContentMode.HTML));
         apiVerticalHolder.addComponent(bitfinexSettingsGridLayout);
@@ -154,17 +168,32 @@ public class SettingsView extends VerticalLayout implements View {
         coinCheckBoxesGrid.addComponent(chkEnableDSH);
         coinCheckBoxesGrid.setWidth("100%");
 
-        VerticalLayout verticalDumb = new VerticalLayout();
-        verticalDumb.addComponent(coinCheckBoxesGrid);
-        verticalDumb.setComponentAlignment(coinCheckBoxesGrid, MIDDLE_CENTER);
+        GridLayout marketCheckBoxesGrid = new GridLayout(3, 1);
+        marketCheckBoxesGrid.addComponent(chkEnableWex);
+        marketCheckBoxesGrid.addComponent(chkEnableBit);
+        marketCheckBoxesGrid.addComponent(chkEnableKra);
+        marketCheckBoxesGrid.setWidth("100%");
+
+        VerticalLayout verticalDumbCoinChks = new VerticalLayout();
+        verticalDumbCoinChks.addComponent(coinCheckBoxesGrid);
+        verticalDumbCoinChks.setComponentAlignment(coinCheckBoxesGrid, MIDDLE_CENTER);
+
+        VerticalLayout verticalDumbMarketChks = new VerticalLayout();
+        verticalDumbMarketChks.addComponent(marketCheckBoxesGrid);
+        verticalDumbMarketChks.setComponentAlignment(marketCheckBoxesGrid, MIDDLE_CENTER);
 
         Panel coinCheckBoxesPanel = new Panel("Enabled coins for monitoring");
         coinCheckBoxesPanel.addStyleName(ValoTheme.PANEL_WELL);
-        coinCheckBoxesPanel.setContent(verticalDumb);
+        coinCheckBoxesPanel.setContent(verticalDumbCoinChks);
+
+        Panel marketsCheckBoxesPanel = new Panel("Enabled markets for monitoring");
+        marketsCheckBoxesPanel.addStyleName(ValoTheme.PANEL_WELL);
+        marketsCheckBoxesPanel.setContent(verticalDumbMarketChks);
 
         VerticalLayout otherVerticalHolder = new VerticalLayout();
         otherVerticalHolder.addComponent(chkAutoSortByDeltaPercent);
         otherVerticalHolder.addComponent(coinCheckBoxesPanel);
+        otherVerticalHolder.addComponent(marketsCheckBoxesPanel);
 
         Panel keySettingsPanel = new Panel("User API");
         keySettingsPanel.setContent(apiVerticalHolder);
@@ -195,7 +224,7 @@ public class SettingsView extends VerticalLayout implements View {
         updateValuesToUI();
     }
 
-    private void updateValuesToUI() {
+    public void updateValuesToUI() {
         txtWexApiKey.setValue(settings.getProperty(BFConstants.WEX_API_KEY));
         txtWexSecretKey.setValue(settings.getProperty(BFConstants.WEX_API_SECRET));
 
@@ -214,7 +243,12 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableZEC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ZCASH)));
         chkEnableDSH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.DASH_COIN)));
 
+        chkEnableWex.setValue(Boolean.valueOf(settings.getProperty(BFConstants.WEX)));
+        chkEnableBit.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITFINEX)));
+        chkEnableKra.setValue(Boolean.valueOf(settings.getProperty(BFConstants.KRAKEN)));
+
         settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
+        settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra);
     }
 
 }
