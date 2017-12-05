@@ -257,6 +257,7 @@ public class BitTradeFx extends UI {
                     settingsView.updateValuesToUI();
                     mainView.initMarketColumns();
                     initCurrencyPairs();
+                    mainView.hideInitStub();
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();

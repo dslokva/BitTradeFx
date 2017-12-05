@@ -32,8 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static com.vaadin.ui.Alignment.MIDDLE_LEFT;
-import static com.vaadin.ui.Alignment.MIDDLE_RIGHT;
+import static com.vaadin.ui.Alignment.*;
 
 public class MainView extends VerticalLayout implements View {
     private AppSettingsHolder settings;
@@ -47,6 +46,7 @@ public class MainView extends VerticalLayout implements View {
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private int refreshSec;
+    private boolean initialized;
 
     private Label labelWexTotalUSD;
     private Label labelWexTotalBTC;
@@ -71,6 +71,8 @@ public class MainView extends VerticalLayout implements View {
     private Label labelBitOrderLTC;
     private Label labelBitOrderZEC;
     private Label labelBitOrderDSH;
+
+    private VerticalLayout waitingStubPanel;
 
     public MainView() {
         addStyleName("content-common");
@@ -289,7 +291,18 @@ public class MainView extends VerticalLayout implements View {
         bottomLayer.setComponentAlignment(chkAutoRefresh, MIDDLE_LEFT);
         bottomLayer.setComponentAlignment(labelRefreshSec, MIDDLE_LEFT);
 
+        Label waitingStubLabel = new Label();
+        waitingStubLabel.setValue("Waiting for local storage JS callback...");
+        waitingStubLabel.addStyleName(ValoTheme.LABEL_COLORED);
+        waitingStubLabel.addStyleName(ValoTheme.LABEL_H2);
+
+        waitingStubPanel = new VerticalLayout();
+        waitingStubPanel.addComponent(waitingStubLabel);
+        waitingStubPanel.setWidth("100%");
+        waitingStubPanel.setComponentAlignment(waitingStubLabel, MIDDLE_CENTER);
+
         VerticalLayout middleLayer = new VerticalLayout();
+        middleLayer.addComponent(waitingStubPanel);
         middleLayer.addComponent(currInfoGrid);
         middleLayer.addComponent(refreshLayer);
         middleLayer.addComponent(bottomLayer);
@@ -526,9 +539,10 @@ public class MainView extends VerticalLayout implements View {
             labelRefresh.removeStyleName(ValoTheme.LABEL_FAILURE);
             labelRefresh.setValue("");
         } else {
-            labelRefresh.setValue("At least one Coin and Market must be selected for monitoring! (check settings)");
-            labelRefresh.addStyleName(ValoTheme.LABEL_FAILURE);
-
+            if (isInitialized()) {
+                labelRefresh.setValue("At least one Coin and Market must be selected for monitoring! (check settings)");
+                labelRefresh.addStyleName(ValoTheme.LABEL_FAILURE);
+            }
         }
         if (cphSize > 0) currInfoGrid.setHeightByRows(cphSize);
         else currInfoGrid.setHeightByRows(1);
@@ -543,5 +557,18 @@ public class MainView extends VerticalLayout implements View {
 
     private boolean containsName(final List<CurrencyPairsHolder> list, final String name) {
         return list.stream().map(CurrencyPairsHolder::getName).anyMatch(name::equals);
+    }
+
+    public void hideInitStub() {
+        waitingStubPanel.setVisible(false);
+        setInitialized(true);
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
     }
 }
