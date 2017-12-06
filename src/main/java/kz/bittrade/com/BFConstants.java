@@ -5,10 +5,12 @@ public final class BFConstants {
     public static final String WEX_ID = "1";
     public static final String BITFINEX_ID = "2";
     public static final String KRAKEN_ID = "3";
+    public static final String CEX_ID = "4";
 
     public static final String WEX = "WEX";
     public static final String BITFINEX = "Bitfinex";
     public static final String KRAKEN = "Kraken";
+    public static final String CEX = "Cex";
 
     public static final String WEX_API_KEY = "wexApiKey";
     public static final String WEX_API_SECRET = "wexApiSecret";
@@ -24,6 +26,10 @@ public final class BFConstants {
     public static final String KRA_API_KEY = "kraApiKey";
     public static final String KRA_API_SECRET = "kraApiSecret";
     public static final String KRA_API_BASIC_URL = "https://api.kraken.com/0/public/";
+
+    public static final String CEX_API_KEY = "cexApiKey";
+    public static final String CEX_API_SECRET = "cexApiSecret";
+    public static final String CEX_API_BASIC_URL = "https://cex.io/api/";
 
     public static final String AUTO_SORT = "autoSortDeltaPercent";
 
@@ -43,5 +49,5 @@ public final class BFConstants {
     public static final String WEX_GRID_COLUMN = "wex_column";
     public static final String BITFINEX_GRID_COLUMN = "bitfinex_column";
     public static final String KRAKEN_GRID_COLUMN = "kraken_column";
-
+    public static final String CEX_GRID_COLUMN = "cex_column";
 }

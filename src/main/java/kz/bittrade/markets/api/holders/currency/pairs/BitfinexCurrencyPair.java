@@ -12,7 +12,7 @@ public class BitfinexCurrencyPair extends CommonCurrencyPair {
     private double low;
     private double high;
     private double volume;
-    private double timestamp;
+    private long timestamp;
 
     public double getMid() {
         return mid;
@@ -39,7 +39,7 @@ public class BitfinexCurrencyPair extends CommonCurrencyPair {
     }
 
     public String getTimestamp() {
-        Date date = new Date((long) (timestamp * 1000L));
+        Date date = new Date((timestamp * 1000L));
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+6"));
         return sdf.format(date);

@@ -15,6 +15,7 @@ import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import kz.bittrade.markets.api.holders.currency.pairs.BitfinexCurrencyPair;
+import kz.bittrade.markets.api.holders.currency.pairs.CexCurrencyPair;
 import kz.bittrade.markets.api.holders.currency.pairs.KrakenCurrencyPair;
 import kz.bittrade.markets.api.holders.currency.pairs.WexNzCurrencyPair;
 import kz.bittrade.markets.api.lib.PublicApiAccessLib;
@@ -90,6 +91,7 @@ public class BitTradeFx extends UI {
         boolean wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
         boolean bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
         boolean kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
+        boolean cexEnabled = settings.isPropertyEnabled(BFConstants.CEX);
 
         if (wexEnabled) {
             refreshWexNzCurrencyInfo(item);
@@ -101,6 +103,10 @@ public class BitTradeFx extends UI {
 
         if (kraEnabled) {
             refreshKrakenCurrencyInfo(item);
+        }
+
+        if (cexEnabled) {
+            refreshCexCurrencyInfo(item);
         }
         item.defineMinMaxPrice(settings.getEnabledMarketsMap());
     }
@@ -173,6 +179,30 @@ public class BitTradeFx extends UI {
         }
     }
 
+    private void refreshCexCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
+        PublicApiAccessLib.setBasicUrl(BFConstants.CEX_API_BASIC_URL);
+
+        String tickerName = currencyPairsHolder.getCexPair().getTickerName();
+        if (!tickerName.equals("---")) {
+            JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
+
+            if (result != null) {
+                CexCurrencyPair cexCurrencyPair = new Gson().fromJson(result, CexCurrencyPair.class);
+                if (cexCurrencyPair != null) {
+                    cexCurrencyPair.setTickerName(tickerName);
+                    cexCurrencyPair.setMarketId(BFConstants.CEX_ID);
+                    currencyPairsHolder.setCexPair(cexCurrencyPair);
+                }
+            }
+        } else {
+            CexCurrencyPair cexCurrencyPair = new CexCurrencyPair();
+            cexCurrencyPair.setLast(0.0);
+            cexCurrencyPair.setTickerName(tickerName);
+            cexCurrencyPair.setMarketId(BFConstants.CEX_ID);
+            currencyPairsHolder.setCexPair(cexCurrencyPair);
+        }
+    }
+
     public CurrencyPairsHolder initNewCurrencyPair(String pairName) {
         CurrencyPairsHolder ccp = new CurrencyPairsHolder();
         ccp.setName(pairName);
@@ -180,54 +210,63 @@ public class BitTradeFx extends UI {
         String bitfinexTicker = "";
         String wexnzTicker = "";
         String krakenTicker = "";
+        String cexTicker = "";
 
         switch (pairName) {
             case BFConstants.BITCOIN: {
                 bitfinexTicker = "btcusd";
                 wexnzTicker = "btc_usd";
                 krakenTicker = "XBTUSD";
+                cexTicker = "BTC/USD";
                 break;
             }
             case BFConstants.BITCOIN_CASH: {
                 bitfinexTicker = "bchusd";
                 wexnzTicker = "bch_usd";
                 krakenTicker = "BCHUSD";
+                cexTicker = "BCH/USD";
                 break;
             }
             case BFConstants.LITECOIN: {
                 bitfinexTicker = "ltcusd";
                 wexnzTicker = "ltc_usd";
                 krakenTicker = "LTCUSD";
+                cexTicker = "---";
                 break;
             }
             case BFConstants.ETHERIUM: {
                 bitfinexTicker = "ethusd";
                 wexnzTicker = "eth_usd";
                 krakenTicker = "ETHUSD";
+                cexTicker = "ETH/USD";
                 break;
             }
             case BFConstants.ZCASH: {
                 bitfinexTicker = "zecusd";
                 wexnzTicker = "zec_usd";
                 krakenTicker = "ZECUSD";
+                cexTicker = "ZEC/USD";
                 break;
             }
             case BFConstants.DASH_COIN: {
                 bitfinexTicker = "dshusd";
                 wexnzTicker = "dsh_usd";
                 krakenTicker = "DASHUSD";
+                cexTicker = "DASH/USD";
                 break;
             }
             default: {
                 bitfinexTicker = "";
                 wexnzTicker = "";
                 krakenTicker = "";
+                cexTicker = "";
                 System.out.println("Unknown coin name given while pairHolder init method.");
             }
         }
         ccp.getBitfinexPair().setTickerName(bitfinexTicker);
         ccp.getWexnzPair().setTickerName(wexnzTicker);
         ccp.getKrakenPair().setTickerName(krakenTicker);
+        ccp.getCexPair().setTickerName(cexTicker);
         return ccp;
     }
 
@@ -294,10 +333,10 @@ public class BitTradeFx extends UI {
                             refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
                             currInfoGrid.getDataProvider().refreshAll();
                             push();
+                            refreshCurrencyInfo(currencyPairsHolder);
+                            currencyPairsHolder.setDisplayName(oldName);
                         });
                         Thread.sleep(60);
-                        refreshCurrencyInfo(currencyPairsHolder);
-                        currencyPairsHolder.setDisplayName(oldName);
                     }
                 }
                 access(() -> {
@@ -317,5 +356,4 @@ public class BitTradeFx extends UI {
             }
         }
     }
-
 }

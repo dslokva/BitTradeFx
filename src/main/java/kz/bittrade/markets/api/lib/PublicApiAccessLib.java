@@ -8,20 +8,20 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
 
-import java.util.Objects;
-
 public final class PublicApiAccessLib extends ApiAccessLib {
 
     public static JsonObject performBasicRequest(String method, String optionalPair) {
         JsonObject result;
         String URL = PUBLIC_API_URL.concat(method);
 
-        if (!Objects.equals(method, "info") && Objects.equals(optionalPair, "")) {
-            log("Failed to perform request. Currency pair needed.");
-            return null;
-        } else {
-            URL = URL.concat(optionalPair);
-        }
+//        if (!Objects.equals(method, "info") && Objects.equals(optionalPair, "")) {
+//            log("Failed to perform request. Currency pair needed.");
+//            return null;
+//        } else {
+//            URL = URL.concat(optionalPair);
+//        }
+
+        URL = URL.concat(optionalPair);
 
         HttpClient client = HttpClients.createDefault();
         HttpGet get = new HttpGet(URL);

@@ -66,6 +66,7 @@ public final class AppSettingsHolder {
         getValueFromLocalStorage(BFConstants.WEX);
         getValueFromLocalStorage(BFConstants.BITFINEX);
         getValueFromLocalStorage(BFConstants.KRAKEN);
+        getValueFromLocalStorage(BFConstants.CEX);
     }
 
     private void getValueFromLocalStorage(String propName) {

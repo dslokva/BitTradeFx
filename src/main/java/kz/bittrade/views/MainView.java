@@ -169,6 +169,10 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption(BFConstants.KRAKEN)
                 .setWidth(180)
                 .setId(BFConstants.KRAKEN_GRID_COLUMN);
+        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
+                .setCaption(BFConstants.CEX)
+                .setWidth(180)
+                .setId(BFConstants.CEX_GRID_COLUMN);
 
         currInfoGrid.addColumn(CurrencyPairsHolder -> "Calculate",
                 new ButtonRenderer(clickEvent -> {
@@ -246,10 +250,10 @@ public class MainView extends VerticalLayout implements View {
         bitBalanceVerticalStub.addComponent(bitBalanceGrid);
 
         Button btnWexBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateWexBalance());
-        HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, "WEX_ID");
+        HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, BFConstants.WEX);
 
         Button btnBitBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateBitfinexBalance());
-        HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, "Bitfinex");
+        HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, BFConstants.BITFINEX);
 
         CssLayout wexBalancePanel = new CssLayout();
         wexBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
@@ -504,6 +508,7 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.getColumn(BFConstants.WEX_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.WEX));
         currInfoGrid.getColumn(BFConstants.BITFINEX_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.BITFINEX));
         currInfoGrid.getColumn(BFConstants.KRAKEN_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.KRAKEN));
+        currInfoGrid.getColumn(BFConstants.CEX_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.CEX));
     }
 
     private void smartInitCurrencyPairs() {

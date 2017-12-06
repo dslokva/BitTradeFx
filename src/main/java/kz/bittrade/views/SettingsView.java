@@ -36,6 +36,7 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkEnableWex;
     private CheckBox chkEnableBit;
     private CheckBox chkEnableKra;
+    private CheckBox chkEnableCex;
 
     public SettingsView() {
         addStyleName("content-common");
@@ -66,6 +67,7 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableWex = new CheckBox(BFConstants.WEX);
         chkEnableBit = new CheckBox(BFConstants.BITFINEX);
         chkEnableKra = new CheckBox(BFConstants.KRAKEN);
+        chkEnableCex = new CheckBox(BFConstants.CEX);
 
         chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
 
@@ -134,11 +136,12 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.WEX, chkEnableWex.getValue().toString());
                     settings.setProperty(BFConstants.BITFINEX, chkEnableBit.getValue().toString());
                     settings.setProperty(BFConstants.KRAKEN, chkEnableKra.getValue().toString());
+                    settings.setProperty(BFConstants.CEX, chkEnableCex.getValue().toString());
 
                     settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
 
                     settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
-                    settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra);
+                    settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra, chkEnableCex);
 
                     mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
                 }
@@ -168,10 +171,11 @@ public class SettingsView extends VerticalLayout implements View {
         coinCheckBoxesGrid.addComponent(chkEnableDSH);
         coinCheckBoxesGrid.setWidth("100%");
 
-        GridLayout marketCheckBoxesGrid = new GridLayout(3, 1);
+        GridLayout marketCheckBoxesGrid = new GridLayout(4, 1);
         marketCheckBoxesGrid.addComponent(chkEnableWex);
         marketCheckBoxesGrid.addComponent(chkEnableBit);
         marketCheckBoxesGrid.addComponent(chkEnableKra);
+        marketCheckBoxesGrid.addComponent(chkEnableCex);
         marketCheckBoxesGrid.setWidth("100%");
 
         VerticalLayout verticalDumbCoinChks = new VerticalLayout();
@@ -246,9 +250,10 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableWex.setValue(Boolean.valueOf(settings.getProperty(BFConstants.WEX)));
         chkEnableBit.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITFINEX)));
         chkEnableKra.setValue(Boolean.valueOf(settings.getProperty(BFConstants.KRAKEN)));
+        chkEnableCex.setValue(Boolean.valueOf(settings.getProperty(BFConstants.CEX)));
 
         settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
-        settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra);
+        settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra, chkEnableCex);
     }
 
 }

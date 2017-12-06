@@ -1,10 +1,7 @@
 package kz.bittrade.markets.api.holders.currency;
 
 import kz.bittrade.com.BFConstants;
-import kz.bittrade.markets.api.holders.currency.pairs.BitfinexCurrencyPair;
-import kz.bittrade.markets.api.holders.currency.pairs.CommonCurrencyPair;
-import kz.bittrade.markets.api.holders.currency.pairs.KrakenCurrencyPair;
-import kz.bittrade.markets.api.holders.currency.pairs.WexNzCurrencyPair;
+import kz.bittrade.markets.api.holders.currency.pairs.*;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -25,15 +22,18 @@ public class CurrencyPairsHolder {
         BitfinexCurrencyPair bitfinexPair = new BitfinexCurrencyPair();
         WexNzCurrencyPair wexnzPair = new WexNzCurrencyPair();
         KrakenCurrencyPair krakenPair = new KrakenCurrencyPair();
+        CexCurrencyPair cexPair = new CexCurrencyPair();
 
         bitfinexPair.setMarketId(BFConstants.BITFINEX_ID);
         wexnzPair.setMarketId(BFConstants.WEX_ID);
         krakenPair.setMarketId(BFConstants.KRAKEN_ID);
+        cexPair.setMarketId(BFConstants.CEX_ID);
 
         currencyPairs = new HashMap<>();
         currencyPairs.put(wexnzPair.getMarketId(), wexnzPair);
         currencyPairs.put(bitfinexPair.getMarketId(), bitfinexPair);
         currencyPairs.put(krakenPair.getMarketId(), krakenPair);
+        currencyPairs.put(cexPair.getMarketId(), cexPair);
     }
 
     public void defineMinMaxPrice(HashMap<String, Boolean> enabledMap) {
@@ -41,6 +41,7 @@ public class CurrencyPairsHolder {
         Boolean wexEnabled = enabledMap.get(BFConstants.WEX);
         Boolean bitEnabled = enabledMap.get(BFConstants.BITFINEX);
         Boolean kraEnabled = enabledMap.get(BFConstants.KRAKEN);
+        Boolean cexEnabled = enabledMap.get(BFConstants.CEX);
         String id = "0"; //temp id if only one market selected
 
         if (wexEnabled != null && wexEnabled.equals(Boolean.TRUE)) {
@@ -54,6 +55,10 @@ public class CurrencyPairsHolder {
         if (kraEnabled != null && kraEnabled.equals(Boolean.TRUE)) {
             map.put(BFConstants.KRAKEN_ID, getKrakenPair().getLastPriceDouble());
             id = BFConstants.KRAKEN_ID;
+        }
+        if (cexEnabled != null && cexEnabled.equals(Boolean.TRUE)) {
+            map.put(BFConstants.CEX_ID, getCexPair().getLastPriceDouble());
+            id = BFConstants.CEX_ID;
         }
 
         int marketsCount = Collections.frequency(enabledMap.values(), Boolean.TRUE);
@@ -135,6 +140,14 @@ public class CurrencyPairsHolder {
         currencyPairs.put(BFConstants.KRAKEN_ID, krakenPair);
     }
 
+    public CexCurrencyPair getCexPair() {
+        return (CexCurrencyPair) currencyPairs.get(BFConstants.CEX_ID);
+    }
+
+    public void setCexPair(CexCurrencyPair cexPair) {
+        currencyPairs.put(BFConstants.CEX_ID, cexPair);
+    }
+
     public String getName() {
         return name;
     }
@@ -153,6 +166,10 @@ public class CurrencyPairsHolder {
 
     public String getLastPriceKraken() {
         return colorizeStringPrice(getKrakenPair());
+    }
+
+    public String getLastPriceCex() {
+        return colorizeStringPrice(getCexPair());
     }
 
     private String colorizeStringPrice(CommonCurrencyPair pair) {
