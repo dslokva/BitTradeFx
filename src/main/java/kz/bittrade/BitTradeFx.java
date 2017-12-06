@@ -335,8 +335,8 @@ public class BitTradeFx extends UI {
                             push();
                             refreshCurrencyInfo(currencyPairsHolder);
                             currencyPairsHolder.setDisplayName(oldName);
+                            push();
                         });
-                        Thread.sleep(60);
                     }
                 }
                 access(() -> {
