@@ -341,7 +341,7 @@ public class BitTradeFx extends UI {
                             currInfoGrid.getDataProvider().refreshAll();
                             push();
                             try {
-                                Thread.sleep(60);
+                                Thread.sleep(80);
                                 refreshCurrencyInfo(currencyPairsHolder);
                                 currencyPairsHolder.setDisplayName(oldName);
                                 push();

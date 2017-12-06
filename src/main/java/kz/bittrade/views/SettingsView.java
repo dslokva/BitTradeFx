@@ -258,8 +258,8 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraApiKey.setValue(settings.getProperty(BFConstants.KRA_API_KEY));
         txtKraSecretKey.setValue(settings.getProperty(BFConstants.KRA_API_SECRET));
 
-        txtKraApiKey.setValue(settings.getProperty(BFConstants.CEX_API_KEY));
-        txtKraSecretKey.setValue(settings.getProperty(BFConstants.CEX_API_SECRET));
+        txtCexApiKey.setValue(settings.getProperty(BFConstants.CEX_API_KEY));
+        txtCexSecretKey.setValue(settings.getProperty(BFConstants.CEX_API_SECRET));
 
         chkAutoSortByDeltaPercent.setValue(Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)));
 
