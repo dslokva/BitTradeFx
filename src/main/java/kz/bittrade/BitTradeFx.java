@@ -290,7 +290,7 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(1700);
                 access(() -> {
                     System.out.println("after sleep init");
                     settingsView.updateValuesToUI();
@@ -340,9 +340,14 @@ public class BitTradeFx extends UI {
                             refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
                             currInfoGrid.getDataProvider().refreshAll();
                             push();
-                            refreshCurrencyInfo(currencyPairsHolder);
-                            currencyPairsHolder.setDisplayName(oldName);
-                            push();
+                            try {
+                                Thread.sleep(60);
+                                refreshCurrencyInfo(currencyPairsHolder);
+                                currencyPairsHolder.setDisplayName(oldName);
+                                push();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
                         });
                     }
                 }

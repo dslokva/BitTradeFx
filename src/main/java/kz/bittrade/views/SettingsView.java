@@ -22,6 +22,9 @@ public class SettingsView extends VerticalLayout implements View {
     private PasswordField txtBitSecretKey;
     private TextField txtKraApiKey;
     private PasswordField txtKraSecretKey;
+    private TextField txtCexApiKey;
+    private PasswordField txtCexSecretKey;
+
     private AppSettingsHolder settings;
     private CheckBox chkAutoSortByDeltaPercent;
     private BitTradeFx mainui;
@@ -57,6 +60,11 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraApiKey.setWidth(txtBoxWidth);
         txtKraSecretKey.setWidth(txtBoxWidth);
 
+        txtCexApiKey = new TextField();
+        txtCexSecretKey = new PasswordField();
+        txtCexApiKey.setWidth(txtBoxWidth);
+        txtCexSecretKey.setWidth(txtBoxWidth);
+
         chkEnableBTC = new CheckBox(BFConstants.BITCOIN);
         chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
         chkEnableLTC = new CheckBox(BFConstants.LITECOIN);
@@ -90,13 +98,21 @@ public class SettingsView extends VerticalLayout implements View {
         bitfinexSettingsGridLayout.addComponent(txtBitSecretKey, 1, 1);
         bitfinexSettingsGridLayout.setSpacing(true);
 
-        GridLayout coinbaseSettingsGridLayout = new GridLayout(2, 2);
-        coinbaseSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        coinbaseSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
-        coinbaseSettingsGridLayout.addComponent(txtKraApiKey, 1, 0);
-        coinbaseSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
-        coinbaseSettingsGridLayout.addComponent(txtKraSecretKey, 1, 1);
-        coinbaseSettingsGridLayout.setSpacing(true);
+        GridLayout krakenSettingsGridLayout = new GridLayout(2, 2);
+        krakenSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
+        krakenSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
+        krakenSettingsGridLayout.addComponent(txtKraApiKey, 1, 0);
+        krakenSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
+        krakenSettingsGridLayout.addComponent(txtKraSecretKey, 1, 1);
+        krakenSettingsGridLayout.setSpacing(true);
+
+        GridLayout cexSettingsGridLayout = new GridLayout(2, 2);
+        cexSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
+        cexSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
+        cexSettingsGridLayout.addComponent(txtCexApiKey, 1, 0);
+        cexSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
+        cexSettingsGridLayout.addComponent(txtCexSecretKey, 1, 1);
+        cexSettingsGridLayout.setSpacing(true);
 
         Button btnBack = new Button("Back");
         btnBack.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -125,6 +141,8 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.BIT_API_SECRET, txtBitSecretKey.getValue());
                     settings.setProperty(BFConstants.KRA_API_KEY, txtKraApiKey.getValue());
                     settings.setProperty(BFConstants.KRA_API_SECRET, txtKraSecretKey.getValue());
+                    settings.setProperty(BFConstants.CEX_API_KEY, txtCexApiKey.getValue());
+                    settings.setProperty(BFConstants.CEX_API_SECRET, txtCexSecretKey.getValue());
 
                     settings.setProperty(BFConstants.BITCOIN, chkEnableBTC.getValue().toString());
                     settings.setProperty(BFConstants.BITCOIN_CASH, chkEnableBCH.getValue().toString());
@@ -155,12 +173,14 @@ public class SettingsView extends VerticalLayout implements View {
         btnsGrid.setComponentAlignment(btnBack, MIDDLE_RIGHT);
 
         VerticalLayout apiVerticalHolder = new VerticalLayout();
-        apiVerticalHolder.addComponent(new Label("Keys for <b>[WEX_ID.nz]</b> market:", ContentMode.HTML));
+        apiVerticalHolder.addComponent(new Label("Keys for <b>[WEX.nz]</b> market:", ContentMode.HTML));
         apiVerticalHolder.addComponent(wexnzSettingsGridLayout);
         apiVerticalHolder.addComponent(new Label("Keys for <b>[Bitfinex.com]</b> market:", ContentMode.HTML));
         apiVerticalHolder.addComponent(bitfinexSettingsGridLayout);
         apiVerticalHolder.addComponent(new Label("Keys for <b>[Kraken.com]</b> market:", ContentMode.HTML));
-        apiVerticalHolder.addComponent(coinbaseSettingsGridLayout);
+        apiVerticalHolder.addComponent(krakenSettingsGridLayout);
+        apiVerticalHolder.addComponent(new Label("Keys for <b>[CEX.io]</b> market:", ContentMode.HTML));
+        apiVerticalHolder.addComponent(cexSettingsGridLayout);
 
         GridLayout coinCheckBoxesGrid = new GridLayout(6, 1);
         coinCheckBoxesGrid.addComponent(chkEnableBTC);
@@ -237,6 +257,9 @@ public class SettingsView extends VerticalLayout implements View {
 
         txtKraApiKey.setValue(settings.getProperty(BFConstants.KRA_API_KEY));
         txtKraSecretKey.setValue(settings.getProperty(BFConstants.KRA_API_SECRET));
+
+        txtKraApiKey.setValue(settings.getProperty(BFConstants.CEX_API_KEY));
+        txtKraSecretKey.setValue(settings.getProperty(BFConstants.CEX_API_SECRET));
 
         chkAutoSortByDeltaPercent.setValue(Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)));
 
