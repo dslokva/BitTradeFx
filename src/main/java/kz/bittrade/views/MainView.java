@@ -46,6 +46,8 @@ public class MainView extends VerticalLayout implements View {
 
     private CssLayout wexBalancePanel;
     private CssLayout bitBalancePanel;
+    private Label bitBalanceStubLabel;
+    private Label wexBalanceStubLabel;
 
     private ProgressBar refreshProgressBar;
     private Label labelRefreshSec;
@@ -72,6 +74,9 @@ public class MainView extends VerticalLayout implements View {
 
         labelRefresh = new Label("");
         labelRefreshSec = new Label("");
+
+        bitBalanceStubLabel = getBalanceStubLabel();
+        wexBalanceStubLabel = getBalanceStubLabel();
 
         btnRefreshTable = new Button("Refresh all");
         btnRefreshTable.addClickListener(
@@ -119,6 +124,7 @@ public class MainView extends VerticalLayout implements View {
         wexBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
         wexBalanceGrid.setWidth("17em");
         wexBalanceGrid.setHeightByRows(1);
+        wexBalanceGrid.setVisible(false);
 
         currInfoGrid = new Grid<>();
         currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
@@ -182,6 +188,8 @@ public class MainView extends VerticalLayout implements View {
         VerticalLayout wexBalanceVerticalStub = new VerticalLayout();
         wexBalanceVerticalStub.setSpacing(true);
         wexBalanceVerticalStub.addComponent(wexBalanceGrid);
+        wexBalanceVerticalStub.addComponent(wexBalanceStubLabel);
+        wexBalanceVerticalStub.setComponentAlignment(wexBalanceStubLabel, MIDDLE_CENTER);
 
 //        GridLayout bitBalanceAvailLabelsGrid = new GridLayout(2, 7);
 //        bitBalanceAvailLabelsGrid.addComponent(new Label("USD: "), 0, 0);
@@ -228,13 +236,17 @@ public class MainView extends VerticalLayout implements View {
 
         VerticalLayout bitBalanceVerticalStub = new VerticalLayout();
         bitBalanceVerticalStub.setSpacing(true);
+        bitBalanceVerticalStub.addComponent(bitBalanceStubLabel);
+        bitBalanceVerticalStub.setComponentAlignment(bitBalanceStubLabel, MIDDLE_CENTER);
 //        bitBalanceVerticalStub.addComponent(bitBalanceGrid);
 
         Button btnWexBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateWexBalance());
-        HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, BFConstants.WEX);
+        Button btnWexBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> clearWexBalance());
+        HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, btnWexBalanceClear, BFConstants.WEX);
 
         Button btnBitBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateBitfinexBalance());
-        HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, BFConstants.BITFINEX);
+        Button btnBitBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> clearBitBalance());
+        HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, btnBitBalanceClear, BFConstants.BITFINEX);
 
         wexBalancePanel = new CssLayout();
         wexBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
@@ -310,25 +322,48 @@ public class MainView extends VerticalLayout implements View {
         initAutoRefreshTimer();
     }
 
-    private HorizontalLayout getPanelCaptionComponents(Button btnBitBalanceRefresh, String caption) {
+    private Label getBalanceStubLabel() {
+        Label stubLabel = new Label();
+        stubLabel.setValue("Click refresh to show info");
+        stubLabel.addStyleName(ValoTheme.LABEL_COLORED);
+        stubLabel.addStyleName(ValoTheme.LABEL_LIGHT);
+        stubLabel.addStyleName(ValoTheme.LABEL_H4);
+        return stubLabel;
+    }
+
+    private HorizontalLayout getPanelCaptionComponents(Button btnBalanceRefresh, Button btnBalanceClear, String caption) {
         HorizontalLayout bitBalancePanelCaption = new HorizontalLayout();
         bitBalancePanelCaption.addStyleName("v-panel-caption");
         bitBalancePanelCaption.setWidth("100%");
         Label labelb = new Label(caption);
         bitBalancePanelCaption.addComponent(labelb);
         bitBalancePanelCaption.setExpandRatio(labelb, 1);
-        bitBalancePanelCaption.addComponent(btnBitBalanceRefresh);
+        bitBalancePanelCaption.addComponent(btnBalanceClear);
+        bitBalancePanelCaption.addComponent(btnBalanceRefresh);
         return bitBalancePanelCaption;
     }
 
     private Button getRefreshMiniButton(Button.ClickListener clickListener) {
-        Button btnWexBalanceRefresh = new Button();
-        btnWexBalanceRefresh.setIcon(VaadinIcons.REFRESH);
-        btnWexBalanceRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-        btnWexBalanceRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
-        btnWexBalanceRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-        btnWexBalanceRefresh.addClickListener(clickListener);
-        return btnWexBalanceRefresh;
+        Button btnRefresh = getMiniButton(clickListener);
+        btnRefresh.setIcon(VaadinIcons.REFRESH);
+        btnRefresh.setDescription("Refresh");
+        return btnRefresh;
+    }
+
+    private Button getClearMiniButton(Button.ClickListener clickListener) {
+        Button btnClear = getMiniButton(clickListener);
+        btnClear.setIcon(VaadinIcons.EYE_SLASH);
+        btnClear.setDescription("Clear");
+        return btnClear;
+    }
+
+    private Button getMiniButton(Button.ClickListener clickListener) {
+        Button btnClear = new Button();
+        btnClear.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+        btnClear.addStyleName(ValoTheme.BUTTON_SMALL);
+        btnClear.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+        btnClear.addClickListener(clickListener);
+        return btnClear;
     }
 
     private void initAutoRefreshTimer() {
@@ -411,13 +446,19 @@ public class MainView extends VerticalLayout implements View {
 //        labelBitTotalDSH.setValue("<b>error</b>");
     }
 
+    private void clearBitBalance() {
+        bitBalanceStubLabel.setVisible(true);
+    }
+
     private void updateWexBalance() {
         WexNzPrivateApiAccessLib privateLib = new WexNzPrivateApiAccessLib(settings.getProperty(BFConstants.WEX_API_KEY),
                 settings.getProperty(BFConstants.WEX_API_SECRET));
 
         wexNzUserBalance.clear();
+        wexBalanceGrid.setVisible(true);
         wexBalanceGrid.setHeightByRows(1);
         wexBalanceGrid.setComponentError(null);
+        wexBalanceStubLabel.setVisible(false);
 
         ArrayList<NameValuePair> postData = new ArrayList<>();
         postData.add(new BasicNameValuePair("method", "getInfo"));
@@ -448,6 +489,13 @@ public class MainView extends VerticalLayout implements View {
 
     private void setWexLabelsError(String errorText) {
         wexBalanceGrid.setComponentError(new UserError(errorText));
+    }
+
+    private void clearWexBalance() {
+        wexNzUserBalance.clear();
+        wexBalanceGrid.setVisible(false);
+        wexBalanceGrid.setHeightByRows(1);
+        wexBalanceStubLabel.setVisible(true);
     }
 
     @Override
