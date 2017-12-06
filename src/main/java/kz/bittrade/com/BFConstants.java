@@ -36,6 +36,7 @@ public final class BFConstants {
     public static final String ALGORITHM_HMACSHA384 = "HmacSHA384";
     public static final String ALGORITHM_HMACSHA512 = "HmacSHA512";
 
+    public static final String USD = "US Dollar";
     public static final String BITCOIN = "Bitcoin";
     public static final String BITCOIN_CASH = "Bitcoin Cash";
     public static final String LITECOIN = "Litecoin";

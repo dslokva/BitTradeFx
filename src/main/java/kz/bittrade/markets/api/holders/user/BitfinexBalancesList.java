@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 public class BitfinexBalancesList {
     private HashMap<String, BitfinexBalance> balances;
-    private Object onOrdersUsd;
 
     public BitfinexBalancesList() {
         balances = new HashMap<>();
@@ -23,7 +22,7 @@ public class BitfinexBalancesList {
     private double returnOnOrder(String currency) {
         BitfinexBalance balance = balances.get(currency);
         if (balance != null) {
-            return balance.getAvailable() - balance.getAmount();
+            return balance.getAmount() - balance.getAvailable();
         } else return 0.0;
     }
 

@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class WexNzGetInfo {
     private int success;
+    private String error;
 
     @SerializedName(value = "return")
     private WexNzUserInfo info;
@@ -15,6 +16,10 @@ public class WexNzGetInfo {
 
     public WexNzUserInfo getInfo() {
         return info;
+    }
+
+    public String getError() {
+        return error;
     }
 }
 
