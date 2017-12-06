@@ -308,6 +308,7 @@ public class BitTradeFx extends UI {
         Grid<CurrencyPairsHolder> currInfoGrid = mainView.getCurrInfoGrid();
         ProgressBar refreshProgressBar = mainView.getRefreshProgressBar();
         Label refreshLabel = mainView.getLabelRefresh();
+        Button btnSettings = mainView.getBtnSettings();
         List<CurrencyPairsHolder> currencyPairsToRefresh = new ArrayList<>();
 
         void refreshAll() {
@@ -323,6 +324,12 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             try {
+                access(() -> {
+                    refreshLabel.setValue("Refreshing, please wait");
+                    refreshProgressBar.setVisible(true);
+                    btnSettings.setEnabled(false);
+                    push();
+                });
                 synchronized (RefreshThread.this) {
                     for (CurrencyPairsHolder currencyPairsHolder : currencyPairsToRefresh) {
                         String oldName = currencyPairsHolder.getDisplayName();
@@ -346,6 +353,8 @@ public class BitTradeFx extends UI {
 
                     refreshProgressBar.setVisible(false);
                     refreshProgressBar.setValue(0);
+
+                    btnSettings.setEnabled(true);
 
                     if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
                         currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);

@@ -43,6 +43,7 @@ public class MainView extends VerticalLayout implements View {
     private Label labelRefreshSec;
     private Label labelRefresh;
     private Button btnRefreshTable;
+    private Button btnSettings;
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private int refreshSec;
@@ -91,13 +92,12 @@ public class MainView extends VerticalLayout implements View {
         btnRefreshTable = new Button("Refresh all");
         btnRefreshTable.addClickListener(
                 e -> {
-                    labelRefresh.setValue("Refreshing, please wait");
-                    refreshProgressBar.setVisible(true);
+
                     mainui.refreshCurrencyGrid(null);
                 });
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 
-        Button btnSettings = new Button("Settings");
+        btnSettings = new Button("Settings");
         btnSettings.addClickListener(
                 e -> getUI().getNavigator().navigateTo(BFConstants.SETTINGS_VIEW));
 
@@ -131,8 +131,6 @@ public class MainView extends VerticalLayout implements View {
             button.addStyleName(ValoTheme.BUTTON_SMALL);
             button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
             button.addClickListener(click -> {
-                labelRefresh.setValue("Refreshing, please wait");
-                refreshProgressBar.setVisible(true);
                 mainui.refreshCurrencyGrid(currencyPairRow);
             });
             return button;
@@ -575,5 +573,9 @@ public class MainView extends VerticalLayout implements View {
 
     public void setInitialized(boolean initialized) {
         this.initialized = initialized;
+    }
+
+    public Button getBtnSettings() {
+        return btnSettings;
     }
 }
