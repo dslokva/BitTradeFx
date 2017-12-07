@@ -18,8 +18,9 @@ import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import kz.bittrade.markets.api.holders.user.BitfinexBalance;
 import kz.bittrade.markets.api.holders.user.BitfinexBalancesList;
-import kz.bittrade.markets.api.holders.user.WexNzBalanceHolder;
 import kz.bittrade.markets.api.holders.user.WexNzGetInfo;
+import kz.bittrade.markets.api.holders.user.balance.BitfinexBalanceHolder;
+import kz.bittrade.markets.api.holders.user.balance.WexNzBalanceHolder;
 import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
 import org.apache.http.NameValuePair;
@@ -40,9 +41,11 @@ public class MainView extends VerticalLayout implements View {
     private BitTradeFx mainui;
 
     private List<WexNzBalanceHolder> wexNzUserBalance;
+    private List<BitfinexBalanceHolder> bitfinexUserBalance;
 
     private Grid<CurrencyPairsHolder> currInfoGrid;
     private Grid<WexNzBalanceHolder> wexBalanceGrid;
+    private Grid<BitfinexBalanceHolder> bitBalanceGrid;
 
     private CssLayout wexBalancePanel;
     private CssLayout bitBalancePanel;
@@ -52,8 +55,11 @@ public class MainView extends VerticalLayout implements View {
     private ProgressBar refreshProgressBar;
     private Label labelRefreshSec;
     private Label labelRefresh;
+
     private Button btnRefreshTable;
     private Button btnSettings;
+    private Button btnRefreshUserBalance;
+
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private int refreshSec;
@@ -68,6 +74,7 @@ public class MainView extends VerticalLayout implements View {
         settings = mainui.getSettings();
 
         wexNzUserBalance = new ArrayList<>();
+        bitfinexUserBalance = new ArrayList<>();
 
         refreshProgressBar = new ProgressBar(0.0f);
         refreshProgressBar.setVisible(false);
@@ -90,9 +97,9 @@ public class MainView extends VerticalLayout implements View {
         btnSettings.addClickListener(
                 e -> getUI().getNavigator().navigateTo(BFConstants.SETTINGS_VIEW));
 
-        Button btnRefreshUserInfo = new Button("Refresh all");
-        btnRefreshUserInfo.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-        btnRefreshUserInfo.addClickListener(
+        btnRefreshUserBalance = new Button("Refresh all");
+        btnRefreshUserBalance.addStyleName(ValoTheme.BUTTON_FRIENDLY);
+        btnRefreshUserBalance.addClickListener(
                 e -> updateUserBalances());
 
         chkAutoRefresh = new CheckBox("Auto refresh every 30 sec");
@@ -117,7 +124,6 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption("Currency")
                 .setResizable(false)
                 .setWidth(110);
-
         wexBalanceGrid.addColumn(WexNzBalanceHolder::getAmount, new HtmlRenderer())
                 .setCaption("Balance")
                 .setResizable(false);
@@ -125,6 +131,23 @@ public class MainView extends VerticalLayout implements View {
         wexBalanceGrid.setWidth("17em");
         wexBalanceGrid.setHeightByRows(1);
         wexBalanceGrid.setVisible(false);
+
+        bitBalanceGrid = new Grid<>();
+        bitBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        bitBalanceGrid.setCaption("Total balance");
+        bitBalanceGrid.setItems(bitfinexUserBalance);
+        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getCurrencyName, new HtmlRenderer())
+                .setCaption("Currency")
+                .setResizable(false)
+                .setWidth(110);
+        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getAmount, new HtmlRenderer())
+                .setCaption("Balance")
+                .setResizable(false);
+        bitBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
+        bitBalanceGrid.setWidth("17em");
+        bitBalanceGrid.setHeightByRows(1);
+        bitBalanceGrid.setVisible(false);
+
 
         currInfoGrid = new Grid<>();
         currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
@@ -191,61 +214,18 @@ public class MainView extends VerticalLayout implements View {
         wexBalanceVerticalStub.addComponent(wexBalanceStubLabel);
         wexBalanceVerticalStub.setComponentAlignment(wexBalanceStubLabel, MIDDLE_CENTER);
 
-//        GridLayout bitBalanceAvailLabelsGrid = new GridLayout(2, 7);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("USD: "), 0, 0);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalUSD, 1, 0);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("BTC: "), 0, 1);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalBTC, 1, 1);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("BCH: "), 0, 2);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalBCH, 1, 2);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("ETH: "), 0, 3);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalETH, 1, 3);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("LTC: "), 0, 4);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalLTC, 1, 4);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("ZEC: "), 0, 5);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalZEC, 1, 5);
-//        bitBalanceAvailLabelsGrid.addComponent(new Label("DSH: "), 0, 6);
-//        bitBalanceAvailLabelsGrid.addComponent(labelBitTotalDSH, 1, 6);
-//        bitBalanceAvailLabelsGrid.setWidth("80%");
-//        bitBalanceAvailLabelsGrid.setDefaultComponentAlignment(MIDDLE_LEFT);
-//
-//        GridLayout bitBalanceOnOrderLabelsGrid = new GridLayout(2, 7);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("USD: "), 0, 0);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderUSD, 1, 0);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("BTC: "), 0, 1);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderBTC, 1, 1);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("BCH: "), 0, 2);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderBCH, 1, 2);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("ETH: "), 0, 3);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderETH, 1, 3);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("LTC: "), 0, 4);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderLTC, 1, 4);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("ZEC: "), 0, 5);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderZEC, 1, 5);
-//        bitBalanceOnOrderLabelsGrid.addComponent(new Label("DSH: "), 0, 6);
-//        bitBalanceOnOrderLabelsGrid.addComponent(labelBitOrderDSH, 1, 6);
-//        bitBalanceOnOrderLabelsGrid.setWidth("80%");
-//        bitBalanceOnOrderLabelsGrid.setDefaultComponentAlignment(MIDDLE_LEFT);
-//
-//        GridLayout bitBalanceGrid = new GridLayout(2, 2);
-//        bitBalanceGrid.addComponent(new Label("Available balance: "), 0, 0);
-//        bitBalanceGrid.addComponent(bitBalanceAvailLabelsGrid, 0, 1);
-//        bitBalanceGrid.addComponent(new Label("On orders: "), 1, 0);
-//        bitBalanceGrid.addComponent(bitBalanceOnOrderLabelsGrid, 1, 1);
-//        bitBalanceGrid.setWidth("100%");
-
         VerticalLayout bitBalanceVerticalStub = new VerticalLayout();
         bitBalanceVerticalStub.setSpacing(true);
+        bitBalanceVerticalStub.addComponent(bitBalanceGrid);
         bitBalanceVerticalStub.addComponent(bitBalanceStubLabel);
         bitBalanceVerticalStub.setComponentAlignment(bitBalanceStubLabel, MIDDLE_CENTER);
-//        bitBalanceVerticalStub.addComponent(bitBalanceGrid);
 
         Button btnWexBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateWexBalance());
-        Button btnWexBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> clearWexBalance());
+        Button btnWexBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> hideBalancePanel(wexNzUserBalance, wexBalanceGrid, wexBalanceStubLabel));
         HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, btnWexBalanceClear, BFConstants.WEX);
 
         Button btnBitBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateBitfinexBalance());
-        Button btnBitBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> clearBitBalance());
+        Button btnBitBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> hideBalancePanel(bitfinexUserBalance, bitBalanceGrid, bitBalanceStubLabel));
         HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, btnBitBalanceClear, BFConstants.BITFINEX);
 
         wexBalancePanel = new CssLayout();
@@ -258,7 +238,7 @@ public class MainView extends VerticalLayout implements View {
         bitBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
         bitBalancePanel.addComponent(bitBalancePanelCaption);
         bitBalancePanel.addComponent(bitBalanceVerticalStub);
-        bitBalancePanel.setWidth("20em");
+        bitBalancePanel.setWidth("18.5em");
 
         HorizontalLayout horizontalBalanceGrid = new HorizontalLayout();
         horizontalBalanceGrid.addComponent(wexBalancePanel);
@@ -266,9 +246,9 @@ public class MainView extends VerticalLayout implements View {
 
         GridLayout secondLayer = new GridLayout(2, 1);
         secondLayer.setWidth("100%");
-        secondLayer.addComponent(btnRefreshUserInfo, 0, 0);
+        secondLayer.addComponent(btnRefreshUserBalance, 0, 0);
         secondLayer.addComponent(btnSettings, 1, 0);
-        secondLayer.setComponentAlignment(btnRefreshUserInfo, MIDDLE_LEFT);
+        secondLayer.setComponentAlignment(btnRefreshUserBalance, MIDDLE_LEFT);
         secondLayer.setComponentAlignment(btnSettings, MIDDLE_RIGHT);
 
         VerticalLayout topLayer = new VerticalLayout();
@@ -318,7 +298,6 @@ public class MainView extends VerticalLayout implements View {
         addComponent(middlePanel);
         setComponentAlignment(topPanel, Alignment.TOP_CENTER);
         setComponentAlignment(middlePanel, Alignment.MIDDLE_CENTER);
-
         initAutoRefreshTimer();
     }
 
@@ -402,25 +381,33 @@ public class MainView extends VerticalLayout implements View {
         if (isBitAPIKeyPresent()) {
             BitfinexPrivateApiAccessLib bitLib = new BitfinexPrivateApiAccessLib(settings.getProperty(BFConstants.BIT_API_KEY),
                     settings.getProperty(BFConstants.BIT_API_SECRET));
+            bitfinexUserBalance.clear();
+            bitBalanceGrid.setVisible(true);
+            bitBalanceGrid.setHeightByRows(1);
+            bitBalanceGrid.setComponentError(null);
+            bitBalanceStubLabel.setVisible(false);
+
             try {
                 String result = bitLib.sendRequestV1Balances();
-                JSONArray json = new JSONArray(result);
-                BitfinexBalancesList bitfinexBalancesList = new BitfinexBalancesList();
-                for (int i = 0; i < json.length(); i++) {
-                    JSONObject obj = json.getJSONObject(i);
-                    BitfinexBalance bitfinexBalance = new Gson().fromJson(obj.toString(), BitfinexBalance.class);
-                    bitfinexBalancesList.add(bitfinexBalance);
-                }
+                if (result != null) {
+                    JSONArray json = new JSONArray(result);
+                    BitfinexBalancesList bitfinexBalancesList = new BitfinexBalancesList();
+                    for (int i = 0; i < json.length(); i++) {
+                        JSONObject obj = json.getJSONObject(i);
+                        BitfinexBalance bitfinexBalance = new Gson().fromJson(obj.toString(), BitfinexBalance.class);
+                        bitfinexBalancesList.add(bitfinexBalance);
+                    }
 
-                if (bitfinexBalancesList.getBalancesMap().size() > 0) {
-//                labelBitTotalUSD.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailUsd()) + "</b>");
-//                labelBitTotalBTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailBtc()) + "</b>");
-//                labelBitTotalBCH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailBch()) + "</b>");
-//                labelBitTotalETH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailEth()) + "</b>");
-//                labelBitTotalLTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailLtc()) + "</b>");
-//                labelBitTotalZEC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailZec()) + "</b>");
-//                labelBitTotalDSH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailDsh()) + "</b>");
-//
+                    if (bitfinexBalancesList.getBalancesMap().size() > 0) {
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.USD, bitfinexBalancesList.getAvailUsd()));
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.BITCOIN, bitfinexBalancesList.getAvailBtc()));
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.BITCOIN_CASH, bitfinexBalancesList.getAvailBch()));
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ETHERIUM, bitfinexBalancesList.getAvailEth()));
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.LITECOIN, bitfinexBalancesList.getAvailLtc()));
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ZCASH, bitfinexBalancesList.getAvailZec()));
+                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.DASH_COIN, bitfinexBalancesList.getAvailDsh()));
+                        bitBalanceGrid.setCaption("Total balance @" + settings.getNowString());
+                        bitBalanceGrid.setHeightByRows(7);
 //                labelBitOrderUSD.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersUsd()) + "</b>");
 //                labelBitOrderBTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersBtc()) + "</b>");
 //                labelBitOrderBCH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersBch()) + "</b>");
@@ -428,17 +415,20 @@ public class MainView extends VerticalLayout implements View {
 //                labelBitOrderLTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersLtc()) + "</b>");
 //                labelBitOrderZEC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersZec()) + "</b>");
 //                labelBitOrderDSH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersDsh()) + "</b>");
+                    }
                 } else {
-                    setBitLabelsError();
+                    setBitLabelsError("");
                 }
             } catch (Exception e) {
-                setBitLabelsError();
+                setBitLabelsError("Request error");
                 e.printStackTrace();
             }
+            bitBalanceGrid.getDataProvider().refreshAll();
         }
     }
 
-    private void setBitLabelsError() {
+    private void setBitLabelsError(String errorText) {
+        bitBalanceGrid.setComponentError(new UserError(errorText));
 //        labelBitTotalUSD.setValue("<b>error</b>");
 //        labelBitTotalBTC.setValue("<b>error</b>");
 //        labelBitTotalBCH.setValue("<b>error</b>");
@@ -446,10 +436,6 @@ public class MainView extends VerticalLayout implements View {
 //        labelBitTotalLTC.setValue("<b>error</b>");
 //        labelBitTotalZEC.setValue("<b>error</b>");
 //        labelBitTotalDSH.setValue("<b>error</b>");
-    }
-
-    private void clearBitBalance() {
-        bitBalanceStubLabel.setVisible(true);
     }
 
     private void updateWexBalance() {
@@ -495,11 +481,11 @@ public class MainView extends VerticalLayout implements View {
         wexBalanceGrid.setComponentError(new UserError(errorText));
     }
 
-    private void clearWexBalance() {
-        wexNzUserBalance.clear();
-        wexBalanceGrid.setVisible(false);
-        wexBalanceGrid.setHeightByRows(1);
-        wexBalanceStubLabel.setVisible(true);
+    private void hideBalancePanel(List balanceHolderList, Grid balanceHolderGrid, Label balanceStubLabel) {
+        balanceHolderList.clear();
+        balanceHolderGrid.setVisible(false);
+        balanceHolderGrid.setHeightByRows(1);
+        balanceStubLabel.setVisible(true);
     }
 
     @Override

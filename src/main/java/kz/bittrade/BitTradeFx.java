@@ -260,7 +260,7 @@ public class BitTradeFx extends UI {
                 wexnzTicker = "";
                 krakenTicker = "";
                 cexTicker = "";
-                System.out.println("Unknown coin name given while pairHolder init method.");
+                System.out.println("Unknown coin name given in pairHolder init method.");
             }
         }
         ccp.getBitfinexPair().setTickerName(bitfinexTicker);
@@ -296,8 +296,8 @@ public class BitTradeFx extends UI {
                     settingsView.updateValuesToUI();
                     mainView.initMarketColumns();
                     initCurrencyPairs();
-                    mainView.hideInitStub();
                     mainView.initBalanceStubLabels();
+                    mainView.hideInitStub();
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();

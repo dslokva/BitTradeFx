@@ -7,7 +7,6 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Base64;
 
@@ -71,10 +70,7 @@ public final class BitfinexPrivateApiAccessLib extends ApiAccessLib {
 
         } catch (MalformedURLException e) {
             throw new IOException(e.getClass().getName(), e);
-        } catch (ProtocolException e) {
-            throw new IOException(e.getClass().getName(), e);
         } catch (IOException e) {
-
             String errMsg = e.toString();
 
             if (conn != null) {
