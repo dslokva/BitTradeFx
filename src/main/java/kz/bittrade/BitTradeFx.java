@@ -297,6 +297,7 @@ public class BitTradeFx extends UI {
                     mainView.initMarketColumns();
                     initCurrencyPairs();
                     mainView.hideInitStub();
+                    mainView.initBalanceStubLabels();
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();

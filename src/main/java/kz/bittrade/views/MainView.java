@@ -399,19 +399,20 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void updateBitfinexBalance() {
-        BitfinexPrivateApiAccessLib bitLib = new BitfinexPrivateApiAccessLib(settings.getProperty(BFConstants.BIT_API_KEY),
-                settings.getProperty(BFConstants.BIT_API_SECRET));
-        try {
-            String result = bitLib.sendRequestV1Balances();
-            JSONArray json = new JSONArray(result);
-            BitfinexBalancesList bitfinexBalancesList = new BitfinexBalancesList();
-            for (int i = 0; i < json.length(); i++) {
-                JSONObject obj = json.getJSONObject(i);
-                BitfinexBalance bitfinexBalance = new Gson().fromJson(obj.toString(), BitfinexBalance.class);
-                bitfinexBalancesList.add(bitfinexBalance);
-            }
+        if (isBitAPIKeyPresent()) {
+            BitfinexPrivateApiAccessLib bitLib = new BitfinexPrivateApiAccessLib(settings.getProperty(BFConstants.BIT_API_KEY),
+                    settings.getProperty(BFConstants.BIT_API_SECRET));
+            try {
+                String result = bitLib.sendRequestV1Balances();
+                JSONArray json = new JSONArray(result);
+                BitfinexBalancesList bitfinexBalancesList = new BitfinexBalancesList();
+                for (int i = 0; i < json.length(); i++) {
+                    JSONObject obj = json.getJSONObject(i);
+                    BitfinexBalance bitfinexBalance = new Gson().fromJson(obj.toString(), BitfinexBalance.class);
+                    bitfinexBalancesList.add(bitfinexBalance);
+                }
 
-            if (bitfinexBalancesList.getBalancesMap().size() > 0) {
+                if (bitfinexBalancesList.getBalancesMap().size() > 0) {
 //                labelBitTotalUSD.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailUsd()) + "</b>");
 //                labelBitTotalBTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailBtc()) + "</b>");
 //                labelBitTotalBCH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getAvailBch()) + "</b>");
@@ -427,12 +428,13 @@ public class MainView extends VerticalLayout implements View {
 //                labelBitOrderLTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersLtc()) + "</b>");
 //                labelBitOrderZEC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersZec()) + "</b>");
 //                labelBitOrderDSH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersDsh()) + "</b>");
-            } else {
+                } else {
+                    setBitLabelsError();
+                }
+            } catch (Exception e) {
                 setBitLabelsError();
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            setBitLabelsError();
-            e.printStackTrace();
         }
     }
 
@@ -451,40 +453,42 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void updateWexBalance() {
-        WexNzPrivateApiAccessLib privateLib = new WexNzPrivateApiAccessLib(settings.getProperty(BFConstants.WEX_API_KEY),
-                settings.getProperty(BFConstants.WEX_API_SECRET));
+        if (isWexAPIKeyPresent()) {
+            WexNzPrivateApiAccessLib privateLib = new WexNzPrivateApiAccessLib(settings.getProperty(BFConstants.WEX_API_KEY),
+                    settings.getProperty(BFConstants.WEX_API_SECRET));
 
-        wexNzUserBalance.clear();
-        wexBalanceGrid.setVisible(true);
-        wexBalanceGrid.setHeightByRows(1);
-        wexBalanceGrid.setComponentError(null);
-        wexBalanceStubLabel.setVisible(false);
+            wexNzUserBalance.clear();
+            wexBalanceGrid.setVisible(true);
+            wexBalanceGrid.setHeightByRows(1);
+            wexBalanceGrid.setComponentError(null);
+            wexBalanceStubLabel.setVisible(false);
 
-        ArrayList<NameValuePair> postData = new ArrayList<>();
-        postData.add(new BasicNameValuePair("method", "getInfo"));
-        privateLib.setPrivateUrl(BFConstants.WEX_API_PRIVATE_URL);
+            ArrayList<NameValuePair> postData = new ArrayList<>();
+            postData.add(new BasicNameValuePair("method", "getInfo"));
+            privateLib.setPrivateUrl(BFConstants.WEX_API_PRIVATE_URL);
 
-        JsonObject result = privateLib.performAuthorizedRequest(postData);
-        if (result != null) {
-            privateLib.log("getInfo result: ".concat(result.toString()));
-            WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
-            if (wexUserInfo != null) {
-                if (wexUserInfo.getSuccess() == 1) {
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.USD, wexUserInfo.getInfo().getFunds().getUsd()));
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN, wexUserInfo.getInfo().getFunds().getBtc()));
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN_CASH, wexUserInfo.getInfo().getFunds().getBch()));
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ETHERIUM, wexUserInfo.getInfo().getFunds().getEth()));
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.LITECOIN, wexUserInfo.getInfo().getFunds().getLtc()));
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ZCASH, wexUserInfo.getInfo().getFunds().getZec()));
-                    wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.DASH_COIN, wexUserInfo.getInfo().getFunds().getDsh()));
-                    wexBalanceGrid.setCaption("Total balance @" + wexUserInfo.getInfo().getTimestamp());
-                    wexBalanceGrid.setHeightByRows(7);
-                } else {
-                    setWexLabelsError(wexUserInfo.getError());
-                }
-            } else setWexLabelsError("JSON parse failed");
-        } else setWexLabelsError("Request failed");
-        wexBalanceGrid.getDataProvider().refreshAll();
+            JsonObject result = privateLib.performAuthorizedRequest(postData);
+            if (result != null) {
+                privateLib.log("getInfo result: ".concat(result.toString()));
+                WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
+                if (wexUserInfo != null) {
+                    if (wexUserInfo.getSuccess() == 1) {
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.USD, wexUserInfo.getInfo().getFunds().getUsd()));
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN, wexUserInfo.getInfo().getFunds().getBtc()));
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN_CASH, wexUserInfo.getInfo().getFunds().getBch()));
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ETHERIUM, wexUserInfo.getInfo().getFunds().getEth()));
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.LITECOIN, wexUserInfo.getInfo().getFunds().getLtc()));
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ZCASH, wexUserInfo.getInfo().getFunds().getZec()));
+                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.DASH_COIN, wexUserInfo.getInfo().getFunds().getDsh()));
+                        wexBalanceGrid.setCaption("Total balance @" + wexUserInfo.getInfo().getTimestamp());
+                        wexBalanceGrid.setHeightByRows(7);
+                    } else {
+                        setWexLabelsError(wexUserInfo.getError());
+                    }
+                } else setWexLabelsError("JSON parse failed");
+            } else setWexLabelsError("Request failed");
+            wexBalanceGrid.getDataProvider().refreshAll();
+        }
     }
 
     private void setWexLabelsError(String errorText) {
@@ -503,10 +507,34 @@ public class MainView extends VerticalLayout implements View {
         System.out.println("enter");
         smartInitCurrencyPairs();
         initMarketColumns();
+        initBalanceStubLabels();
 //        PublicApiAccessLib.setBasicUrl("https://poloniex.com/");
 //        PublicApiAccessLib.clearHeaders();
 //        JsonObject result = PublicApiAccessLib.performBasicRequest("public", "?command=returnTicker");
 //        System.out.println(result.toString());
+    }
+
+    public void initBalanceStubLabels() {
+        initBalanceStubLabel(wexBalanceStubLabel, isWexAPIKeyPresent());
+        initBalanceStubLabel(bitBalanceStubLabel, isBitAPIKeyPresent());
+    }
+
+    private void initBalanceStubLabel(Label label, boolean keyPresent) {
+        if (keyPresent) {
+            label.setValue("Click refresh to show info");
+            label.setComponentError(null);
+        } else {
+            label.setValue("Set api key to get info");
+            label.setComponentError(new UserError("key is absent"));
+        }
+    }
+
+    private boolean isWexAPIKeyPresent() {
+        return !settings.getProperty(BFConstants.WEX_API_KEY).equals("");
+    }
+
+    private boolean isBitAPIKeyPresent() {
+        return !settings.getProperty(BFConstants.BIT_API_KEY).equals("");
     }
 
     public void initMarketColumns() {
