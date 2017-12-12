@@ -9,7 +9,6 @@ import com.vaadin.server.SerializableComparator;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
 import com.vaadin.ui.*;
-import com.vaadin.ui.renderers.ButtonRenderer;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
 import kz.bittrade.BitTradeFx;
@@ -218,22 +217,56 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.setCaption("Currency information");
         currInfoGrid.setItems(mainui.getCurrencyPairsHolderList());
         currInfoGrid.addComponentColumn(currencyPairRow -> {
-            Button button = new Button("Click me!");
+            HorizontalLayout hlayout = new HorizontalLayout();
+            hlayout.setWidth("100%");
+            hlayout.setSpacing(false);
+
+            Button button = new Button("refresh");
             button.setIcon(VaadinIcons.REFRESH);
             button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             button.addStyleName(ValoTheme.BUTTON_SMALL);
             button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+            button.setDescription("Refresh row");
             button.addClickListener(click -> {
                 mainui.refreshCurrencyGrid(currencyPairRow);
             });
-            return button;
-        }).setCaption("")
-                .setWidth(60)
-                .setResizable(false);
+            hlayout.addComponent(button);
+            hlayout.setComponentAlignment(button, MIDDLE_CENTER);
+            return hlayout;
+        }).setCaption("Refresh")
+                .setWidth(73)
+                .setResizable(false)
+                .setSortable(false);
 
-        currInfoGrid.addColumn(CurrencyPairsHolder::getDisplayName, new HtmlRenderer()).setCaption("Pair name")
-                .setWidth(120)
-                .setResizable(false);
+        currInfoGrid.addComponentColumn((CurrencyPairsHolder currencyPairRow) -> {
+            HorizontalLayout hlayout = new HorizontalLayout();
+            hlayout.setWidth("100%");
+            hlayout.setSpacing(false);
+
+            Label label = new Label(currencyPairRow.getDisplayName());
+            label.setSizeUndefined();
+
+            Button button = new Button("more");
+            button.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
+            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+            button.addStyleName(ValoTheme.BUTTON_SMALL);
+            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+            button.setDescription("Trade actions");
+            button.addClickListener(click -> {
+                //will show "more" popup;
+            });
+            button.setSizeUndefined();
+
+            hlayout.addComponent(label);
+            hlayout.addComponent(button);
+            hlayout.setComponentAlignment(label, MIDDLE_LEFT);
+            hlayout.setComponentAlignment(button, MIDDLE_RIGHT);
+            return hlayout;
+        }).setCaption("Pair name")
+                .setWidth(147)
+                .setResizable(false)
+                .setSortable(false);
+
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
                 .setCaption("Delta $")
                 .setWidth(100);
@@ -265,14 +298,10 @@ public class MainView extends VerticalLayout implements View {
                 .setId(BFConstants.KRAKEN_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
                 .setCaption(BFConstants.CEX)
-                .setWidth(127)
+                //.setWidth(127)
                 .setResizable(false)
                 .setId(BFConstants.CEX_GRID_COLUMN);
 
-        currInfoGrid.addColumn(CurrencyPairsHolder -> "Calculate",
-                new ButtonRenderer(clickEvent -> {
-//                    mainui.refreshCurrencyInfo((CurrencyPairsHolder) clickEvent.getItem());
-                })).setCaption("Actions");
         currInfoGrid.setWidth("100%");
     }
 
