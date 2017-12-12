@@ -134,8 +134,6 @@ public class BitTradeFx extends UI {
             currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ZCASH));
         if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
             currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.DASH_COIN));
-
-        mainView.setMainGridCorrectRowCount();
     }
 
     private void refreshWexNzCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
@@ -298,13 +296,20 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             try {
-                Thread.sleep(1700);
+                Thread.sleep(1600);
                 access(() -> {
-                    System.out.println("after sleep init");
+//                    System.out.println("after sleep init");
                     settingsView.updateValuesToUI();
-                    mainView.initMarketColumns();
+                    push();
+                });
+
+                Thread.sleep(200);
+
+                access(() -> {
                     initCurrencyPairs();
+                    mainView.initMarketColumns();
                     mainView.initBalanceStubLabels();
+                    mainView.setMainGridCorrectRowCount();
                     mainView.hideInitStub();
                 });
             } catch (InterruptedException e) {

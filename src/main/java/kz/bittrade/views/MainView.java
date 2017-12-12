@@ -80,6 +80,7 @@ public class MainView extends VerticalLayout implements View {
         refreshProgressBar.setVisible(false);
 
         labelRefresh = new Label("");
+        labelRefresh.setVisible(false);
         labelRefreshSec = new Label("");
 
         bitBalanceStubLabel = getBalanceStubLabel();
@@ -249,7 +250,7 @@ public class MainView extends VerticalLayout implements View {
             label.setSizeUndefined();
 
             Button button = new Button("");
-            button.setIcon(VaadinIcons.ELLIPSIS_H);
+            button.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
             button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
             button.setDescription("Trade actions");
@@ -285,26 +286,29 @@ public class MainView extends VerticalLayout implements View {
                 );
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceWex, new HtmlRenderer())
                 .setCaption(BFConstants.WEX)
-                .setWidth(127)
+//                .setWidth(127)
+                .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.WEX_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
                 .setCaption(BFConstants.BITFINEX)
-                .setWidth(127)
+//                .setWidth(127)
+                .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.BITFINEX_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
                 .setCaption(BFConstants.KRAKEN)
-                .setWidth(127)
+//                .setWidth(127)
+                .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.KRAKEN_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
                 .setCaption(BFConstants.CEX)
                 //.setWidth(127)
+                .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.CEX_GRID_COLUMN);
-
-        currInfoGrid.setWidth("100%");
+        currInfoGrid.setSizeFull();
     }
 
     private void initBalanceGrids() {
@@ -439,22 +443,39 @@ public class MainView extends VerticalLayout implements View {
                     }
 
                     if (bitfinexBalancesList.getBalancesMap().size() > 0) {
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.USD, bitfinexBalancesList.getAvailUsd()));
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.BITCOIN, bitfinexBalancesList.getAvailBtc()));
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.BITCOIN_CASH, bitfinexBalancesList.getAvailBch()));
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ETHERIUM, bitfinexBalancesList.getAvailEth()));
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.LITECOIN, bitfinexBalancesList.getAvailLtc()));
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ZCASH, bitfinexBalancesList.getAvailZec()));
-                        bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.DASH_COIN, bitfinexBalancesList.getAvailDsh()));
-                        bitBalanceGrid.setCaption("Total balance @" + settings.getNowString());
-                        bitBalanceGrid.setHeightByRows(7);
-//                labelBitOrderUSD.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersUsd()) + "</b>");
-//                labelBitOrderBTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersBtc()) + "</b>");
-//                labelBitOrderBCH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersBch()) + "</b>");
-//                labelBitOrderETH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersEth()) + "</b>");
-//                labelBitOrderLTC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersLtc()) + "</b>");
-//                labelBitOrderZEC.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersZec()) + "</b>");
-//                labelBitOrderDSH.setValue("<b>" + String.format("%.6f", bitfinexBalancesList.getOnOrdersDsh()) + "</b>");
+                        double amount = bitfinexBalancesList.getAvailUsd();
+                        if (amount > 0) bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.USD, amount));
+
+                        amount = bitfinexBalancesList.getAvailBtc();
+                        if (amount > 0) bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.BITCOIN, amount));
+
+                        amount = bitfinexBalancesList.getAvailBch();
+                        if (amount > 0)
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.BITCOIN_CASH, amount));
+
+                        amount = bitfinexBalancesList.getAvailEth();
+                        if (amount > 0)
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ETHERIUM, amount));
+
+                        amount = bitfinexBalancesList.getAvailLtc();
+                        if (amount > 0)
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.LITECOIN, amount));
+
+                        amount = bitfinexBalancesList.getAvailZec();
+                        if (amount > 0)
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ZCASH, bitfinexBalancesList.getAvailZec()));
+
+                        amount = bitfinexBalancesList.getAvailDsh();
+                        if (amount > 0)
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.DASH_COIN, bitfinexBalancesList.getAvailDsh()));
+
+                        bitBalanceGrid.setCaption("Updated @" + settings.getNowString());
+                        if (bitfinexUserBalance.size() > 0) {
+                            bitBalanceGrid.setHeightByRows(bitfinexUserBalance.size());
+                        } else {
+                            bitBalanceGrid.setHeightByRows(1);
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder("Total balance", 0.0));
+                        }
                     }
                 } else {
                     setBitLabelsError("");
@@ -469,13 +490,6 @@ public class MainView extends VerticalLayout implements View {
 
     private void setBitLabelsError(String errorText) {
         bitBalanceGrid.setComponentError(new UserError(errorText));
-//        labelBitTotalUSD.setValue("<b>error</b>");
-//        labelBitTotalBTC.setValue("<b>error</b>");
-//        labelBitTotalBCH.setValue("<b>error</b>");
-//        labelBitTotalETH.setValue("<b>error</b>");
-//        labelBitTotalLTC.setValue("<b>error</b>");
-//        labelBitTotalZEC.setValue("<b>error</b>");
-//        labelBitTotalDSH.setValue("<b>error</b>");
     }
 
     private void updateWexBalance() {
@@ -499,15 +513,35 @@ public class MainView extends VerticalLayout implements View {
                 WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
                 if (wexUserInfo != null) {
                     if (wexUserInfo.getSuccess() == 1) {
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.USD, wexUserInfo.getInfo().getFunds().getUsd()));
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN, wexUserInfo.getInfo().getFunds().getBtc()));
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN_CASH, wexUserInfo.getInfo().getFunds().getBch()));
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ETHERIUM, wexUserInfo.getInfo().getFunds().getEth()));
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.LITECOIN, wexUserInfo.getInfo().getFunds().getLtc()));
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ZCASH, wexUserInfo.getInfo().getFunds().getZec()));
-                        wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.DASH_COIN, wexUserInfo.getInfo().getFunds().getDsh()));
-                        wexBalanceGrid.setCaption("Total balance @" + wexUserInfo.getInfo().getTimestamp());
-                        wexBalanceGrid.setHeightByRows(7);
+                        double amount = wexUserInfo.getInfo().getFunds().getUsd();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.USD, amount));
+
+                        amount = wexUserInfo.getInfo().getFunds().getBtc();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN, amount));
+
+                        amount = wexUserInfo.getInfo().getFunds().getBch();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN_CASH, amount));
+
+                        amount = wexUserInfo.getInfo().getFunds().getEth();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ETHERIUM, amount));
+
+                        amount = wexUserInfo.getInfo().getFunds().getLtc();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.LITECOIN, amount));
+
+                        amount = wexUserInfo.getInfo().getFunds().getZec();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ZCASH, amount));
+
+                        amount = wexUserInfo.getInfo().getFunds().getDsh();
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.DASH_COIN, amount));
+
+                        wexBalanceGrid.setCaption("Updated @" + wexUserInfo.getInfo().getTimestamp());
+
+                        if (wexNzUserBalance.size() > 0) {
+                            wexBalanceGrid.setHeightByRows(wexNzUserBalance.size());
+                        } else {
+                            wexBalanceGrid.setHeightByRows(1);
+                            wexNzUserBalance.add(new WexNzBalanceHolder("Total balance", 0.0));
+                        }
                     } else {
                         setWexLabelsError(wexUserInfo.getError());
                     }
@@ -530,7 +564,7 @@ public class MainView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-        System.out.println("enter");
+//        System.out.println("enter");
         smartInitCurrencyPairs();
         initMarketColumns();
         initBalanceStubLabels();
@@ -609,10 +643,8 @@ public class MainView extends VerticalLayout implements View {
             labelRefresh.removeStyleName(ValoTheme.LABEL_FAILURE);
             labelRefresh.setValue("");
         } else {
-            if (isInitialized()) {
-                labelRefresh.setValue("At least one Coin and Market must be selected for monitoring! (check settings)");
-                labelRefresh.addStyleName(ValoTheme.LABEL_FAILURE);
-            }
+            labelRefresh.setValue("At least one Coin and Market must be selected for monitoring! (check settings)");
+            labelRefresh.addStyleName(ValoTheme.LABEL_FAILURE);
         }
         if (cphSize > 0) currInfoGrid.setHeightByRows(cphSize);
         else currInfoGrid.setHeightByRows(1);
@@ -622,6 +654,7 @@ public class MainView extends VerticalLayout implements View {
 
         btnRefreshTable.setEnabled(!emptyTable);
         chkAutoRefresh.setEnabled(!emptyTable);
+        btnRefreshUserBalance.setEnabled(marketsCount > 0);
         currInfoGrid.getDataProvider().refreshAll();
     }
 
@@ -631,18 +664,18 @@ public class MainView extends VerticalLayout implements View {
 
     public void hideInitStub() {
         waitingStubPanel.setVisible(false);
-        setInitialized(true);
+        labelRefresh.setVisible(true);
     }
 
     public boolean isInitialized() {
         return initialized;
     }
 
-    public void setInitialized(boolean initialized) {
-        this.initialized = initialized;
-    }
-
     public Button getBtnSettings() {
         return btnSettings;
+    }
+
+    public void setInitialized(boolean initialized) {
+        this.initialized = initialized;
     }
 }
