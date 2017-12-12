@@ -218,26 +218,6 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
         currInfoGrid.setCaption("Currency information");
         currInfoGrid.setItems(mainui.getCurrencyPairsHolderList());
-        currInfoGrid.addComponentColumn(currencyPairRow -> {
-            HorizontalLayout hlayout = new HorizontalLayout();
-            hlayout.setWidth("100%");
-            hlayout.setSpacing(false);
-
-            Button button = new Button("");
-            button.setIcon(VaadinIcons.REFRESH);
-            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            button.setDescription("Refresh row");
-            button.addClickListener(click -> {
-                mainui.refreshCurrencyGrid(currencyPairRow);
-            });
-            hlayout.addComponent(button);
-            hlayout.setComponentAlignment(button, MIDDLE_CENTER);
-            return hlayout;
-        }).setCaption("Refresh")
-                .setWidth(73)
-                .setResizable(false)
-                .setSortable(false);
 
         currInfoGrid.addComponentColumn((CurrencyPairsHolder currencyPairRow) -> {
             HorizontalLayout hlayout = new HorizontalLayout();
@@ -272,7 +252,15 @@ public class MainView extends VerticalLayout implements View {
 
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
                 .setCaption("Delta $")
-                .setWidth(100);
+                .setWidth(100)
+                .setComparator(
+                        new SerializableComparator<CurrencyPairsHolder>() {
+                            @Override
+                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
+                                return Double.compare(a.getDeltaDouble(), b.getDeltaDouble());
+                            }
+                        }
+                );
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaStringPercent, new HtmlRenderer())
                 .setCaption("Delta %")
                 .setWidth(100)
@@ -304,6 +292,28 @@ public class MainView extends VerticalLayout implements View {
                 .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.CEX_GRID_COLUMN);
+
+        currInfoGrid.addComponentColumn(currencyPairRow -> {
+            HorizontalLayout hlayout = new HorizontalLayout();
+            hlayout.setWidth("100%");
+            hlayout.setSpacing(false);
+
+            Button button = new Button("");
+            button.setIcon(VaadinIcons.REFRESH);
+            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+            button.setDescription("Refresh row");
+            button.addClickListener(click -> {
+                mainui.refreshCurrencyGrid(currencyPairRow);
+            });
+            hlayout.addComponent(button);
+            hlayout.setComponentAlignment(button, MIDDLE_CENTER);
+            return hlayout;
+        }).setCaption("Refresh")
+                .setWidth(73)
+                .setResizable(false)
+                .setSortable(false);
+
         currInfoGrid.setSizeFull();
     }
 

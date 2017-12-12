@@ -175,7 +175,7 @@ public class CurrencyPairsHolder {
     private String colorizeStringPrice(CommonCurrencyPair pair) {
         String lastPrice = pair.getLastPrice();
         if (maxPricePairMarketId.equals(minPricePairMarketId))
-            return "<b><font color='green'>" + lastPrice + "</font></b>";
+            return "<b><font color='gray'>" + lastPrice + "</font></b>";
 
         if (pair.getMarketId().equals(maxPricePairMarketId))
             return "<b><font color='red'>" + lastPrice + "</font></b>";
@@ -190,6 +190,10 @@ public class CurrencyPairsHolder {
             result = "<b>" + String.format("%.3f", maxDoublePrice - minDoublePrice) + "</b>";
         }
         return result;
+    }
+
+    public double getDeltaDouble() {
+        return maxDoublePrice - minDoublePrice;
     }
 
     public double getDeltaDoublePercent() {

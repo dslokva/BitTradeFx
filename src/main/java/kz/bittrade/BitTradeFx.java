@@ -376,7 +376,6 @@ public class BitTradeFx extends UI {
                 while (waitForRefreshers.getCount() != 0) //Проверяем, собрались ли все автомобили
                     Thread.sleep(50);
 
-                currInfoGrid.getDataProvider().refreshAll(); //to end of all threads
                 access(() -> {
                     if (currencyPairsToRefresh.size() > 1)
                         refreshLabel.setValue("Updated at: " + settings.getNowString());
@@ -389,6 +388,7 @@ public class BitTradeFx extends UI {
 
                     if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
                         currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
+                    currInfoGrid.getDataProvider().refreshAll(); //to end of all threads
                     push();
                 });
             } catch (InterruptedException e) {
