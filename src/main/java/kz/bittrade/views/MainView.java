@@ -286,25 +286,21 @@ public class MainView extends VerticalLayout implements View {
                 );
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceWex, new HtmlRenderer())
                 .setCaption(BFConstants.WEX)
-//                .setWidth(127)
                 .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.WEX_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
                 .setCaption(BFConstants.BITFINEX)
-//                .setWidth(127)
                 .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.BITFINEX_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
                 .setCaption(BFConstants.KRAKEN)
-//                .setWidth(127)
                 .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.KRAKEN_GRID_COLUMN);
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
                 .setCaption(BFConstants.CEX)
-                //.setWidth(127)
                 .setExpandRatio(2)
                 .setResizable(false)
                 .setId(BFConstants.CEX_GRID_COLUMN);

@@ -28,6 +28,7 @@ import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
+import java.util.concurrent.CountDownLatch;
 
 @Theme("mytheme")
 @Push(PushMode.AUTOMATIC)
@@ -296,9 +297,8 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             try {
-                Thread.sleep(1600);
+                Thread.sleep(1500);
                 access(() -> {
-//                    System.out.println("after sleep init");
                     settingsView.updateValuesToUI();
                     push();
                 });
@@ -337,6 +337,8 @@ public class BitTradeFx extends UI {
 
         @Override
         public void run() {
+            final CountDownLatch waitForRefreshers = new CountDownLatch(currencyPairsToRefresh.size());
+
             try {
                 access(() -> {
                     refreshLabel.setValue("Refreshing, please wait");
@@ -344,27 +346,37 @@ public class BitTradeFx extends UI {
                     btnSettings.setEnabled(false);
                     push();
                 });
+
                 synchronized (RefreshThread.this) {
                     for (CurrencyPairsHolder currencyPairsHolder : currencyPairsToRefresh) {
                         String oldName = currencyPairsHolder.getDisplayName();
                         currencyPairsHolder.setDisplayName("<b><font color ='#000066'> * " + oldName + "</font></b>");
-                        Thread.sleep(60);
+                        Thread.sleep(100);
                         access(() -> {
-                            float current = refreshProgressBar.getValue();
-                            refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
-                            currInfoGrid.getDataProvider().refreshAll();
-                            push();
                             try {
-                                Thread.sleep(80);
-                                refreshCurrencyInfo(currencyPairsHolder);
-                                currencyPairsHolder.setDisplayName(oldName);
-                                push();
-                            } catch (InterruptedException e) {
+                                Thread refresh = new Thread(() -> {
+                                    refreshCurrencyInfo(currencyPairsHolder);
+                                    currencyPairsHolder.setDisplayName(oldName);
+                                    waitForRefreshers.countDown();
+                                    synchronized (this) {
+                                        currInfoGrid.getDataProvider().refreshAll();
+                                        float current = refreshProgressBar.getValue();
+                                        refreshProgressBar.setValue(current + (1.0f / currencyPairsToRefresh.size()));
+                                        push();
+                                    }
+                                });
+                                refresh.start();
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
+
                         });
                     }
                 }
+                while (waitForRefreshers.getCount() != 0) //Проверяем, собрались ли все автомобили
+                    Thread.sleep(50);
+
+                currInfoGrid.getDataProvider().refreshAll(); //to end of all threads
                 access(() -> {
                     if (currencyPairsToRefresh.size() > 1)
                         refreshLabel.setValue("Updated at: " + settings.getNowString());
