@@ -187,7 +187,7 @@ public class CurrencyPairsHolder {
     public String getDeltaString() {
         String result = "0.00";
         if (!isLonelyMarket()) {
-            result = "<b>" + String.format("%.4f", maxDoublePrice - minDoublePrice) + "</b>";
+            result = "<b>" + String.format("%.3f", maxDoublePrice - minDoublePrice) + "</b>";
         }
         return result;
     }

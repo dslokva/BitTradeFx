@@ -8,6 +8,7 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.SerializableComparator;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
@@ -221,10 +222,9 @@ public class MainView extends VerticalLayout implements View {
             hlayout.setWidth("100%");
             hlayout.setSpacing(false);
 
-            Button button = new Button("refresh");
+            Button button = new Button("");
             button.setIcon(VaadinIcons.REFRESH);
             button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            button.addStyleName(ValoTheme.BUTTON_SMALL);
             button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
             button.setDescription("Refresh row");
             button.addClickListener(click -> {
@@ -241,29 +241,31 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.addComponentColumn((CurrencyPairsHolder currencyPairRow) -> {
             HorizontalLayout hlayout = new HorizontalLayout();
             hlayout.setWidth("100%");
+            hlayout.setHeight("100%");
             hlayout.setSpacing(false);
+            hlayout.setMargin(false);
 
-            Label label = new Label(currencyPairRow.getDisplayName());
+            Label label = new Label(currencyPairRow.getDisplayName(), ContentMode.HTML);
             label.setSizeUndefined();
 
-            Button button = new Button("more");
-            button.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
+            Button button = new Button("");
+            button.setIcon(VaadinIcons.ELLIPSIS_H);
             button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            button.addStyleName(ValoTheme.BUTTON_SMALL);
             button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
             button.setDescription("Trade actions");
+            button.setWidth("23%");
             button.addClickListener(click -> {
-                //will show "more" popup;
+                //will show "actions" popup;
             });
-            button.setSizeUndefined();
 
             hlayout.addComponent(label);
             hlayout.addComponent(button);
             hlayout.setComponentAlignment(label, MIDDLE_LEFT);
             hlayout.setComponentAlignment(button, MIDDLE_RIGHT);
+
             return hlayout;
         }).setCaption("Pair name")
-                .setWidth(147)
+                .setWidth(150)
                 .setResizable(false)
                 .setSortable(false);
 
