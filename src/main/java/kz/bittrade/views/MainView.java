@@ -116,97 +116,8 @@ public class MainView extends VerticalLayout implements View {
             }
         });
 
-        wexBalanceGrid = new Grid<>();
-        wexBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        wexBalanceGrid.setCaption("Total balance");
-        wexBalanceGrid.setItems(wexNzUserBalance);
-        wexBalanceGrid.addColumn(WexNzBalanceHolder::getCurrencyName, new HtmlRenderer())
-                .setCaption("Currency")
-                .setResizable(false)
-                .setWidth(110);
-        wexBalanceGrid.addColumn(WexNzBalanceHolder::getAmount, new HtmlRenderer())
-                .setCaption("Balance")
-                .setResizable(false);
-        wexBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
-        wexBalanceGrid.setWidth("17em");
-        wexBalanceGrid.setHeightByRows(1);
-        wexBalanceGrid.setVisible(false);
-
-        bitBalanceGrid = new Grid<>();
-        bitBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        bitBalanceGrid.setCaption("Total balance");
-        bitBalanceGrid.setItems(bitfinexUserBalance);
-        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getCurrencyName, new HtmlRenderer())
-                .setCaption("Currency")
-                .setResizable(false)
-                .setWidth(110);
-        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getAmount, new HtmlRenderer())
-                .setCaption("Balance")
-                .setResizable(false);
-        bitBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
-        bitBalanceGrid.setWidth("17em");
-        bitBalanceGrid.setHeightByRows(1);
-        bitBalanceGrid.setVisible(false);
-
-
-        currInfoGrid = new Grid<>();
-        currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        currInfoGrid.setCaption("Currency information");
-        currInfoGrid.setItems(mainui.getCurrencyPairsHolderList());
-        currInfoGrid.addComponentColumn(currencyPairRow -> {
-            Button button = new Button("Click me!");
-            button.setIcon(VaadinIcons.REFRESH);
-            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            button.addStyleName(ValoTheme.BUTTON_SMALL);
-            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            button.addClickListener(click -> {
-                mainui.refreshCurrencyGrid(currencyPairRow);
-            });
-            return button;
-        }).setCaption("")
-                .setWidth(60)
-                .setResizable(false);
-
-        currInfoGrid.addColumn(CurrencyPairsHolder::getDisplayName, new HtmlRenderer()).setCaption("Pair name")
-                .setWidth(120)
-                .setResizable(false);
-        currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
-                .setCaption("Delta $")
-                .setWidth(100);
-        currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaStringPercent, new HtmlRenderer())
-                .setCaption("Delta %")
-                .setWidth(100)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getDeltaDoublePercent(), b.getDeltaDoublePercent());
-                            }
-                        }
-                );
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceWex, new HtmlRenderer())
-                .setCaption(BFConstants.WEX)
-                .setWidth(138)
-                .setId(BFConstants.WEX_GRID_COLUMN);
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
-                .setCaption(BFConstants.BITFINEX)
-                .setWidth(138)
-                .setId(BFConstants.BITFINEX_GRID_COLUMN);
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
-                .setCaption(BFConstants.KRAKEN)
-                .setWidth(138)
-                .setId(BFConstants.KRAKEN_GRID_COLUMN);
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
-                .setCaption(BFConstants.CEX)
-                .setWidth(138)
-                .setId(BFConstants.CEX_GRID_COLUMN);
-
-        currInfoGrid.addColumn(CurrencyPairsHolder -> "Calculate",
-                new ButtonRenderer(clickEvent -> {
-//                    mainui.refreshCurrencyInfo((CurrencyPairsHolder) clickEvent.getItem());
-                })).setCaption("Actions");
-
-        currInfoGrid.setWidth("100%");
+        initBalanceGrids();
+        initMainGrid();
 
         VerticalLayout wexBalanceVerticalStub = new VerticalLayout();
         wexBalanceVerticalStub.setSpacing(true);
@@ -299,6 +210,104 @@ public class MainView extends VerticalLayout implements View {
         setComponentAlignment(topPanel, Alignment.TOP_CENTER);
         setComponentAlignment(middlePanel, Alignment.MIDDLE_CENTER);
         initAutoRefreshTimer();
+    }
+
+    private void initMainGrid() {
+        currInfoGrid = new Grid<>();
+        currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        currInfoGrid.setCaption("Currency information");
+        currInfoGrid.setItems(mainui.getCurrencyPairsHolderList());
+        currInfoGrid.addComponentColumn(currencyPairRow -> {
+            Button button = new Button("Click me!");
+            button.setIcon(VaadinIcons.REFRESH);
+            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+            button.addStyleName(ValoTheme.BUTTON_SMALL);
+            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+            button.addClickListener(click -> {
+                mainui.refreshCurrencyGrid(currencyPairRow);
+            });
+            return button;
+        }).setCaption("")
+                .setWidth(60)
+                .setResizable(false);
+
+        currInfoGrid.addColumn(CurrencyPairsHolder::getDisplayName, new HtmlRenderer()).setCaption("Pair name")
+                .setWidth(120)
+                .setResizable(false);
+        currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
+                .setCaption("Delta $")
+                .setWidth(100);
+        currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaStringPercent, new HtmlRenderer())
+                .setCaption("Delta %")
+                .setWidth(100)
+                .setComparator(
+                        new SerializableComparator<CurrencyPairsHolder>() {
+                            @Override
+                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
+                                return Double.compare(a.getDeltaDoublePercent(), b.getDeltaDoublePercent());
+                            }
+                        }
+                );
+        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceWex, new HtmlRenderer())
+                .setCaption(BFConstants.WEX)
+                .setWidth(127)
+                .setResizable(false)
+                .setId(BFConstants.WEX_GRID_COLUMN);
+        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
+                .setCaption(BFConstants.BITFINEX)
+                .setWidth(127)
+                .setResizable(false)
+                .setId(BFConstants.BITFINEX_GRID_COLUMN);
+        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
+                .setCaption(BFConstants.KRAKEN)
+                .setWidth(127)
+                .setResizable(false)
+                .setId(BFConstants.KRAKEN_GRID_COLUMN);
+        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
+                .setCaption(BFConstants.CEX)
+                .setWidth(127)
+                .setResizable(false)
+                .setId(BFConstants.CEX_GRID_COLUMN);
+
+        currInfoGrid.addColumn(CurrencyPairsHolder -> "Calculate",
+                new ButtonRenderer(clickEvent -> {
+//                    mainui.refreshCurrencyInfo((CurrencyPairsHolder) clickEvent.getItem());
+                })).setCaption("Actions");
+        currInfoGrid.setWidth("100%");
+    }
+
+    private void initBalanceGrids() {
+        wexBalanceGrid = new Grid<>();
+        wexBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        wexBalanceGrid.setCaption("Total balance");
+        wexBalanceGrid.setItems(wexNzUserBalance);
+        wexBalanceGrid.addColumn(WexNzBalanceHolder::getCurrencyName, new HtmlRenderer())
+                .setCaption("Currency")
+                .setResizable(false)
+                .setWidth(110);
+        wexBalanceGrid.addColumn(WexNzBalanceHolder::getAmount, new HtmlRenderer())
+                .setCaption("Balance")
+                .setResizable(false);
+        wexBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
+        wexBalanceGrid.setWidth("17em");
+        wexBalanceGrid.setHeightByRows(1);
+        wexBalanceGrid.setVisible(false);
+
+        bitBalanceGrid = new Grid<>();
+        bitBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        bitBalanceGrid.setCaption("Total balance");
+        bitBalanceGrid.setItems(bitfinexUserBalance);
+        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getCurrencyName, new HtmlRenderer())
+                .setCaption("Currency")
+                .setResizable(false)
+                .setWidth(110);
+        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getAmount, new HtmlRenderer())
+                .setCaption("Balance")
+                .setResizable(false);
+        bitBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
+        bitBalanceGrid.setWidth("17em");
+        bitBalanceGrid.setHeightByRows(1);
+        bitBalanceGrid.setVisible(false);
     }
 
     private Label getBalanceStubLabel() {

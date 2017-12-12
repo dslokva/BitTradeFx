@@ -13,6 +13,7 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
+import kz.bittrade.com.KztRateCurrencyUpdaterTimer;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import kz.bittrade.markets.api.holders.currency.pairs.BitfinexCurrencyPair;
 import kz.bittrade.markets.api.holders.currency.pairs.CexCurrencyPair;
@@ -26,11 +27,12 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 @Theme("mytheme")
 @Push(PushMode.AUTOMATIC)
 public class BitTradeFx extends UI {
-    Navigator navigator;
+    private Navigator navigator;
     private List<CurrencyPairsHolder> currencyPairsHolderList;
     private MainView mainView;
     private SettingsView settingsView;
@@ -64,17 +66,23 @@ public class BitTradeFx extends UI {
             super.servletInitialized();
             getService().addSessionInitListener(this);
             getService().addSessionDestroyListener(this);
+            System.out.println("BitTradeFx app started");
+
+            TimerTask timerTask = new KztRateCurrencyUpdaterTimer();
+            //running timer task as daemon thread
+            java.util.Timer timer = new java.util.Timer(true);
+            timer.scheduleAtFixedRate(timerTask, 0, 43200 * 1000);
         }
 
         @Override
-        public void sessionInit(SessionInitEvent event)
-                throws ServiceException {
-            System.out.println("session start");
+        public void sessionInit(SessionInitEvent event) throws ServiceException {
+            VaadinRequest request = event.getRequest();
+            System.out.println("User session start, IP address: " + request.getRemoteAddr() + ", user-agent: " + request.getHeaders("user-agent").nextElement());
         }
 
         @Override
         public void sessionDestroy(SessionDestroyEvent event) {
-            System.out.println("session end");
+            System.out.println("User session end");
         }
     }
 

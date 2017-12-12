@@ -51,4 +51,5 @@ public final class BFConstants {
     public static final String BITFINEX_GRID_COLUMN = "bitfinex_column";
     public static final String KRAKEN_GRID_COLUMN = "kraken_column";
     public static final String CEX_GRID_COLUMN = "cex_column";
+    public static final String NATIONAL_BANK_CURR_RATE_UPDATE_URL = "http://www.nationalbank.kz/rss/rates_all.xml";
 }
