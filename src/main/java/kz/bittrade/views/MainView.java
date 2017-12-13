@@ -63,7 +63,6 @@ public class MainView extends VerticalLayout implements View {
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private int refreshSec;
-    private boolean initialized;
 
     private VerticalLayout waitingStubPanel;
 
@@ -253,6 +252,7 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
                 .setCaption("Delta $")
                 .setWidth(100)
+                .setId(BFConstants.GRID_DELTA_DOUBLE_COLUMN)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
                             @Override
@@ -264,6 +264,7 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaStringPercent, new HtmlRenderer())
                 .setCaption("Delta %")
                 .setWidth(100)
+                .setId(BFConstants.GRID_DELTA_PERCENT_COLUMN)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
                             @Override
@@ -276,22 +277,54 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption(BFConstants.WEX)
                 .setExpandRatio(2)
                 .setResizable(false)
-                .setId(BFConstants.WEX_GRID_COLUMN);
+                .setId(BFConstants.GRID_WEX_COLUMN)
+                .setComparator(
+                        new SerializableComparator<CurrencyPairsHolder>() {
+                            @Override
+                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
+                                return Double.compare(a.getWexnzPair().getLastPriceDouble(), b.getWexnzPair().getLastPriceDouble());
+                            }
+                        }
+                );
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
                 .setCaption(BFConstants.BITFINEX)
                 .setExpandRatio(2)
                 .setResizable(false)
-                .setId(BFConstants.BITFINEX_GRID_COLUMN);
+                .setId(BFConstants.GRID_BITFINEX_COLUMN)
+                .setComparator(
+                        new SerializableComparator<CurrencyPairsHolder>() {
+                            @Override
+                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
+                                return Double.compare(a.getBitfinexPair().getLastPriceDouble(), b.getBitfinexPair().getLastPriceDouble());
+                            }
+                        }
+                );
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
                 .setCaption(BFConstants.KRAKEN)
                 .setExpandRatio(2)
                 .setResizable(false)
-                .setId(BFConstants.KRAKEN_GRID_COLUMN);
+                .setId(BFConstants.GRID_KRAKEN_COLUMN)
+                .setComparator(
+                        new SerializableComparator<CurrencyPairsHolder>() {
+                            @Override
+                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
+                                return Double.compare(a.getKrakenPair().getLastPriceDouble(), b.getKrakenPair().getLastPriceDouble());
+                            }
+                        }
+                );
         currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
                 .setCaption(BFConstants.CEX)
                 .setExpandRatio(2)
                 .setResizable(false)
-                .setId(BFConstants.CEX_GRID_COLUMN);
+                .setId(BFConstants.GRID_CEX_COLUMN)
+                .setComparator(
+                        new SerializableComparator<CurrencyPairsHolder>() {
+                            @Override
+                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
+                                return Double.compare(a.getCexPair().getLastPriceDouble(), b.getCexPair().getLastPriceDouble());
+                            }
+                        }
+                );
 
         currInfoGrid.addComponentColumn(currencyPairRow -> {
             HorizontalLayout hlayout = new HorizontalLayout();
@@ -605,15 +638,15 @@ public class MainView extends VerticalLayout implements View {
 
     public void initMarketColumns() {
         boolean wexHidden = !settings.isPropertyEnabled(BFConstants.WEX);
-        currInfoGrid.getColumn(BFConstants.WEX_GRID_COLUMN).setHidden(wexHidden);
+        currInfoGrid.getColumn(BFConstants.GRID_WEX_COLUMN).setHidden(wexHidden);
         wexBalancePanel.setVisible(!wexHidden);
 
         boolean bitHidden = !settings.isPropertyEnabled(BFConstants.BITFINEX);
-        currInfoGrid.getColumn(BFConstants.BITFINEX_GRID_COLUMN).setHidden(bitHidden);
+        currInfoGrid.getColumn(BFConstants.GRID_BITFINEX_COLUMN).setHidden(bitHidden);
         bitBalancePanel.setVisible(!bitHidden);
 
-        currInfoGrid.getColumn(BFConstants.KRAKEN_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.KRAKEN));
-        currInfoGrid.getColumn(BFConstants.CEX_GRID_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.CEX));
+        currInfoGrid.getColumn(BFConstants.GRID_KRAKEN_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.KRAKEN));
+        currInfoGrid.getColumn(BFConstants.GRID_CEX_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.CEX));
     }
 
     private void smartInitCurrencyPairs() {
@@ -673,15 +706,7 @@ public class MainView extends VerticalLayout implements View {
         labelRefresh.setVisible(true);
     }
 
-    public boolean isInitialized() {
-        return initialized;
-    }
-
     public Button getBtnSettings() {
         return btnSettings;
-    }
-
-    public void setInitialized(boolean initialized) {
-        this.initialized = initialized;
     }
 }

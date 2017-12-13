@@ -31,7 +31,7 @@ public final class BFConstants {
     public static final String CEX_API_SECRET = "cexApiSecret";
     public static final String CEX_API_BASIC_URL = "https://cex.io/api/";
 
-    public static final String AUTO_SORT = "autoSortDeltaPercent";
+    public static final String AUTO_SORT_COLUMN = "autoSortColumn";
 
     public static final String ALGORITHM_HMACSHA384 = "HmacSHA384";
     public static final String ALGORITHM_HMACSHA512 = "HmacSHA512";
@@ -47,9 +47,12 @@ public final class BFConstants {
     public static final String MAIN_VIEW = "main";
     public static final String SETTINGS_VIEW = "settings";
 
-    public static final String WEX_GRID_COLUMN = "wex_column";
-    public static final String BITFINEX_GRID_COLUMN = "bitfinex_column";
-    public static final String KRAKEN_GRID_COLUMN = "kraken_column";
-    public static final String CEX_GRID_COLUMN = "cex_column";
+    public static final String GRID_WEX_COLUMN = "wex_column";
+    public static final String GRID_BITFINEX_COLUMN = "bitfinex_column";
+    public static final String GRID_KRAKEN_COLUMN = "kraken_column";
+    public static final String GRID_CEX_COLUMN = "cex_column";
+    public static final String GRID_DELTA_PERCENT_COLUMN = "delta_percent_column";
+    public static final String GRID_DELTA_DOUBLE_COLUMN = "delta_double_column";
+
     public static final String NATIONAL_BANK_CURR_RATE_UPDATE_URL = "http://www.nationalbank.kz/rss/rates_all.xml";
 }

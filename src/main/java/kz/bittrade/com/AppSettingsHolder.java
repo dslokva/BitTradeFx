@@ -54,7 +54,7 @@ public final class AppSettingsHolder {
         getValueFromLocalStorage(BFConstants.KRA_API_KEY);
         getValueFromLocalStorage(BFConstants.KRA_API_SECRET);
 
-        getValueFromLocalStorage(BFConstants.AUTO_SORT);
+        getValueFromLocalStorage(BFConstants.AUTO_SORT_COLUMN);
 
         getValueFromLocalStorage(BFConstants.BITCOIN);
         getValueFromLocalStorage(BFConstants.BITCOIN_CASH);

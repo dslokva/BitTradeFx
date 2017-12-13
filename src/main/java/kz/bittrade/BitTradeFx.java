@@ -386,8 +386,10 @@ public class BitTradeFx extends UI {
 
                     btnSettings.setEnabled(true);
 
-                    if (settings.isPropertyEnabled(BFConstants.AUTO_SORT))
-                        currInfoGrid.sort(currInfoGrid.getColumns().get(3), SortDirection.DESCENDING);
+                    String sortColumn = settings.getProperty(BFConstants.AUTO_SORT_COLUMN);
+                    if (sortColumn != null)
+                        currInfoGrid.sort(currInfoGrid.getColumn(sortColumn), SortDirection.DESCENDING);
+
                     currInfoGrid.getDataProvider().refreshAll(); //to end of all threads
                     push();
                 });

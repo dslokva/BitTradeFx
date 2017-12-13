@@ -13,6 +13,9 @@ import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.vaadin.ui.Alignment.*;
 
 public class SettingsView extends VerticalLayout implements View {
@@ -26,7 +29,6 @@ public class SettingsView extends VerticalLayout implements View {
     private PasswordField txtCexSecretKey;
 
     private AppSettingsHolder settings;
-    private CheckBox chkAutoSortByDeltaPercent;
     private BitTradeFx mainui;
 
     private CheckBox chkEnableBTC;
@@ -40,6 +42,9 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkEnableBit;
     private CheckBox chkEnableKra;
     private CheckBox chkEnableCex;
+
+    private RadioButtonGroup sortOptions;
+    private Map<String, String> sortColsMap;
 
     public SettingsView() {
         addStyleName("content-common");
@@ -77,7 +82,13 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableKra = new CheckBox(BFConstants.KRAKEN);
         chkEnableCex = new CheckBox(BFConstants.CEX);
 
-        chkAutoSortByDeltaPercent = new CheckBox("Auto sort by \"Delta %\" column after refresh");
+        sortColsMap = new HashMap<>();
+        sortColsMap.put("Delta %", BFConstants.GRID_DELTA_PERCENT_COLUMN);
+        sortColsMap.put("Delta $", BFConstants.GRID_DELTA_DOUBLE_COLUMN);
+
+        sortOptions = new RadioButtonGroup<>("Auto sort column after refresh:", sortColsMap.keySet());
+        sortOptions.setItemCaptionGenerator(item -> "Column \"" + item + "\"");
+        sortOptions.setValue(getKeyFromValue(sortColsMap, BFConstants.GRID_DELTA_PERCENT_COLUMN));
 
         mainui = (BitTradeFx) UI.getCurrent();
         settings = mainui.getSettings();
@@ -156,7 +167,7 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.KRAKEN, chkEnableKra.getValue().toString());
                     settings.setProperty(BFConstants.CEX, chkEnableCex.getValue().toString());
 
-                    settings.setProperty(BFConstants.AUTO_SORT, chkAutoSortByDeltaPercent.getValue().toString());
+                    settings.setProperty(BFConstants.AUTO_SORT_COLUMN, sortColsMap.get(sortOptions.getValue()));
 
                     settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
                     settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra, chkEnableCex);
@@ -215,7 +226,7 @@ public class SettingsView extends VerticalLayout implements View {
         marketsCheckBoxesPanel.setContent(verticalDumbMarketChks);
 
         VerticalLayout otherVerticalHolder = new VerticalLayout();
-        otherVerticalHolder.addComponent(chkAutoSortByDeltaPercent);
+        otherVerticalHolder.addComponent(sortOptions);
         otherVerticalHolder.addComponent(coinCheckBoxesPanel);
         otherVerticalHolder.addComponent(marketsCheckBoxesPanel);
 
@@ -248,6 +259,15 @@ public class SettingsView extends VerticalLayout implements View {
         updateValuesToUI();
     }
 
+    public static Object getKeyFromValue(Map hm, Object value) {
+        for (Object o : hm.keySet()) {
+            if (hm.get(o).equals(value)) {
+                return o;
+            }
+        }
+        return null;
+    }
+
     public void updateValuesToUI() {
         txtWexApiKey.setValue(settings.getProperty(BFConstants.WEX_API_KEY));
         txtWexSecretKey.setValue(settings.getProperty(BFConstants.WEX_API_SECRET));
@@ -261,7 +281,9 @@ public class SettingsView extends VerticalLayout implements View {
         txtCexApiKey.setValue(settings.getProperty(BFConstants.CEX_API_KEY));
         txtCexSecretKey.setValue(settings.getProperty(BFConstants.CEX_API_SECRET));
 
-        chkAutoSortByDeltaPercent.setValue(Boolean.valueOf(settings.getProperty(BFConstants.AUTO_SORT)));
+        sortOptions.setValue(getKeyFromValue(sortColsMap, settings.getProperty(BFConstants.AUTO_SORT_COLUMN)));
+        if (!sortOptions.getSelectedItem().isPresent())
+            sortOptions.setValue(getKeyFromValue(sortColsMap, BFConstants.GRID_DELTA_PERCENT_COLUMN));
 
         chkEnableBTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN)));
         chkEnableBCH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN_CASH)));
