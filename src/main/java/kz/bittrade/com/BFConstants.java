@@ -55,4 +55,6 @@ public final class BFConstants {
     public static final String GRID_DELTA_DOUBLE_COLUMN = "delta_double_column";
 
     public static final String NATIONAL_BANK_CURR_RATE_UPDATE_URL = "http://www.nationalbank.kz/rss/rates_all.xml";
+
+    public static final String TOP_PANEL_FOLDED_AT_START = "topPanelFolded";
 }

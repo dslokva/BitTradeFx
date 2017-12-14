@@ -309,7 +309,7 @@ public class BitTradeFx extends UI {
                     mainView.initMarketColumns();
                     mainView.initBalanceStubLabels();
                     mainView.setMainGridCorrectRowCount();
-                    mainView.hideInitStub();
+                    mainView.finishUIInit();
                 });
             } catch (InterruptedException e) {
                 e.printStackTrace();

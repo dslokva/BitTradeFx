@@ -27,6 +27,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.vaadin.addons.stackpanel.StackPanel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,6 +64,7 @@ public class MainView extends VerticalLayout implements View {
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private int refreshSec;
+    private StackPanel topStackPanel;
 
     private VerticalLayout waitingStubPanel;
     private CoinActionsWindow coinActionsWindow;
@@ -198,6 +200,15 @@ public class MainView extends VerticalLayout implements View {
         topPanel.setContent(topLayer);
         topPanel.setWidth("85%");
         topPanel.setIcon(VaadinIcons.DOLLAR);
+        topStackPanel = StackPanel.extend(topPanel);
+
+        topStackPanel.addToggleListener(s -> {
+            String openAtStartup = Boolean.TRUE.toString();
+            if (topStackPanel.isOpen()) {
+                openAtStartup = Boolean.FALSE.toString();
+            }
+            settings.setProperty(BFConstants.TOP_PANEL_FOLDED_AT_START, openAtStartup);
+        });
 
         Panel middlePanel = new Panel("Coin markets monitoring");
         middlePanel.setContent(middleLayer);
@@ -225,7 +236,6 @@ public class MainView extends VerticalLayout implements View {
             buttonActions.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
             buttonActions.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             buttonActions.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-//            buttonActions.addStyleName(ValoTheme.BUTTON_SMALL);
             buttonActions.setDescription("Trade actions");
             buttonActions.setWidth("35px");
             buttonActions.addClickListener(click -> {
@@ -236,7 +246,6 @@ public class MainView extends VerticalLayout implements View {
             buttonRefresh.setIcon(VaadinIcons.REFRESH);
             buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-//            buttonRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
             buttonRefresh.setDescription("Refresh row");
             buttonRefresh.addClickListener(click -> {
                 mainui.refreshCurrencyGrid(currencyPairRow);
@@ -740,9 +749,12 @@ public class MainView extends VerticalLayout implements View {
         return list.stream().map(CurrencyPairsHolder::getName).anyMatch(name::equals);
     }
 
-    public void hideInitStub() {
+    public void finishUIInit() {
         waitingStubPanel.setVisible(false);
         labelRefresh.setVisible(true);
+
+        if (settings.isPropertyEnabled(BFConstants.TOP_PANEL_FOLDED_AT_START))
+            topStackPanel.close();
     }
 
     public Button getBtnSettings() {
