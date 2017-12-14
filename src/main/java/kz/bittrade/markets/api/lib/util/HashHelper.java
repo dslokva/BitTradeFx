@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.lib;
+package kz.bittrade.markets.api.lib.util;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

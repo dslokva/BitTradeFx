@@ -1,6 +1,6 @@
 package kz.bittrade.markets.api.lib;
 
-public class ApiAccessLib {
+public abstract class ApiAccessLib {
     protected static String PRIVATE_API_URL = "";
     protected static String PUBLIC_API_URL = "";
 

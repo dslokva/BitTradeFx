@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.lib;
+package kz.bittrade.markets.api.lib.util;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;

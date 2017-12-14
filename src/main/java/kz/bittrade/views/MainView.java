@@ -65,6 +65,7 @@ public class MainView extends VerticalLayout implements View {
     private int refreshSec;
 
     private VerticalLayout waitingStubPanel;
+    private CoinActionsWindow coinActionsWindow;
 
     public MainView() {
         addStyleName("content-common");
@@ -88,7 +89,6 @@ public class MainView extends VerticalLayout implements View {
         btnRefreshTable = new Button("Refresh all");
         btnRefreshTable.addClickListener(
                 e -> {
-
                     mainui.refreshCurrencyGrid(null);
                 });
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -196,12 +196,12 @@ public class MainView extends VerticalLayout implements View {
 
         Panel topPanel = new Panel("User related information");
         topPanel.setContent(topLayer);
-        topPanel.setWidth("80%");
+        topPanel.setWidth("85%");
         topPanel.setIcon(VaadinIcons.DOLLAR);
 
         Panel middlePanel = new Panel("Coin markets monitoring");
         middlePanel.setContent(middleLayer);
-        middlePanel.setWidth("80%");
+        middlePanel.setWidth("85%");
         middlePanel.setIcon(VaadinIcons.SPLINE_AREA_CHART);
 
         setSpacing(true);
@@ -213,39 +213,54 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void initMainGrid() {
+        coinActionsWindow = new CoinActionsWindow();
+
         currInfoGrid = new Grid<>();
         currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
         currInfoGrid.setCaption("Currency information");
         currInfoGrid.setItems(mainui.getCurrencyPairsHolderList());
 
         currInfoGrid.addComponentColumn((CurrencyPairsHolder currencyPairRow) -> {
-            HorizontalLayout hlayout = new HorizontalLayout();
-            hlayout.setWidth("100%");
-            hlayout.setHeight("100%");
-            hlayout.setSpacing(false);
-            hlayout.setMargin(false);
+            Button buttonActions = new Button("");
+            buttonActions.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
+            buttonActions.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+            buttonActions.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+//            buttonActions.addStyleName(ValoTheme.BUTTON_SMALL);
+            buttonActions.setDescription("Trade actions");
+            buttonActions.setWidth("23%");
+            buttonActions.addClickListener(click -> {
+                UI.getCurrent().addWindow(coinActionsWindow);
+            });
+
+            Button buttonRefresh = new Button("");
+            buttonRefresh.setIcon(VaadinIcons.REFRESH);
+            buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+            buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+            buttonRefresh.setDescription("Refresh row");
+            buttonRefresh.addClickListener(click -> {
+                mainui.refreshCurrencyGrid(currencyPairRow);
+            });
+
+            HorizontalLayout btnPanel = new HorizontalLayout(buttonRefresh, buttonActions);
+            btnPanel.setMargin(false);
+            btnPanel.setSpacing(false);
 
             Label label = new Label(currencyPairRow.getDisplayName(), ContentMode.HTML);
             label.setSizeUndefined();
 
-            Button button = new Button("");
-            button.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
-            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            button.setDescription("Trade actions");
-            button.setWidth("23%");
-            button.addClickListener(click -> {
-                //will show "actions" popup;
-            });
+            GridLayout glayout = new GridLayout(2, 1);
+            glayout.addComponent(label, 0, 0);
+            glayout.addComponent(btnPanel, 1, 0);
+            glayout.setComponentAlignment(label, MIDDLE_LEFT);
+            glayout.setComponentAlignment(btnPanel, MIDDLE_RIGHT);
+            glayout.setWidth("100%");
+            glayout.setHeight("100%");
+            glayout.setSpacing(false);
+            glayout.setMargin(false);
 
-            hlayout.addComponent(label);
-            hlayout.addComponent(button);
-            hlayout.setComponentAlignment(label, MIDDLE_LEFT);
-            hlayout.setComponentAlignment(button, MIDDLE_RIGHT);
-
-            return hlayout;
+            return glayout;
         }).setCaption("Pair name")
-                .setWidth(150)
+                .setWidth(190)
                 .setResizable(false)
                 .setSortable(false);
 
@@ -326,26 +341,26 @@ public class MainView extends VerticalLayout implements View {
                         }
                 );
 
-        currInfoGrid.addComponentColumn(currencyPairRow -> {
-            HorizontalLayout hlayout = new HorizontalLayout();
-            hlayout.setWidth("100%");
-            hlayout.setSpacing(false);
-
-            Button button = new Button("");
-            button.setIcon(VaadinIcons.REFRESH);
-            button.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            button.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            button.setDescription("Refresh row");
-            button.addClickListener(click -> {
-                mainui.refreshCurrencyGrid(currencyPairRow);
-            });
-            hlayout.addComponent(button);
-            hlayout.setComponentAlignment(button, MIDDLE_CENTER);
-            return hlayout;
-        }).setCaption("Refresh")
-                .setWidth(73)
-                .setResizable(false)
-                .setSortable(false);
+//        currInfoGrid.addComponentColumn(currencyPairRow -> {
+//            HorizontalLayout hlayout = new HorizontalLayout();
+//            hlayout.setWidth("100%");
+//            hlayout.setSpacing(false);
+//
+//            Button buttonRefresh = new Button("");
+//            buttonRefresh.setIcon(VaadinIcons.REFRESH);
+//            buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
+//            buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+//            buttonRefresh.setDescription("Refresh row");
+//            buttonRefresh.addClickListener(click -> {
+//                mainui.refreshCurrencyGrid(currencyPairRow);
+//            });
+//            hlayout.addComponent(buttonRefresh);
+//            hlayout.setComponentAlignment(buttonRefresh, MIDDLE_CENTER);
+//            return hlayout;
+//        }).setCaption("Refresh")
+//                .setWidth(73)
+//                .setResizable(false)
+//                .setSortable(false);
 
         currInfoGrid.setSizeFull();
     }
@@ -456,8 +471,24 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void updateUserBalances() {
-        updateWexBalance();
-        updateBitfinexBalance();
+        new Thread(() -> {
+            if (settings.isPropertyEnabled(BFConstants.WEX))
+                updateWexBalance();
+
+            if (settings.isPropertyEnabled(BFConstants.BITFINEX))
+                updateBitfinexBalance();
+        }).start();
+
+//        try {
+//            KrakenApi api = new KrakenApi();
+//            api.setKey(settings.getProperty(BFConstants.KRA_API_KEY));
+//            api.setSecret(settings.getProperty(BFConstants.KRA_API_SECRET));
+//
+//            String response = api.queryPrivate(KrakenApi.Method.BALANCE);
+//            System.out.println(response);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void updateBitfinexBalance() {
@@ -548,7 +579,6 @@ public class MainView extends VerticalLayout implements View {
 
             JsonObject result = privateLib.performAuthorizedRequest(postData);
             if (result != null) {
-                privateLib.log("getInfo result: ".concat(result.toString()));
                 WexNzGetInfo wexUserInfo = new Gson().fromJson(result, WexNzGetInfo.class);
                 if (wexUserInfo != null) {
                     if (wexUserInfo.getSuccess() == 1) {
@@ -603,7 +633,6 @@ public class MainView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-//        System.out.println("enter");
         smartInitCurrencyPairs();
         initMarketColumns();
         initBalanceStubLabels();

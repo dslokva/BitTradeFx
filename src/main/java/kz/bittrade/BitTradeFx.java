@@ -70,7 +70,6 @@ public class BitTradeFx extends UI {
             System.out.println("BitTradeFx app started");
 
             TimerTask timerTask = new KztRateCurrencyUpdaterTimer();
-            //running timer task as daemon thread
             java.util.Timer timer = new java.util.Timer(true);
             timer.scheduleAtFixedRate(timerTask, 0, 43200 * 1000);
         }
@@ -303,7 +302,7 @@ public class BitTradeFx extends UI {
                     push();
                 });
 
-                Thread.sleep(200);
+                Thread.sleep(250);
 
                 access(() -> {
                     initCurrencyPairs();
@@ -387,8 +386,10 @@ public class BitTradeFx extends UI {
                     btnSettings.setEnabled(true);
 
                     String sortColumn = settings.getProperty(BFConstants.AUTO_SORT_COLUMN);
-                    if (sortColumn != null)
+                    if (!sortColumn.equals(""))
                         currInfoGrid.sort(currInfoGrid.getColumn(sortColumn), SortDirection.DESCENDING);
+                    else
+                        currInfoGrid.sort(currInfoGrid.getColumn(BFConstants.GRID_DELTA_PERCENT_COLUMN), SortDirection.DESCENDING);
 
                     currInfoGrid.getDataProvider().refreshAll(); //to end of all threads
                     push();

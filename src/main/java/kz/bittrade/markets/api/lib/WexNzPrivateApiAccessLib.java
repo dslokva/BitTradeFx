@@ -2,6 +2,8 @@ package kz.bittrade.markets.api.lib;
 
 import com.google.gson.JsonObject;
 import kz.bittrade.com.BFConstants;
+import kz.bittrade.markets.api.lib.util.HashHelper;
+import kz.bittrade.markets.api.lib.util.JsonHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

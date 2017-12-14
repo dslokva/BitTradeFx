@@ -247,7 +247,7 @@ public class SettingsView extends VerticalLayout implements View {
 
         Panel settingsPanel = new Panel("Application settings");
         settingsPanel.setContent(allPanelsHolder);
-        settingsPanel.setWidth("50%");
+        settingsPanel.setWidth("60%");
         settingsPanel.setIcon(VaadinIcons.OPTIONS);
 
         addComponent(settingsPanel);

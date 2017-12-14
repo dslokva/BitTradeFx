@@ -1,6 +1,7 @@
 package kz.bittrade.markets.api.lib;
 
 import kz.bittrade.com.BFConstants;
+import kz.bittrade.markets.api.lib.util.HashHelper;
 import org.json.JSONException;
 import org.json.JSONObject;
 

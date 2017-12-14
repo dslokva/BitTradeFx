@@ -1,6 +1,7 @@
 package kz.bittrade.markets.api.lib;
 
 import com.google.gson.JsonObject;
+import kz.bittrade.markets.api.lib.util.JsonHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -13,13 +14,6 @@ public final class PublicApiAccessLib extends ApiAccessLib {
     public static JsonObject performBasicRequest(String method, String optionalPair) {
         JsonObject result;
         String URL = PUBLIC_API_URL.concat(method);
-
-//        if (!Objects.equals(method, "info") && Objects.equals(optionalPair, "")) {
-//            log("Failed to perform request. Currency pair needed.");
-//            return null;
-//        } else {
-//            URL = URL.concat(optionalPair);
-//        }
 
         URL = URL.concat(optionalPair);
 
