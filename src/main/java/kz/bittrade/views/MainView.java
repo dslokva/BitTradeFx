@@ -225,9 +225,9 @@ public class MainView extends VerticalLayout implements View {
             buttonActions.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
             buttonActions.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             buttonActions.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            buttonActions.addStyleName(ValoTheme.BUTTON_SMALL);
+//            buttonActions.addStyleName(ValoTheme.BUTTON_SMALL);
             buttonActions.setDescription("Trade actions");
-//            buttonActions.setWidth("23%");
+            buttonActions.setWidth("35px");
             buttonActions.addClickListener(click -> {
                 UI.getCurrent().addWindow(coinActionsWindow);
             });
@@ -236,7 +236,7 @@ public class MainView extends VerticalLayout implements View {
             buttonRefresh.setIcon(VaadinIcons.REFRESH);
             buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            buttonRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
+//            buttonRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
             buttonRefresh.setDescription("Refresh row");
             buttonRefresh.addClickListener(click -> {
                 mainui.refreshCurrencyGrid(currencyPairRow);
