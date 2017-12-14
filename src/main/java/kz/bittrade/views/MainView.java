@@ -225,9 +225,9 @@ public class MainView extends VerticalLayout implements View {
             buttonActions.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
             buttonActions.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             buttonActions.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-//            buttonActions.addStyleName(ValoTheme.BUTTON_SMALL);
+            buttonActions.addStyleName(ValoTheme.BUTTON_SMALL);
             buttonActions.setDescription("Trade actions");
-            buttonActions.setWidth("23%");
+//            buttonActions.setWidth("23%");
             buttonActions.addClickListener(click -> {
                 UI.getCurrent().addWindow(coinActionsWindow);
             });
@@ -236,24 +236,26 @@ public class MainView extends VerticalLayout implements View {
             buttonRefresh.setIcon(VaadinIcons.REFRESH);
             buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
             buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
+            buttonRefresh.addStyleName(ValoTheme.BUTTON_SMALL);
             buttonRefresh.setDescription("Refresh row");
             buttonRefresh.addClickListener(click -> {
                 mainui.refreshCurrencyGrid(currencyPairRow);
             });
 
-            HorizontalLayout btnPanel = new HorizontalLayout(buttonRefresh, buttonActions);
+            HorizontalLayout btnPanel = new HorizontalLayout();
+            btnPanel.addComponents(buttonRefresh, buttonActions);
             btnPanel.setMargin(false);
             btnPanel.setSpacing(false);
 
             Label label = new Label(currencyPairRow.getDisplayName(), ContentMode.HTML);
-            label.setSizeUndefined();
+//            label.setSizeUndefined();
 
             GridLayout glayout = new GridLayout(2, 1);
             glayout.addComponent(label, 0, 0);
             glayout.addComponent(btnPanel, 1, 0);
             glayout.setComponentAlignment(label, MIDDLE_LEFT);
             glayout.setComponentAlignment(btnPanel, MIDDLE_RIGHT);
-            glayout.setWidth("100%");
+            glayout.setWidth("170px");
             glayout.setHeight("100%");
             glayout.setSpacing(false);
             glayout.setMargin(false);
@@ -262,7 +264,8 @@ public class MainView extends VerticalLayout implements View {
         }).setCaption("Pair name")
                 .setWidth(190)
                 .setResizable(false)
-                .setSortable(false);
+                .setSortable(false)
+                .setId("PairName");
 
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
                 .setCaption("Delta $")
@@ -292,6 +295,7 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption(BFConstants.WEX)
                 .setExpandRatio(2)
                 .setResizable(false)
+                .setMinimumWidth(127)
                 .setId(BFConstants.GRID_WEX_COLUMN)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
@@ -305,6 +309,7 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption(BFConstants.BITFINEX)
                 .setExpandRatio(2)
                 .setResizable(false)
+                .setMinimumWidth(127)
                 .setId(BFConstants.GRID_BITFINEX_COLUMN)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
@@ -318,6 +323,7 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption(BFConstants.KRAKEN)
                 .setExpandRatio(2)
                 .setResizable(false)
+                .setMinimumWidth(127)
                 .setId(BFConstants.GRID_KRAKEN_COLUMN)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
@@ -331,6 +337,7 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption(BFConstants.CEX)
                 .setExpandRatio(2)
                 .setResizable(false)
+                .setMinimumWidth(127)
                 .setId(BFConstants.GRID_CEX_COLUMN)
                 .setComparator(
                         new SerializableComparator<CurrencyPairsHolder>() {
@@ -475,6 +482,9 @@ public class MainView extends VerticalLayout implements View {
             if (settings.isPropertyEnabled(BFConstants.WEX))
                 updateWexBalance();
 
+        }).start();
+
+        new Thread(() -> {
             if (settings.isPropertyEnabled(BFConstants.BITFINEX))
                 updateBitfinexBalance();
         }).start();
