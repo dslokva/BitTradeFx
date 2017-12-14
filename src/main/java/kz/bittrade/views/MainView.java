@@ -2,6 +2,7 @@ package kz.bittrade.views;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -19,6 +20,7 @@ import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import kz.bittrade.markets.api.holders.user.BitfinexBalance;
 import kz.bittrade.markets.api.holders.user.BitfinexBalancesList;
 import kz.bittrade.markets.api.holders.user.WexNzGetInfo;
+import kz.bittrade.markets.api.holders.user.balance.BalanceHolder;
 import kz.bittrade.markets.api.holders.user.balance.BitfinexBalanceHolder;
 import kz.bittrade.markets.api.holders.user.balance.WexNzBalanceHolder;
 import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
@@ -45,8 +47,8 @@ public class MainView extends VerticalLayout implements View {
     private List<BitfinexBalanceHolder> bitfinexUserBalance;
 
     private Grid<CurrencyPairsHolder> currInfoGrid;
-    private Grid<WexNzBalanceHolder> wexBalanceGrid;
-    private Grid<BitfinexBalanceHolder> bitBalanceGrid;
+    private Grid<BalanceHolder> wexBalanceGrid;
+    private Grid<BalanceHolder> bitBalanceGrid;
 
     private CssLayout wexBalancePanel;
     private CssLayout bitBalancePanel;
@@ -89,10 +91,7 @@ public class MainView extends VerticalLayout implements View {
         wexBalanceStubLabel = getBalanceStubLabel();
 
         btnRefreshTable = new Button("Refresh all");
-        btnRefreshTable.addClickListener(
-                e -> {
-                    mainui.refreshCurrencyGrid(null);
-                });
+        btnRefreshTable.addClickListener(e -> mainui.refreshCurrencyGrid(null));
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
 
         btnSettings = new Button("Settings");
@@ -118,7 +117,8 @@ public class MainView extends VerticalLayout implements View {
             }
         });
 
-        initBalanceGrids();
+        wexBalanceGrid = initBalanceGrids(wexNzUserBalance);
+        bitBalanceGrid = initBalanceGrids(bitfinexUserBalance);
         initMainGrid();
 
         VerticalLayout wexBalanceVerticalStub = new VerticalLayout();
@@ -356,63 +356,37 @@ public class MainView extends VerticalLayout implements View {
                             }
                         }
                 );
-
-//        currInfoGrid.addComponentColumn(currencyPairRow -> {
-//            HorizontalLayout hlayout = new HorizontalLayout();
-//            hlayout.setWidth("100%");
-//            hlayout.setSpacing(false);
-//
-//            Button buttonRefresh = new Button("");
-//            buttonRefresh.setIcon(VaadinIcons.REFRESH);
-//            buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-//            buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-//            buttonRefresh.setDescription("Refresh row");
-//            buttonRefresh.addClickListener(click -> {
-//                mainui.refreshCurrencyGrid(currencyPairRow);
-//            });
-//            hlayout.addComponent(buttonRefresh);
-//            hlayout.setComponentAlignment(buttonRefresh, MIDDLE_CENTER);
-//            return hlayout;
-//        }).setCaption("Refresh")
-//                .setWidth(73)
-//                .setResizable(false)
-//                .setSortable(false);
-
         currInfoGrid.setSizeFull();
     }
 
-    private void initBalanceGrids() {
-        wexBalanceGrid = new Grid<>();
-        wexBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        wexBalanceGrid.setCaption("Total balance");
-        wexBalanceGrid.setItems(wexNzUserBalance);
-        wexBalanceGrid.addColumn(WexNzBalanceHolder::getCurrencyName, new HtmlRenderer())
+    private Grid<BalanceHolder> initBalanceGrids(List userBalance) {
+        Grid<BalanceHolder> balanceGrid = new Grid<>();
+        balanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
+        balanceGrid.setCaption("Total balance");
+        balanceGrid.setItems(userBalance);
+        balanceGrid.addColumn(new ValueProvider<BalanceHolder, String>() {
+            @Override
+            public String apply(BalanceHolder balanceHolder) {
+                return balanceHolder.getCurrencyName();
+            }
+        }, new HtmlRenderer())
                 .setCaption("Currency")
                 .setResizable(false)
                 .setWidth(110);
-        wexBalanceGrid.addColumn(WexNzBalanceHolder::getAmount, new HtmlRenderer())
+        balanceGrid.addColumn(new ValueProvider<BalanceHolder, String>() {
+            @Override
+            public String apply(BalanceHolder balanceHolder) {
+                return balanceHolder.getAmount();
+            }
+        }, new HtmlRenderer())
                 .setCaption("Balance")
                 .setResizable(false);
-        wexBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
-        wexBalanceGrid.setWidth("17em");
-        wexBalanceGrid.setHeightByRows(1);
-        wexBalanceGrid.setVisible(false);
+        balanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
+        balanceGrid.setWidth("17em");
+        balanceGrid.setHeightByRows(1);
+        balanceGrid.setVisible(false);
 
-        bitBalanceGrid = new Grid<>();
-        bitBalanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        bitBalanceGrid.setCaption("Total balance");
-        bitBalanceGrid.setItems(bitfinexUserBalance);
-        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getCurrencyName, new HtmlRenderer())
-                .setCaption("Currency")
-                .setResizable(false)
-                .setWidth(110);
-        bitBalanceGrid.addColumn(BitfinexBalanceHolder::getAmount, new HtmlRenderer())
-                .setCaption("Balance")
-                .setResizable(false);
-        bitBalanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
-        bitBalanceGrid.setWidth("17em");
-        bitBalanceGrid.setHeightByRows(1);
-        bitBalanceGrid.setVisible(false);
+        return balanceGrid;
     }
 
     private Label getBalanceStubLabel() {
@@ -567,7 +541,7 @@ public class MainView extends VerticalLayout implements View {
                         }
                     }
                 } else {
-                    setBitLabelsError("");
+                    setBitLabelsError("Request error");
                 }
             } catch (Exception e) {
                 setBitLabelsError("Request error");
@@ -698,10 +672,10 @@ public class MainView extends VerticalLayout implements View {
     }
 
     private void smartInitCurrencyPairs() {
-        /* Remove section */
         List<CurrencyPairsHolder> currencyPairsHolderList = mainui.getCurrencyPairsHolderList();
         HashMap<String, Boolean> map = settings.getCoinSelectStateMap();
 
+        /* Remove section */
         currencyPairsHolderList.removeIf(new Predicate<CurrencyPairsHolder>() {
             @Override
             public boolean test(CurrencyPairsHolder pairHolder) {
