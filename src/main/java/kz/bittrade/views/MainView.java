@@ -2,10 +2,13 @@ package kz.bittrade.views;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.vaadin.contextmenu.GridContextMenu;
+import com.vaadin.contextmenu.Menu;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.Page;
 import com.vaadin.server.SerializableComparator;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
@@ -39,6 +42,7 @@ import java.util.function.Predicate;
 
 import static com.vaadin.ui.Alignment.*;
 
+@SuppressWarnings("serial")
 public class MainView extends VerticalLayout implements View {
     private AppSettingsHolder settings;
     private BitTradeFx mainui;
@@ -257,7 +261,6 @@ public class MainView extends VerticalLayout implements View {
             btnPanel.setSpacing(false);
 
             Label label = new Label(currencyPairRow.getDisplayName(), ContentMode.HTML);
-//            label.setSizeUndefined();
 
             GridLayout glayout = new GridLayout(2, 1);
             glayout.addComponent(label, 0, 0);
@@ -274,7 +277,7 @@ public class MainView extends VerticalLayout implements View {
                 .setWidth(190)
                 .setResizable(false)
                 .setSortable(false)
-                .setId("PairName");
+                .setId(BFConstants.GRID_PAIR_NAME_COLUMN);
 
         currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
                 .setCaption("Delta $")
@@ -357,6 +360,45 @@ public class MainView extends VerticalLayout implements View {
                         }
                 );
         currInfoGrid.setSizeFull();
+
+        final List<String> nonFunctionalColumns = new ArrayList<>();
+        nonFunctionalColumns.add(BFConstants.GRID_DELTA_PERCENT_COLUMN);
+        nonFunctionalColumns.add(BFConstants.GRID_DELTA_DOUBLE_COLUMN);
+        nonFunctionalColumns.add(BFConstants.GRID_PAIR_NAME_COLUMN);
+
+        final GridContextMenu<CurrencyPairsHolder> gridContextMenu = new GridContextMenu<>(currInfoGrid);
+
+        gridContextMenu.addGridBodyContextMenuListener((GridContextMenu.GridContextMenuOpenListener<CurrencyPairsHolder>) grid -> {
+            gridContextMenu.removeItems();
+            if (grid.getItem() != null && !nonFunctionalColumns.contains(grid.getColumn().getId())) {
+                gridContextMenu.addItem("Go to market website", VaadinIcons.GLOBE, (Menu.Command) e -> {
+                    String url;
+
+                    switch (grid.getColumn().getId()) {
+                        case BFConstants.GRID_WEX_COLUMN: {
+                            url = ((CurrencyPairsHolder) grid.getItem()).getWexnzPair().getUrlToMarket();
+                            break;
+                        }
+                        case BFConstants.GRID_BITFINEX_COLUMN: {
+                            url = ((CurrencyPairsHolder) grid.getItem()).getBitfinexPair().getUrlToMarket();
+                            break;
+                        }
+                        case BFConstants.GRID_KRAKEN_COLUMN: {
+                            url = ((CurrencyPairsHolder) grid.getItem()).getKrakenPair().getUrlToMarket();
+                            break;
+                        }
+                        case BFConstants.GRID_CEX_COLUMN: {
+                            url = ((CurrencyPairsHolder) grid.getItem()).getCexPair().getUrlToMarket();
+                            break;
+                        }
+                        default: {
+                            url = "https://www.google.kz/search?&q=internal error occured";
+                        }
+                    }
+                    Page.getCurrent().open(url, "_blank", false);
+                });
+            }
+        });
     }
 
     private Grid<BalanceHolder> initBalanceGrids(List userBalance) {

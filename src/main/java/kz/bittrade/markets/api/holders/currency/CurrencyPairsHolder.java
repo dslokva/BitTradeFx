@@ -206,8 +206,8 @@ public class CurrencyPairsHolder {
         if (!isLonelyMarket()) {
             double deltaPercent = 100.0 - (minDoublePrice * 100) / maxDoublePrice;
             String color = "red";
-            if (deltaPercent > 2 && deltaPercent < 3) color = "orange";
-            if (deltaPercent >= 3) color = "green";
+            if (deltaPercent > 2 && deltaPercent < 5) color = "orange";
+            if (deltaPercent >= 5) color = "green";
 
             return "<b><font color='" + color + "'>" + String.format("%.2f", deltaPercent) + "% </font></b>";
         } else return "<b><font color='green'>0.0% </font></b>";

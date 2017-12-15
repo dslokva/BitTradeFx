@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static com.vaadin.ui.Alignment.*;
 
+@SuppressWarnings("serial")
 public class SettingsView extends VerticalLayout implements View {
     private TextField txtWexApiKey;
     private PasswordField txtWexSecretKey;
@@ -93,37 +94,10 @@ public class SettingsView extends VerticalLayout implements View {
         mainui = (BitTradeFx) UI.getCurrent();
         settings = mainui.getSettings();
 
-        GridLayout wexnzSettingsGridLayout = new GridLayout(2, 2);
-        wexnzSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        wexnzSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
-        wexnzSettingsGridLayout.addComponent(txtWexApiKey, 1, 0);
-        wexnzSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
-        wexnzSettingsGridLayout.addComponent(txtWexSecretKey, 1, 1);
-        wexnzSettingsGridLayout.setSpacing(true);
-
-        GridLayout bitfinexSettingsGridLayout = new GridLayout(2, 2);
-        bitfinexSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        bitfinexSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
-        bitfinexSettingsGridLayout.addComponent(txtBitApiKey, 1, 0);
-        bitfinexSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
-        bitfinexSettingsGridLayout.addComponent(txtBitSecretKey, 1, 1);
-        bitfinexSettingsGridLayout.setSpacing(true);
-
-        GridLayout krakenSettingsGridLayout = new GridLayout(2, 2);
-        krakenSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        krakenSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
-        krakenSettingsGridLayout.addComponent(txtKraApiKey, 1, 0);
-        krakenSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
-        krakenSettingsGridLayout.addComponent(txtKraSecretKey, 1, 1);
-        krakenSettingsGridLayout.setSpacing(true);
-
-        GridLayout cexSettingsGridLayout = new GridLayout(2, 2);
-        cexSettingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
-        cexSettingsGridLayout.addComponent(new Label("API key:"), 0, 0);
-        cexSettingsGridLayout.addComponent(txtCexApiKey, 1, 0);
-        cexSettingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
-        cexSettingsGridLayout.addComponent(txtCexSecretKey, 1, 1);
-        cexSettingsGridLayout.setSpacing(true);
+        GridLayout wexnzSettingsGridLayout = getAPIKeysGridLayout(txtWexApiKey, txtWexSecretKey);
+        GridLayout bitfinexSettingsGridLayout = getAPIKeysGridLayout(txtBitApiKey, txtBitSecretKey);
+        GridLayout krakenSettingsGridLayout = getAPIKeysGridLayout(txtKraApiKey, txtKraSecretKey);
+        GridLayout cexSettingsGridLayout = getAPIKeysGridLayout(txtCexApiKey, txtCexSecretKey);
 
         Button btnBack = new Button("Back");
         btnBack.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -254,18 +228,18 @@ public class SettingsView extends VerticalLayout implements View {
         setComponentAlignment(settingsPanel, Alignment.TOP_CENTER);
     }
 
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
-        updateValuesToUI();
-    }
-
-    public static Object getKeyFromValue(Map hm, Object value) {
+    private static Object getKeyFromValue(Map hm, Object value) {
         for (Object o : hm.keySet()) {
             if (hm.get(o).equals(value)) {
                 return o;
             }
         }
         return null;
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        updateValuesToUI();
     }
 
     public void updateValuesToUI() {
@@ -299,5 +273,16 @@ public class SettingsView extends VerticalLayout implements View {
 
         settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
         settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra, chkEnableCex);
+    }
+
+    private GridLayout getAPIKeysGridLayout(TextField txtApiKey, PasswordField txtSecretKey) {
+        GridLayout settingsGridLayout = new GridLayout(2, 2);
+        settingsGridLayout.setDefaultComponentAlignment(MIDDLE_LEFT);
+        settingsGridLayout.addComponent(new Label("API key:"), 0, 0);
+        settingsGridLayout.addComponent(txtApiKey, 1, 0);
+        settingsGridLayout.addComponent(new Label("Secret:"), 0, 1);
+        settingsGridLayout.addComponent(txtSecretKey, 1, 1);
+        settingsGridLayout.setSpacing(true);
+        return settingsGridLayout;
     }
 }
