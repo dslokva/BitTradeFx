@@ -141,12 +141,14 @@ public class BitTradeFx extends UI {
         PublicApiAccessLib.setBasicUrl(BFConstants.WEX_API_BASIC_URL);
 
         String tickerName = currencyPairsHolder.getWexnzPair().getTickerName();
+        String urlToMarket = currencyPairsHolder.getWexnzPair().getUrlToMarket();
         JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
 
         if (result != null) {
             WexNzCurrencyPair wexNzCurrencyPair = new Gson().fromJson(result, WexNzCurrencyPair.class);
             if (wexNzCurrencyPair.getInfo() != null) {
                 wexNzCurrencyPair.setTickerName(tickerName);
+                wexNzCurrencyPair.setUrlToMarket(urlToMarket);
                 wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
                 currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
             }
@@ -157,6 +159,7 @@ public class BitTradeFx extends UI {
         PublicApiAccessLib.setBasicUrl(BFConstants.KRA_API_BASIC_URL);
 
         String tickerName = currencyPairsHolder.getKrakenPair().getTickerName();
+        String urlToMarket = currencyPairsHolder.getKrakenPair().getUrlToMarket();
         JsonObject result = PublicApiAccessLib.performBasicRequest("Ticker?pair=", tickerName);
 
         if (result != null) {
@@ -164,6 +167,7 @@ public class BitTradeFx extends UI {
 
             if (krakenCurrencyPair.getInfo() != null) {
                 krakenCurrencyPair.setTickerName(tickerName);
+                krakenCurrencyPair.setUrlToMarket(urlToMarket);
                 krakenCurrencyPair.setMarketId(BFConstants.KRAKEN_ID);
                 currencyPairsHolder.setKrakenPair(krakenCurrencyPair);
             }
@@ -174,12 +178,14 @@ public class BitTradeFx extends UI {
         PublicApiAccessLib.setBasicUrl(BFConstants.BIT_API_BASIC_URL);
 
         String tickerName = currencyPairsHolder.getBitfinexPair().getTickerName();
+        String urlToMarket = currencyPairsHolder.getBitfinexPair().getUrlToMarket();
         JsonObject result = PublicApiAccessLib.performBasicRequest("pubticker/", tickerName);
 
         if (result != null) {
             BitfinexCurrencyPair bitfinexCurrencyPair = new Gson().fromJson(result, BitfinexCurrencyPair.class);
             if (bitfinexCurrencyPair != null) {
                 bitfinexCurrencyPair.setTickerName(tickerName);
+                bitfinexCurrencyPair.setUrlToMarket(urlToMarket);
                 bitfinexCurrencyPair.setMarketId(BFConstants.BITFINEX_ID);
                 currencyPairsHolder.setBitfinexPair(bitfinexCurrencyPair);
             }
@@ -190,6 +196,7 @@ public class BitTradeFx extends UI {
         PublicApiAccessLib.setBasicUrl(BFConstants.CEX_API_BASIC_URL);
 
         String tickerName = currencyPairsHolder.getCexPair().getTickerName();
+        String urlToMarket = currencyPairsHolder.getCexPair().getUrlToMarket();
         if (!tickerName.equals("---")) {
             JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
 
@@ -197,6 +204,7 @@ public class BitTradeFx extends UI {
                 CexCurrencyPair cexCurrencyPair = new Gson().fromJson(result, CexCurrencyPair.class);
                 if (cexCurrencyPair != null) {
                     cexCurrencyPair.setTickerName(tickerName);
+                    cexCurrencyPair.setUrlToMarket(urlToMarket);
                     cexCurrencyPair.setMarketId(BFConstants.CEX_ID);
                     currencyPairsHolder.setCexPair(cexCurrencyPair);
                 }
