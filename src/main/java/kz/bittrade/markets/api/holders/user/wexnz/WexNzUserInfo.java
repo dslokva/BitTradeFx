@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.holders.user;
+package kz.bittrade.markets.api.holders.user.wexnz;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.holders.user.balance;
+package kz.bittrade.markets.api.holders.user.holders;
 
 public class BitfinexBalanceHolder extends BalanceHolder {
 

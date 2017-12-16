@@ -15,13 +15,16 @@ import kz.bittrade.BitTradeFx;
 import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
-import kz.bittrade.markets.api.holders.user.BitfinexBalance;
-import kz.bittrade.markets.api.holders.user.BitfinexBalancesList;
-import kz.bittrade.markets.api.holders.user.WexNzGetInfo;
-import kz.bittrade.markets.api.holders.user.balance.BalanceHolder;
-import kz.bittrade.markets.api.holders.user.balance.BitfinexBalanceHolder;
-import kz.bittrade.markets.api.holders.user.balance.WexNzBalanceHolder;
+import kz.bittrade.markets.api.holders.user.bitfinex.BitfinexBalance;
+import kz.bittrade.markets.api.holders.user.bitfinex.BitfinexBalancesList;
+import kz.bittrade.markets.api.holders.user.cexio.CexIoBalance;
+import kz.bittrade.markets.api.holders.user.holders.BalanceHolder;
+import kz.bittrade.markets.api.holders.user.holders.BitfinexBalanceHolder;
+import kz.bittrade.markets.api.holders.user.holders.CexIoBalanceHolder;
+import kz.bittrade.markets.api.holders.user.holders.WexNzBalanceHolder;
+import kz.bittrade.markets.api.holders.user.wexnz.WexNzGetInfo;
 import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
+import kz.bittrade.markets.api.lib.CexAPILib;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -44,15 +47,19 @@ public class MainView extends VerticalLayout implements View {
 
     private List<WexNzBalanceHolder> wexNzUserBalance;
     private List<BitfinexBalanceHolder> bitfinexUserBalance;
+    private List<CexIoBalanceHolder> cexioUserBalance;
 
     private Grid<CurrencyPairsHolder> currInfoGrid;
     private Grid<BalanceHolder> wexBalanceGrid;
     private Grid<BalanceHolder> bitBalanceGrid;
+    private Grid<BalanceHolder> cexioBalanceGrid;
 
     private CssLayout wexBalancePanel;
     private CssLayout bitBalancePanel;
+    private CssLayout cexioBalancePanel;
     private Label bitBalanceStubLabel;
     private Label wexBalanceStubLabel;
+    private Label cexioBalanceStubLabel;
 
     private ProgressBar refreshProgressBar;
     private Label labelRefreshSec;
@@ -78,6 +85,7 @@ public class MainView extends VerticalLayout implements View {
 
         wexNzUserBalance = new ArrayList<>();
         bitfinexUserBalance = new ArrayList<>();
+        cexioUserBalance = new ArrayList<>();
 
         refreshProgressBar = new ProgressBar(0.0f);
         refreshProgressBar.setVisible(false);
@@ -88,6 +96,7 @@ public class MainView extends VerticalLayout implements View {
 
         bitBalanceStubLabel = getBalanceStubLabel();
         wexBalanceStubLabel = getBalanceStubLabel();
+        cexioBalanceStubLabel = getBalanceStubLabel();
 
         coinActionsWindow = new CoinActionsWindow();
 
@@ -120,6 +129,7 @@ public class MainView extends VerticalLayout implements View {
 
         wexBalanceGrid = initBalanceGrids(wexNzUserBalance);
         bitBalanceGrid = initBalanceGrids(bitfinexUserBalance);
+        cexioBalanceGrid = initBalanceGrids(cexioUserBalance);
 
         currInfoGrid = new MainGrid(mainui, coinActionsWindow);
 
@@ -135,6 +145,12 @@ public class MainView extends VerticalLayout implements View {
         bitBalanceVerticalStub.addComponent(bitBalanceStubLabel);
         bitBalanceVerticalStub.setComponentAlignment(bitBalanceStubLabel, MIDDLE_CENTER);
 
+        VerticalLayout cexioBalanceVerticalStub = new VerticalLayout();
+        cexioBalanceVerticalStub.setSpacing(true);
+        cexioBalanceVerticalStub.addComponent(cexioBalanceGrid);
+        cexioBalanceVerticalStub.addComponent(cexioBalanceStubLabel);
+        cexioBalanceVerticalStub.setComponentAlignment(cexioBalanceStubLabel, MIDDLE_CENTER);
+
         Button btnWexBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateWexBalance());
         Button btnWexBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> hideBalancePanel(wexNzUserBalance, wexBalanceGrid, wexBalanceStubLabel));
         HorizontalLayout wexBalancePanelCaption = getPanelCaptionComponents(btnWexBalanceRefresh, btnWexBalanceClear, BFConstants.WEX);
@@ -143,21 +159,32 @@ public class MainView extends VerticalLayout implements View {
         Button btnBitBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> hideBalancePanel(bitfinexUserBalance, bitBalanceGrid, bitBalanceStubLabel));
         HorizontalLayout bitBalancePanelCaption = getPanelCaptionComponents(btnBitBalanceRefresh, btnBitBalanceClear, BFConstants.BITFINEX);
 
+        Button btnCexioBalanceRefresh = getRefreshMiniButton((Button.ClickListener) clickEvent -> updateCexIoBalance());
+        Button btnCexioBalanceClear = getClearMiniButton((Button.ClickListener) clickEvent -> hideBalancePanel(cexioUserBalance, cexioBalanceGrid, cexioBalanceStubLabel));
+        HorizontalLayout cexioBalancePanelCaption = getPanelCaptionComponents(btnCexioBalanceRefresh, btnCexioBalanceClear, BFConstants.CEX);
+
         wexBalancePanel = new CssLayout();
         wexBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
         wexBalancePanel.addComponent(wexBalancePanelCaption);
         wexBalancePanel.addComponent(wexBalanceVerticalStub);
-        wexBalancePanel.setWidth("18.5em");
+        wexBalancePanel.setWidth("16.5em");
 
         bitBalancePanel = new CssLayout();
         bitBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
         bitBalancePanel.addComponent(bitBalancePanelCaption);
         bitBalancePanel.addComponent(bitBalanceVerticalStub);
-        bitBalancePanel.setWidth("18.5em");
+        bitBalancePanel.setWidth("16.5em");
+
+        cexioBalancePanel = new CssLayout();
+        cexioBalancePanel.addStyleName(ValoTheme.LAYOUT_CARD);
+        cexioBalancePanel.addComponent(cexioBalancePanelCaption);
+        cexioBalancePanel.addComponent(cexioBalanceVerticalStub);
+        cexioBalancePanel.setWidth("16.5em");
 
         HorizontalLayout horizontalBalanceGrid = new HorizontalLayout();
         horizontalBalanceGrid.addComponent(wexBalancePanel);
         horizontalBalanceGrid.addComponent(bitBalancePanel);
+        horizontalBalanceGrid.addComponent(cexioBalancePanel);
 
         GridLayout secondLayer = new GridLayout(2, 1);
         secondLayer.setWidth("100%");
@@ -233,7 +260,7 @@ public class MainView extends VerticalLayout implements View {
         balanceGrid.addColumn(BalanceHolder::getCurrencyName, new HtmlRenderer())
                 .setCaption("Currency")
                 .setResizable(false)
-                .setWidth(110);
+                .setWidth(100);
         balanceGrid.addColumn(new ValueProvider<BalanceHolder, String>() {
             @Override
             public String apply(BalanceHolder balanceHolder) {
@@ -243,7 +270,7 @@ public class MainView extends VerticalLayout implements View {
                 .setCaption("Balance")
                 .setResizable(false);
         balanceGrid.setStyleName(ValoTheme.TABLE_SMALL);
-        balanceGrid.setWidth("17em");
+        balanceGrid.setWidth("15em");
         balanceGrid.setHeightByRows(1);
         balanceGrid.setVisible(false);
 
@@ -325,12 +352,16 @@ public class MainView extends VerticalLayout implements View {
         new Thread(() -> {
             if (settings.isPropertyEnabled(BFConstants.WEX))
                 updateWexBalance();
-
         }).start();
 
         new Thread(() -> {
             if (settings.isPropertyEnabled(BFConstants.BITFINEX))
                 updateBitfinexBalance();
+        }).start();
+
+        new Thread(() -> {
+            if (settings.isPropertyEnabled(BFConstants.CEX))
+                updateCexIoBalance();
         }).start();
 
 //        try {
@@ -343,6 +374,64 @@ public class MainView extends VerticalLayout implements View {
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+    }
+
+    private void updateCexIoBalance() {
+        if (isCexIoAPIKeyPresent()) {
+            CexAPILib privateLib = new CexAPILib(settings.getProperty(BFConstants.CEX_API_USERNAME), settings.getProperty(BFConstants.CEX_API_KEY),
+                    settings.getProperty(BFConstants.CEX_API_SECRET));
+
+            cexioUserBalance.clear();
+            cexioBalanceGrid.setVisible(true);
+            cexioBalanceGrid.setHeightByRows(1);
+            cexioBalanceGrid.setComponentError(null);
+            cexioBalanceStubLabel.setVisible(false);
+            String result = privateLib.balance();
+
+            if (result != null) {
+                CexIoBalance cexIoBalance = new Gson().fromJson(result, CexIoBalance.class);
+                if (cexIoBalance != null) {
+                    if (cexIoBalance.getError() == null) {
+                        double amount = cexIoBalance.getUSD().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.USD, amount));
+
+                        amount = cexIoBalance.getBTC().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.BITCOIN, amount));
+
+                        amount = cexIoBalance.getBCH().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.BITCOIN_CASH, amount));
+
+                        amount = cexIoBalance.getETH().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.ETHERIUM_COIN, amount));
+
+                        amount = cexIoBalance.getZEC().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.ZCASH_COIN, amount));
+
+                        amount = cexIoBalance.getDASH().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.DASH_COIN, amount));
+
+                        amount = cexIoBalance.getXRP().getAvailable();
+                        if (amount > 0) cexioUserBalance.add(new CexIoBalanceHolder(BFConstants.RIPPLE_COIN, amount));
+
+                        cexioBalanceGrid.setCaption("Updated @" + cexIoBalance.getTimestamp());
+
+                        if (cexioUserBalance.size() > 0) {
+                            cexioBalanceGrid.setHeightByRows(cexioUserBalance.size());
+                        } else {
+                            cexioBalanceGrid.setHeightByRows(1);
+                            cexioUserBalance.add(new CexIoBalanceHolder("Total balance", 0.0));
+                        }
+                    } else {
+                        setCexIoLabelsError(cexIoBalance.getError());
+                    }
+                } else setCexIoLabelsError("JSON parse failed");
+            } else setCexIoLabelsError("Request failed");
+            cexioBalanceGrid.getDataProvider().refreshAll();
+        }
+    }
+
+    private void setCexIoLabelsError(String errorText) {
+        cexioBalanceGrid.setComponentError(new UserError(errorText));
     }
 
     private void updateBitfinexBalance() {
@@ -400,7 +489,7 @@ public class MainView extends VerticalLayout implements View {
                             bitBalanceGrid.setHeightByRows(1);
                             bitfinexUserBalance.add(new BitfinexBalanceHolder("Total balance", 0.0));
                         }
-                    }
+                    } else setBitLabelsError("JSON parse failed");
                 } else {
                     setBitLabelsError("Request error");
                 }
@@ -490,15 +579,12 @@ public class MainView extends VerticalLayout implements View {
         smartInitCurrencyPairs();
         initMarketColumns();
         initBalanceStubLabels();
-//        PublicApiAccessLib.setBasicUrl("https://poloniex.com/");
-//        PublicApiAccessLib.clearHeaders();
-//        JsonObject result = PublicApiAccessLib.performBasicRequest("public", "?command=returnTicker");
-//        System.out.println(result.toString());
     }
 
     public void initBalanceStubLabels() {
         initBalanceStubLabel(wexBalanceStubLabel, isWexAPIKeyPresent());
         initBalanceStubLabel(bitBalanceStubLabel, isBitAPIKeyPresent());
+        initBalanceStubLabel(cexioBalanceStubLabel, isCexIoAPIKeyPresent());
     }
 
     private void initBalanceStubLabel(Label label, boolean keyPresent) {
@@ -519,6 +605,10 @@ public class MainView extends VerticalLayout implements View {
         return !settings.getProperty(BFConstants.BIT_API_KEY).equals("");
     }
 
+    private boolean isCexIoAPIKeyPresent() {
+        return !settings.getProperty(BFConstants.CEX_API_KEY).equals("");
+    }
+
     public void initMarketColumns() {
         boolean wexHidden = !settings.isPropertyEnabled(BFConstants.WEX);
         currInfoGrid.getColumn(BFConstants.GRID_WEX_COLUMN).setHidden(wexHidden);
@@ -528,8 +618,11 @@ public class MainView extends VerticalLayout implements View {
         currInfoGrid.getColumn(BFConstants.GRID_BITFINEX_COLUMN).setHidden(bitHidden);
         bitBalancePanel.setVisible(!bitHidden);
 
-        currInfoGrid.getColumn(BFConstants.GRID_KRAKEN_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.KRAKEN));
+        boolean cexioHidden = !settings.isPropertyEnabled(BFConstants.CEX);
         currInfoGrid.getColumn(BFConstants.GRID_CEX_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.CEX));
+        cexioBalancePanel.setVisible(!cexioHidden);
+
+        currInfoGrid.getColumn(BFConstants.GRID_KRAKEN_COLUMN).setHidden(!settings.isPropertyEnabled(BFConstants.KRAKEN));
     }
 
     private void smartInitCurrencyPairs() {

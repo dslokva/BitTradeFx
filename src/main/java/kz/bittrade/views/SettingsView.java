@@ -27,6 +27,7 @@ public class SettingsView extends VerticalLayout implements View {
     private TextField txtKraApiKey;
     private PasswordField txtKraSecretKey;
     private TextField txtCexApiKey;
+    private TextField txtCexUsername;
     private PasswordField txtCexSecretKey;
 
     private AppSettingsHolder settings;
@@ -50,7 +51,8 @@ public class SettingsView extends VerticalLayout implements View {
 
     public SettingsView() {
         addStyleName("content-common");
-        String txtBoxWidth = "500px";
+        String txtBoxWidth = "470px";
+        String txtBoxWidthNarrow = "455px";
 
         txtWexApiKey = new TextField();
         txtWexSecretKey = new PasswordField();
@@ -68,9 +70,11 @@ public class SettingsView extends VerticalLayout implements View {
         txtKraSecretKey.setWidth(txtBoxWidth);
 
         txtCexApiKey = new TextField();
+        txtCexUsername = new TextField();
         txtCexSecretKey = new PasswordField();
-        txtCexApiKey.setWidth(txtBoxWidth);
-        txtCexSecretKey.setWidth(txtBoxWidth);
+        txtCexApiKey.setWidth(txtBoxWidthNarrow);
+        txtCexUsername.setWidth(txtBoxWidthNarrow);
+        txtCexSecretKey.setWidth(txtBoxWidthNarrow);
 
         chkEnableBTC = new CheckBox(BFConstants.BITCOIN);
         chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
@@ -100,6 +104,10 @@ public class SettingsView extends VerticalLayout implements View {
         GridLayout bitfinexSettingsGridLayout = getAPIKeysGridLayout(txtBitApiKey, txtBitSecretKey);
         GridLayout krakenSettingsGridLayout = getAPIKeysGridLayout(txtKraApiKey, txtKraSecretKey);
         GridLayout cexSettingsGridLayout = getAPIKeysGridLayout(txtCexApiKey, txtCexSecretKey);
+        cexSettingsGridLayout.setRows(3);
+        cexSettingsGridLayout.setColumns(3);
+        cexSettingsGridLayout.addComponent(new Label("Username:"), 0, 2);
+        cexSettingsGridLayout.addComponent(txtCexUsername, 1, 2);
 
         Button btnBack = new Button("Back");
         btnBack.addStyleName(ValoTheme.BUTTON_PRIMARY);
@@ -130,6 +138,7 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.KRA_API_SECRET, txtKraSecretKey.getValue());
                     settings.setProperty(BFConstants.CEX_API_KEY, txtCexApiKey.getValue());
                     settings.setProperty(BFConstants.CEX_API_SECRET, txtCexSecretKey.getValue());
+                    settings.setProperty(BFConstants.CEX_API_USERNAME, txtCexUsername.getValue());
 
                     settings.setProperty(BFConstants.BITCOIN, chkEnableBTC.getValue().toString());
                     settings.setProperty(BFConstants.BITCOIN_CASH, chkEnableBCH.getValue().toString());
@@ -225,7 +234,7 @@ public class SettingsView extends VerticalLayout implements View {
 
         Panel settingsPanel = new Panel("Application settings");
         settingsPanel.setContent(allPanelsHolder);
-        settingsPanel.setWidth("60%");
+        settingsPanel.setWidth("50%");
         settingsPanel.setIcon(VaadinIcons.OPTIONS);
 
         addComponent(settingsPanel);
@@ -253,6 +262,7 @@ public class SettingsView extends VerticalLayout implements View {
 
         txtCexApiKey.setValue(settings.getProperty(BFConstants.CEX_API_KEY));
         txtCexSecretKey.setValue(settings.getProperty(BFConstants.CEX_API_SECRET));
+        txtCexUsername.setValue(settings.getProperty(BFConstants.CEX_API_USERNAME));
 
         sortOptions.setValue(getKeyFromValue(sortColsMap, settings.getProperty(BFConstants.AUTO_SORT_COLUMN)));
         if (!sortOptions.getSelectedItem().isPresent())

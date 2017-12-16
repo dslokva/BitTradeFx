@@ -29,6 +29,7 @@ public final class BFConstants {
 
     public static final String CEX_API_KEY = "cexApiKey";
     public static final String CEX_API_SECRET = "cexApiSecret";
+    public static final String CEX_API_USERNAME = "cexApiUsername";
     public static final String CEX_API_BASIC_URL = "https://cex.io/api/";
 
     public static final String AUTO_SORT_COLUMN = "autoSortColumn";

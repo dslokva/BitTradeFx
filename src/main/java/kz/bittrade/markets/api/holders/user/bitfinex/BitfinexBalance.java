@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.holders.user;
+package kz.bittrade.markets.api.holders.user.bitfinex;
 
 public class BitfinexBalance {
     private String type;

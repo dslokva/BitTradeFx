@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.holders.user;
+package kz.bittrade.markets.api.holders.user.bitfinex;
 
 import java.util.HashMap;
 

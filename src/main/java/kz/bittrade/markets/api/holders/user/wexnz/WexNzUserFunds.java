@@ -1,4 +1,4 @@
-package kz.bittrade.markets.api.holders.user;
+package kz.bittrade.markets.api.holders.user.wexnz;
 
 public class WexNzUserFunds {
     private double usd;
