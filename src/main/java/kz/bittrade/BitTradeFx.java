@@ -129,12 +129,14 @@ public class BitTradeFx extends UI {
             currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.BITCOIN_CASH));
         if (settings.isPropertyEnabled(BFConstants.LITECOIN))
             currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.LITECOIN));
-        if (settings.isPropertyEnabled(BFConstants.ETHERIUM))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ETHERIUM));
-        if (settings.isPropertyEnabled(BFConstants.ZCASH))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ZCASH));
+        if (settings.isPropertyEnabled(BFConstants.ETHERIUM_COIN))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ETHERIUM_COIN));
+        if (settings.isPropertyEnabled(BFConstants.ZCASH_COIN))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ZCASH_COIN));
         if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
             currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.DASH_COIN));
+        if (settings.isPropertyEnabled(BFConstants.RIPPLE_COIN))
+            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.RIPPLE_COIN));
     }
 
     private void refreshWexNzCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
@@ -142,16 +144,24 @@ public class BitTradeFx extends UI {
 
         String tickerName = currencyPairsHolder.getWexnzPair().getTickerName();
         String urlToMarket = currencyPairsHolder.getWexnzPair().getUrlToMarket();
-        JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
+        if (!tickerName.equals("---")) {
+            JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
 
-        if (result != null) {
-            WexNzCurrencyPair wexNzCurrencyPair = new Gson().fromJson(result, WexNzCurrencyPair.class);
-            if (wexNzCurrencyPair.getInfo() != null) {
-                wexNzCurrencyPair.setTickerName(tickerName);
-                wexNzCurrencyPair.setUrlToMarket(urlToMarket);
-                wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
-                currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
+            if (result != null) {
+                WexNzCurrencyPair wexNzCurrencyPair = new Gson().fromJson(result, WexNzCurrencyPair.class);
+                if (wexNzCurrencyPair.getInfo() != null) {
+                    wexNzCurrencyPair.setTickerName(tickerName);
+                    wexNzCurrencyPair.setUrlToMarket(urlToMarket);
+                    wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
+                    currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
+                }
             }
+        } else {
+            WexNzCurrencyPair wexNzCurrencyPair = new WexNzCurrencyPair();
+            wexNzCurrencyPair.setTickerName(tickerName);
+            wexNzCurrencyPair.setUrlToMarket(urlToMarket);
+            wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
+            currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
         }
     }
 
@@ -268,10 +278,10 @@ public class BitTradeFx extends UI {
                 wexnzUrl += "ltc_usd";
 
                 krakenTicker = "LTCUSD";
-                cexTicker = "---";
+                cexTicker = "---";///this ticker name define unsupported coin by market
                 break;
             }
-            case BFConstants.ETHERIUM: {
+            case BFConstants.ETHERIUM_COIN: {
                 bitfinexTicker = "ethusd";
                 bitfinexUrl += "ETH:USD";
 
@@ -284,7 +294,7 @@ public class BitTradeFx extends UI {
                 cexUrl += "ETH-USD";
                 break;
             }
-            case BFConstants.ZCASH: {
+            case BFConstants.ZCASH_COIN: {
                 bitfinexTicker = "zecusd";
                 bitfinexUrl += "ZEC:USD";
 
@@ -308,6 +318,17 @@ public class BitTradeFx extends UI {
 
                 cexTicker = "DASH/USD";
                 cexUrl += "DASH-USD";
+                break;
+            }
+            case BFConstants.RIPPLE_COIN: {
+                bitfinexTicker = "xrpusd";
+                bitfinexUrl += "XRP:USD";
+
+                wexnzTicker = "---";
+                krakenTicker = "XRPUSD";
+
+                cexTicker = "XRP/USD";
+                cexUrl += "XRP-USD";
                 break;
             }
             default: {

@@ -40,9 +40,10 @@ public final class BFConstants {
     public static final String BITCOIN = "Bitcoin";
     public static final String BITCOIN_CASH = "Bitcoin Cash";
     public static final String LITECOIN = "Litecoin";
-    public static final String ETHERIUM = "Etherium";
-    public static final String ZCASH = "ZCash";
+    public static final String ETHERIUM_COIN = "Etherium";
+    public static final String ZCASH_COIN = "ZCash";
     public static final String DASH_COIN = "Dash Coin";
+    public static final String RIPPLE_COIN = "Ripple";
 
     public static final String MAIN_VIEW = "main";
     public static final String SETTINGS_VIEW = "settings";

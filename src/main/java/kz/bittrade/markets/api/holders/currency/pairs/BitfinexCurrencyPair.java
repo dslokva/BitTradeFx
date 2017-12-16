@@ -50,7 +50,8 @@ public class BitfinexCurrencyPair extends CommonCurrencyPair {
     }
 
     public String getLastPrice() {
-        return String.format("%.2f", last_price);
+        if (getTickerName().equals("---")) return "n/a";
+        else return String.format("%.2f", last_price);
     }
 
 

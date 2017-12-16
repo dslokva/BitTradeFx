@@ -38,6 +38,7 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkEnableETH;
     private CheckBox chkEnableZEC;
     private CheckBox chkEnableDSH;
+    private CheckBox chkEnableXRP;
 
     private CheckBox chkEnableWex;
     private CheckBox chkEnableBit;
@@ -74,9 +75,10 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableBTC = new CheckBox(BFConstants.BITCOIN);
         chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
         chkEnableLTC = new CheckBox(BFConstants.LITECOIN);
-        chkEnableETH = new CheckBox(BFConstants.ETHERIUM);
-        chkEnableZEC = new CheckBox(BFConstants.ZCASH);
+        chkEnableETH = new CheckBox(BFConstants.ETHERIUM_COIN);
+        chkEnableZEC = new CheckBox(BFConstants.ZCASH_COIN);
         chkEnableDSH = new CheckBox(BFConstants.DASH_COIN);
+        chkEnableXRP = new CheckBox(BFConstants.RIPPLE_COIN);
 
         chkEnableWex = new CheckBox(BFConstants.WEX);
         chkEnableBit = new CheckBox(BFConstants.BITFINEX);
@@ -132,9 +134,10 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.BITCOIN, chkEnableBTC.getValue().toString());
                     settings.setProperty(BFConstants.BITCOIN_CASH, chkEnableBCH.getValue().toString());
                     settings.setProperty(BFConstants.LITECOIN, chkEnableLTC.getValue().toString());
-                    settings.setProperty(BFConstants.ETHERIUM, chkEnableETH.getValue().toString());
-                    settings.setProperty(BFConstants.ZCASH, chkEnableZEC.getValue().toString());
+                    settings.setProperty(BFConstants.ETHERIUM_COIN, chkEnableETH.getValue().toString());
+                    settings.setProperty(BFConstants.ZCASH_COIN, chkEnableZEC.getValue().toString());
                     settings.setProperty(BFConstants.DASH_COIN, chkEnableDSH.getValue().toString());
+                    settings.setProperty(BFConstants.RIPPLE_COIN, chkEnableXRP.getValue().toString());
 
                     settings.setProperty(BFConstants.WEX, chkEnableWex.getValue().toString());
                     settings.setProperty(BFConstants.BITFINEX, chkEnableBit.getValue().toString());
@@ -143,8 +146,7 @@ public class SettingsView extends VerticalLayout implements View {
 
                     settings.setProperty(BFConstants.AUTO_SORT_COLUMN, sortColsMap.get(sortOptions.getValue()));
 
-                    settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
-                    settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra, chkEnableCex);
+                    updateCoinsAndMarketsMaps();
 
                     mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
                 }
@@ -167,14 +169,16 @@ public class SettingsView extends VerticalLayout implements View {
         apiVerticalHolder.addComponent(new Label("Keys for <b>[CEX.io]</b> market:", ContentMode.HTML));
         apiVerticalHolder.addComponent(cexSettingsGridLayout);
 
-        GridLayout coinCheckBoxesGrid = new GridLayout(6, 1);
-        coinCheckBoxesGrid.addComponent(chkEnableBTC);
-        coinCheckBoxesGrid.addComponent(chkEnableBCH);
-        coinCheckBoxesGrid.addComponent(chkEnableLTC);
-        coinCheckBoxesGrid.addComponent(chkEnableETH);
-        coinCheckBoxesGrid.addComponent(chkEnableZEC);
-        coinCheckBoxesGrid.addComponent(chkEnableDSH);
+        GridLayout coinCheckBoxesGrid = new GridLayout(4, 2);
+        coinCheckBoxesGrid.addComponent(chkEnableBTC, 0, 0);
+        coinCheckBoxesGrid.addComponent(chkEnableBCH, 1, 0);
+        coinCheckBoxesGrid.addComponent(chkEnableLTC, 2, 0);
+        coinCheckBoxesGrid.addComponent(chkEnableETH, 3, 0);
+        coinCheckBoxesGrid.addComponent(chkEnableZEC, 0, 1);
+        coinCheckBoxesGrid.addComponent(chkEnableDSH, 1, 1);
+        coinCheckBoxesGrid.addComponent(chkEnableXRP, 2, 1);
         coinCheckBoxesGrid.setWidth("100%");
+        coinCheckBoxesGrid.setSpacing(true);
 
         GridLayout marketCheckBoxesGrid = new GridLayout(4, 1);
         marketCheckBoxesGrid.addComponent(chkEnableWex);
@@ -237,11 +241,6 @@ public class SettingsView extends VerticalLayout implements View {
         return null;
     }
 
-    @Override
-    public void enter(ViewChangeListener.ViewChangeEvent event) {
-        updateValuesToUI();
-    }
-
     public void updateValuesToUI() {
         txtWexApiKey.setValue(settings.getProperty(BFConstants.WEX_API_KEY));
         txtWexSecretKey.setValue(settings.getProperty(BFConstants.WEX_API_SECRET));
@@ -262,16 +261,21 @@ public class SettingsView extends VerticalLayout implements View {
         chkEnableBTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN)));
         chkEnableBCH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN_CASH)));
         chkEnableLTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.LITECOIN)));
-        chkEnableETH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ETHERIUM)));
-        chkEnableZEC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ZCASH)));
+        chkEnableETH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ETHERIUM_COIN)));
+        chkEnableZEC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.ZCASH_COIN)));
         chkEnableDSH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.DASH_COIN)));
+        chkEnableXRP.setValue(Boolean.valueOf(settings.getProperty(BFConstants.RIPPLE_COIN)));
 
         chkEnableWex.setValue(Boolean.valueOf(settings.getProperty(BFConstants.WEX)));
         chkEnableBit.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITFINEX)));
         chkEnableKra.setValue(Boolean.valueOf(settings.getProperty(BFConstants.KRAKEN)));
         chkEnableCex.setValue(Boolean.valueOf(settings.getProperty(BFConstants.CEX)));
 
-        settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH);
+        updateCoinsAndMarketsMaps();
+    }
+
+    private void updateCoinsAndMarketsMaps() {
+        settings.updateCoinSelectState(chkEnableBTC, chkEnableBCH, chkEnableLTC, chkEnableETH, chkEnableZEC, chkEnableDSH, chkEnableXRP);
         settings.updateMarketSelectMap(chkEnableWex, chkEnableBit, chkEnableKra, chkEnableCex);
     }
 
@@ -284,5 +288,10 @@ public class SettingsView extends VerticalLayout implements View {
         settingsGridLayout.addComponent(txtSecretKey, 1, 1);
         settingsGridLayout.setSpacing(true);
         return settingsGridLayout;
+    }
+
+    @Override
+    public void enter(ViewChangeListener.ViewChangeEvent event) {
+        updateValuesToUI();
     }
 }

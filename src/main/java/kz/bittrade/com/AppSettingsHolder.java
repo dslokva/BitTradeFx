@@ -59,9 +59,10 @@ public final class AppSettingsHolder {
         getValueFromLocalStorage(BFConstants.BITCOIN);
         getValueFromLocalStorage(BFConstants.BITCOIN_CASH);
         getValueFromLocalStorage(BFConstants.LITECOIN);
-        getValueFromLocalStorage(BFConstants.ETHERIUM);
-        getValueFromLocalStorage(BFConstants.ZCASH);
+        getValueFromLocalStorage(BFConstants.ETHERIUM_COIN);
+        getValueFromLocalStorage(BFConstants.ZCASH_COIN);
         getValueFromLocalStorage(BFConstants.DASH_COIN);
+        getValueFromLocalStorage(BFConstants.RIPPLE_COIN);
 
         getValueFromLocalStorage(BFConstants.WEX);
         getValueFromLocalStorage(BFConstants.BITFINEX);

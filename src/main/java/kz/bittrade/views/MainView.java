@@ -2,17 +2,12 @@ package kz.bittrade.views;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.vaadin.contextmenu.GridContextMenu;
-import com.vaadin.contextmenu.Menu;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.server.Page;
-import com.vaadin.server.SerializableComparator;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.Position;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 import com.vaadin.ui.renderers.HtmlRenderer;
 import com.vaadin.ui.themes.ValoTheme;
@@ -94,6 +89,8 @@ public class MainView extends VerticalLayout implements View {
         bitBalanceStubLabel = getBalanceStubLabel();
         wexBalanceStubLabel = getBalanceStubLabel();
 
+        coinActionsWindow = new CoinActionsWindow();
+
         btnRefreshTable = new Button("Refresh all");
         btnRefreshTable.addClickListener(e -> mainui.refreshCurrencyGrid(null));
         btnRefreshTable.addStyleName(ValoTheme.BUTTON_FRIENDLY);
@@ -123,7 +120,8 @@ public class MainView extends VerticalLayout implements View {
 
         wexBalanceGrid = initBalanceGrids(wexNzUserBalance);
         bitBalanceGrid = initBalanceGrids(bitfinexUserBalance);
-        initMainGrid();
+
+        currInfoGrid = new MainGrid(mainui, coinActionsWindow);
 
         VerticalLayout wexBalanceVerticalStub = new VerticalLayout();
         wexBalanceVerticalStub.setSpacing(true);
@@ -227,191 +225,12 @@ public class MainView extends VerticalLayout implements View {
         initAutoRefreshTimer();
     }
 
-    private void initMainGrid() {
-        coinActionsWindow = new CoinActionsWindow();
-
-        currInfoGrid = new Grid<>();
-        currInfoGrid.setSelectionMode(Grid.SelectionMode.NONE);
-        currInfoGrid.setCaption("Currency information");
-        currInfoGrid.setItems(mainui.getCurrencyPairsHolderList());
-
-        currInfoGrid.addComponentColumn((CurrencyPairsHolder currencyPairRow) -> {
-            Button buttonActions = new Button("");
-            buttonActions.setIcon(VaadinIcons.ELLIPSIS_DOTS_H);
-            buttonActions.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            buttonActions.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            buttonActions.setDescription("Trade actions");
-            buttonActions.setWidth("35px");
-            buttonActions.addClickListener(click -> {
-                UI.getCurrent().addWindow(coinActionsWindow);
-            });
-
-            Button buttonRefresh = new Button("");
-            buttonRefresh.setIcon(VaadinIcons.REFRESH);
-            buttonRefresh.addStyleName(ValoTheme.BUTTON_BORDERLESS_COLORED);
-            buttonRefresh.addStyleName(ValoTheme.BUTTON_ICON_ONLY);
-            buttonRefresh.setDescription("Refresh row");
-            buttonRefresh.addClickListener(click -> {
-                mainui.refreshCurrencyGrid(currencyPairRow);
-            });
-
-            HorizontalLayout btnPanel = new HorizontalLayout();
-            btnPanel.addComponents(buttonRefresh, buttonActions);
-            btnPanel.setMargin(false);
-            btnPanel.setSpacing(false);
-
-            Label label = new Label(currencyPairRow.getDisplayName(), ContentMode.HTML);
-
-            GridLayout glayout = new GridLayout(2, 1);
-            glayout.addComponent(label, 0, 0);
-            glayout.addComponent(btnPanel, 1, 0);
-            glayout.setComponentAlignment(label, MIDDLE_LEFT);
-            glayout.setComponentAlignment(btnPanel, MIDDLE_RIGHT);
-            glayout.setWidth("170px");
-            glayout.setHeight("100%");
-            glayout.setSpacing(false);
-            glayout.setMargin(false);
-
-            return glayout;
-        }).setCaption("Pair name")
-                .setWidth(190)
-                .setResizable(false)
-                .setSortable(false)
-                .setId(BFConstants.GRID_PAIR_NAME_COLUMN);
-
-        currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaString, new HtmlRenderer())
-                .setCaption("Delta $")
-                .setWidth(100)
-                .setId(BFConstants.GRID_DELTA_DOUBLE_COLUMN)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getDeltaDouble(), b.getDeltaDouble());
-                            }
-                        }
-                );
-        currInfoGrid.addColumn(CurrencyPairsHolder::getDeltaStringPercent, new HtmlRenderer())
-                .setCaption("Delta %")
-                .setWidth(100)
-                .setId(BFConstants.GRID_DELTA_PERCENT_COLUMN)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getDeltaDoublePercent(), b.getDeltaDoublePercent());
-                            }
-                        }
-                );
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceWex, new HtmlRenderer())
-                .setCaption(BFConstants.WEX)
-                .setExpandRatio(2)
-                .setResizable(false)
-                .setMinimumWidth(127)
-                .setId(BFConstants.GRID_WEX_COLUMN)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getWexnzPair().getLastPriceDouble(), b.getWexnzPair().getLastPriceDouble());
-                            }
-                        }
-                );
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceBitfinex, new HtmlRenderer())
-                .setCaption(BFConstants.BITFINEX)
-                .setExpandRatio(2)
-                .setResizable(false)
-                .setMinimumWidth(127)
-                .setId(BFConstants.GRID_BITFINEX_COLUMN)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getBitfinexPair().getLastPriceDouble(), b.getBitfinexPair().getLastPriceDouble());
-                            }
-                        }
-                );
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceKraken, new HtmlRenderer())
-                .setCaption(BFConstants.KRAKEN)
-                .setExpandRatio(2)
-                .setResizable(false)
-                .setMinimumWidth(127)
-                .setId(BFConstants.GRID_KRAKEN_COLUMN)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getKrakenPair().getLastPriceDouble(), b.getKrakenPair().getLastPriceDouble());
-                            }
-                        }
-                );
-        currInfoGrid.addColumn(CurrencyPairsHolder::getLastPriceCex, new HtmlRenderer())
-                .setCaption(BFConstants.CEX)
-                .setExpandRatio(2)
-                .setResizable(false)
-                .setMinimumWidth(127)
-                .setId(BFConstants.GRID_CEX_COLUMN)
-                .setComparator(
-                        new SerializableComparator<CurrencyPairsHolder>() {
-                            @Override
-                            public int compare(CurrencyPairsHolder a, CurrencyPairsHolder b) {
-                                return Double.compare(a.getCexPair().getLastPriceDouble(), b.getCexPair().getLastPriceDouble());
-                            }
-                        }
-                );
-        currInfoGrid.setSizeFull();
-
-        final List<String> nonFunctionalColumns = new ArrayList<>();
-        nonFunctionalColumns.add(BFConstants.GRID_DELTA_PERCENT_COLUMN);
-        nonFunctionalColumns.add(BFConstants.GRID_DELTA_DOUBLE_COLUMN);
-        nonFunctionalColumns.add(BFConstants.GRID_PAIR_NAME_COLUMN);
-
-        final GridContextMenu<CurrencyPairsHolder> gridContextMenu = new GridContextMenu<>(currInfoGrid);
-
-        gridContextMenu.addGridBodyContextMenuListener((GridContextMenu.GridContextMenuOpenListener<CurrencyPairsHolder>) grid -> {
-            gridContextMenu.removeItems();
-            if (grid.getItem() != null && !nonFunctionalColumns.contains(grid.getColumn().getId())) {
-                gridContextMenu.addItem("Go to market website", VaadinIcons.GLOBE, (Menu.Command) e -> {
-                    String url;
-
-                    switch (grid.getColumn().getId()) {
-                        case BFConstants.GRID_WEX_COLUMN: {
-                            url = ((CurrencyPairsHolder) grid.getItem()).getWexnzPair().getUrlToMarket();
-                            break;
-                        }
-                        case BFConstants.GRID_BITFINEX_COLUMN: {
-                            url = ((CurrencyPairsHolder) grid.getItem()).getBitfinexPair().getUrlToMarket();
-                            break;
-                        }
-                        case BFConstants.GRID_KRAKEN_COLUMN: {
-                            url = ((CurrencyPairsHolder) grid.getItem()).getKrakenPair().getUrlToMarket();
-                            break;
-                        }
-                        case BFConstants.GRID_CEX_COLUMN: {
-                            url = ((CurrencyPairsHolder) grid.getItem()).getCexPair().getUrlToMarket();
-                            break;
-                        }
-                        default: {
-                            url = "https://www.google.kz/search?&q=internal error occured";
-                        }
-                    }
-                    Page.getCurrent().open(url, "_blank", false);
-                });
-            }
-        });
-    }
-
     private Grid<BalanceHolder> initBalanceGrids(List userBalance) {
         Grid<BalanceHolder> balanceGrid = new Grid<>();
         balanceGrid.setSelectionMode(Grid.SelectionMode.NONE);
         balanceGrid.setCaption("Total balance");
         balanceGrid.setItems(userBalance);
-        balanceGrid.addColumn(new ValueProvider<BalanceHolder, String>() {
-            @Override
-            public String apply(BalanceHolder balanceHolder) {
-                return balanceHolder.getCurrencyName();
-            }
-        }, new HtmlRenderer())
+        balanceGrid.addColumn(BalanceHolder::getCurrencyName, new HtmlRenderer())
                 .setCaption("Currency")
                 .setResizable(false)
                 .setWidth(110);
@@ -560,7 +379,7 @@ public class MainView extends VerticalLayout implements View {
 
                         amount = bitfinexBalancesList.getAvailEth();
                         if (amount > 0)
-                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ETHERIUM, amount));
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ETHERIUM_COIN, amount));
 
                         amount = bitfinexBalancesList.getAvailLtc();
                         if (amount > 0)
@@ -568,7 +387,7 @@ public class MainView extends VerticalLayout implements View {
 
                         amount = bitfinexBalancesList.getAvailZec();
                         if (amount > 0)
-                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ZCASH, bitfinexBalancesList.getAvailZec()));
+                            bitfinexUserBalance.add(new BitfinexBalanceHolder(BFConstants.ZCASH_COIN, bitfinexBalancesList.getAvailZec()));
 
                         amount = bitfinexBalancesList.getAvailDsh();
                         if (amount > 0)
@@ -627,13 +446,13 @@ public class MainView extends VerticalLayout implements View {
                         if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.BITCOIN_CASH, amount));
 
                         amount = wexUserInfo.getInfo().getFunds().getEth();
-                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ETHERIUM, amount));
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ETHERIUM_COIN, amount));
 
                         amount = wexUserInfo.getInfo().getFunds().getLtc();
                         if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.LITECOIN, amount));
 
                         amount = wexUserInfo.getInfo().getFunds().getZec();
-                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ZCASH, amount));
+                        if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.ZCASH_COIN, amount));
 
                         amount = wexUserInfo.getInfo().getFunds().getDsh();
                         if (amount > 0) wexNzUserBalance.add(new WexNzBalanceHolder(BFConstants.DASH_COIN, amount));

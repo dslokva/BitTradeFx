@@ -16,7 +16,10 @@ public class WexNzCurrencyPair extends CommonCurrencyPair {
     }
 
     public  String getLastPrice() {
-        if (info != null) return String.format("%.2f", info.getLast());
+        if (info != null) {
+            if (getTickerName().equals("---")) return "n/a";
+            else return String.format("%.2f", info.getLast());
+        }
         else return "0.00";
     }
 

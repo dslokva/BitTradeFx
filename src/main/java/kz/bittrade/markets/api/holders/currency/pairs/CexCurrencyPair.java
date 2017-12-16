@@ -22,7 +22,8 @@ public class CexCurrencyPair extends CommonCurrencyPair {
 
     @Override
     public String getLastPrice() {
-        return String.format("%.2f", last);
+        if (getTickerName().equals("---")) return "n/a";
+        else return String.format("%.2f", last);
     }
 
     public String getTimestamp() {

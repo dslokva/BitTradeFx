@@ -3,7 +3,7 @@ package kz.bittrade.markets.api.holders.currency.pairs;
 import com.google.gson.annotations.SerializedName;
 
 public class KrakenCurrencyPairInfo {
-    @SerializedName(value = "XETHZUSD", alternate = {"XXBTZUSD", "XLTCZUSD", "XZECZUSD", "DASHUSD", "BCHUSD"})
+    @SerializedName(value = "XETHZUSD", alternate = {"XXBTZUSD", "XLTCZUSD", "XZECZUSD", "DASHUSD", "BCHUSD", "XXRPZUSD"})
     private KrakenCurrencyTicker ticker;
 
     public double getLastPrice() {
