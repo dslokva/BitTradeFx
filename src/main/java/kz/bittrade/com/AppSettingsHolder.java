@@ -60,6 +60,8 @@ public final class AppSettingsHolder {
 
         getValueFromLocalStorage(BFConstants.AUTO_SORT_COLUMN);
 
+        getValueFromLocalStorage(BFConstants.AUTO_REFRESH_TIME);
+
         getValueFromLocalStorage(BFConstants.BITCOIN);
         getValueFromLocalStorage(BFConstants.BITCOIN_CASH);
         getValueFromLocalStorage(BFConstants.LITECOIN);
@@ -88,6 +90,13 @@ public final class AppSettingsHolder {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+6"));
         return sdf.format(date);
     }
+
+    public String getTimeDeltaString(long oldTime) {
+        long timeDelta = (System.currentTimeMillis() - oldTime) / 1000;
+        return timeDelta + " sec.";
+    }
+
+
 
     public void updateCoinSelectState(CheckBox... chkBoxes) {
         for (CheckBox chkBox : chkBoxes) {

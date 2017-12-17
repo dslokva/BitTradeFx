@@ -33,6 +33,7 @@ public final class BFConstants {
     public static final String CEX_API_BASIC_URL = "https://cex.io/api/";
 
     public static final String AUTO_SORT_COLUMN = "autoSortColumn";
+    public static final String AUTO_REFRESH_TIME = "autoRefreshTime";
 
     public static final String ALGORITHM_HMACSHA384 = "HmacSHA384";
     public static final String ALGORITHM_HMACSHA512 = "HmacSHA512";

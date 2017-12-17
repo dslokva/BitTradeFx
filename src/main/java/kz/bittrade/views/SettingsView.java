@@ -31,6 +31,7 @@ public class SettingsView extends VerticalLayout implements View {
     private PasswordField txtCexSecretKey;
 
     private AppSettingsHolder settings;
+    private MainView mainView;
     private BitTradeFx mainui;
 
     private CheckBox chkEnableBTC;
@@ -47,6 +48,7 @@ public class SettingsView extends VerticalLayout implements View {
     private CheckBox chkEnableCex;
 
     private RadioButtonGroup sortOptions;
+    private Slider refreshSecSlider;
     private Map<String, String> sortColsMap;
 
     public SettingsView() {
@@ -96,9 +98,20 @@ public class SettingsView extends VerticalLayout implements View {
         sortOptions = new RadioButtonGroup<>("Auto sort column after refresh:", sortColsMap.keySet());
         sortOptions.setItemCaptionGenerator(item -> "Column \"" + item + "\"");
         sortOptions.setValue(getKeyFromValue(sortColsMap, BFConstants.GRID_DELTA_PERCENT_COLUMN));
+        sortOptions.setWidth("16em");
+
+        refreshSecSlider = new Slider();
+        refreshSecSlider.setMin(10.0);
+        refreshSecSlider.setMax(60.0);
+        refreshSecSlider.setValue(20.0);
+        refreshSecSlider.setWidth("13em");
+        refreshSecSlider.addValueChangeListener(event -> {
+            Notification.show("Auto refresh time:", String.valueOf(event.getValue().intValue()) + " seconds", Notification.Type.TRAY_NOTIFICATION);
+        });
 
         mainui = (BitTradeFx) UI.getCurrent();
         settings = mainui.getSettings();
+        mainView = mainui.getMainView();
 
         GridLayout wexnzSettingsGridLayout = getAPIKeysGridLayout(txtWexApiKey, txtWexSecretKey);
         GridLayout bitfinexSettingsGridLayout = getAPIKeysGridLayout(txtBitApiKey, txtBitSecretKey);
@@ -154,6 +167,8 @@ public class SettingsView extends VerticalLayout implements View {
                     settings.setProperty(BFConstants.CEX, chkEnableCex.getValue().toString());
 
                     settings.setProperty(BFConstants.AUTO_SORT_COLUMN, sortColsMap.get(sortOptions.getValue()));
+                    settings.setProperty(BFConstants.AUTO_REFRESH_TIME, String.valueOf(refreshSecSlider.getValue()));
+                    mainView.setAutoRefreshTime(refreshSecSlider.getValue().intValue());
 
                     updateCoinsAndMarketsMaps();
 
@@ -204,6 +219,16 @@ public class SettingsView extends VerticalLayout implements View {
         verticalDumbMarketChks.addComponent(marketCheckBoxesGrid);
         verticalDumbMarketChks.setComponentAlignment(marketCheckBoxesGrid, MIDDLE_CENTER);
 
+        VerticalLayout verticalDumbRefreshDuration = new VerticalLayout();
+        Label labelDurationCaption = new Label("Auto refresh duration (in sec):");
+        verticalDumbRefreshDuration.addComponent(labelDurationCaption);
+        verticalDumbRefreshDuration.addComponent(refreshSecSlider);
+        verticalDumbRefreshDuration.setComponentAlignment(labelDurationCaption, MIDDLE_LEFT);
+        verticalDumbRefreshDuration.setComponentAlignment(refreshSecSlider, MIDDLE_LEFT);
+        verticalDumbRefreshDuration.setMargin(false);
+        verticalDumbRefreshDuration.setSpacing(false);
+        verticalDumbRefreshDuration.setWidth("17em");
+
         Panel coinCheckBoxesPanel = new Panel("Enabled coins for monitoring");
         coinCheckBoxesPanel.addStyleName(ValoTheme.PANEL_WELL);
         coinCheckBoxesPanel.setContent(verticalDumbCoinChks);
@@ -212,8 +237,17 @@ public class SettingsView extends VerticalLayout implements View {
         marketsCheckBoxesPanel.addStyleName(ValoTheme.PANEL_WELL);
         marketsCheckBoxesPanel.setContent(verticalDumbMarketChks);
 
+        GridLayout topOtherOptsHolder = new GridLayout(2, 1);
+        topOtherOptsHolder.addComponent(sortOptions, 0, 0);
+        topOtherOptsHolder.addComponent(verticalDumbRefreshDuration, 1, 0);
+        topOtherOptsHolder.setDefaultComponentAlignment(MIDDLE_LEFT);
+        topOtherOptsHolder.setColumnExpandRatio(0, 1);
+        topOtherOptsHolder.setColumnExpandRatio(1, 1);
+        //topOtherOptsHolder.setWidth("100%");
+        topOtherOptsHolder.setSpacing(true);
+
         VerticalLayout otherVerticalHolder = new VerticalLayout();
-        otherVerticalHolder.addComponent(sortOptions);
+        otherVerticalHolder.addComponent(topOtherOptsHolder);
         otherVerticalHolder.addComponent(coinCheckBoxesPanel);
         otherVerticalHolder.addComponent(marketsCheckBoxesPanel);
 
@@ -267,6 +301,11 @@ public class SettingsView extends VerticalLayout implements View {
         sortOptions.setValue(getKeyFromValue(sortColsMap, settings.getProperty(BFConstants.AUTO_SORT_COLUMN)));
         if (!sortOptions.getSelectedItem().isPresent())
             sortOptions.setValue(getKeyFromValue(sortColsMap, BFConstants.GRID_DELTA_PERCENT_COLUMN));
+
+        String refreshTime = settings.getProperty(BFConstants.AUTO_REFRESH_TIME);
+        if (refreshTime.equals("")) refreshTime = "20.0";
+        refreshSecSlider.setValue(Double.valueOf(refreshTime));
+        mainView.setAutoRefreshTime(Double.valueOf(refreshTime).intValue());
 
         chkEnableBTC.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN)));
         chkEnableBCH.setValue(Boolean.valueOf(settings.getProperty(BFConstants.BITCOIN_CASH)));

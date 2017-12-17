@@ -362,6 +362,10 @@ public class BitTradeFx extends UI {
         return settings;
     }
 
+    public MainView getMainView() {
+        return mainView;
+    }
+
     public List<CurrencyPairsHolder> getCurrencyPairsHolderList() {
         return currencyPairsHolderList;
     }
@@ -419,7 +423,7 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             final CountDownLatch waitForRefreshers = new CountDownLatch(currencyPairsToRefresh.size());
-
+            long startTime = System.currentTimeMillis();
             try {
                 access(() -> {
                     refreshLabel.setValue("Refreshing, please wait");
@@ -458,13 +462,8 @@ public class BitTradeFx extends UI {
                     Thread.sleep(50);
 
                 access(() -> {
-                    if (currencyPairsToRefresh.size() > 1)
-                        refreshLabel.setValue("Updated at: " + settings.getNowString());
-                    else refreshLabel.setValue("Partially updated at: " + settings.getNowString());
-
                     refreshProgressBar.setVisible(false);
                     refreshProgressBar.setValue(0);
-
                     btnSettings.setEnabled(true);
 
                     String sortColumn = settings.getProperty(BFConstants.AUTO_SORT_COLUMN);
@@ -474,6 +473,10 @@ public class BitTradeFx extends UI {
                         currInfoGrid.sort(currInfoGrid.getColumn(BFConstants.GRID_DELTA_PERCENT_COLUMN), SortDirection.DESCENDING);
 
                     currInfoGrid.getDataProvider().refreshAll();
+
+                    if (currencyPairsToRefresh.size() > 1)
+                        refreshLabel.setValue("Updated at: " + settings.getNowString() + " (duration: " + settings.getTimeDeltaString(startTime) + ")");
+                    else refreshLabel.setValue("Partially updated at: " + settings.getNowString());
                     push();
                 });
             } catch (InterruptedException e) {

@@ -61,6 +61,8 @@ public class MainView extends VerticalLayout implements View {
     private Label wexBalanceStubLabel;
     private Label cexioBalanceStubLabel;
 
+    private int autoRefreshTime;
+
     private ProgressBar refreshProgressBar;
     private Label labelRefreshSec;
     private Label labelRefresh;
@@ -113,10 +115,11 @@ public class MainView extends VerticalLayout implements View {
         btnRefreshUserBalance.addClickListener(
                 e -> updateUserBalances());
 
-        chkAutoRefresh = new CheckBox("Auto refresh every 30 sec");
+        chkAutoRefresh = new CheckBox("Auto refresh every 0 sec");
         chkAutoRefresh.addValueChangeListener(event -> {
             boolean notChecked = !chkAutoRefresh.getValue();
             btnRefreshTable.setEnabled(notChecked);
+            btnSettings.setEnabled(notChecked);
             if (notChecked) {
                 timer.cancel();
                 labelRefreshSec.setValue("");
@@ -325,13 +328,13 @@ public class MainView extends VerticalLayout implements View {
         timer = new Timer();
         addExtension(timer);
         timer.run(() -> {
-            if (refreshSec >= 30) {
+            if (refreshSec >= autoRefreshTime) {
                 mainui.refreshCurrencyGrid(null);
                 refreshSec = 0;
                 labelRefreshSec.setValue("");
             } else {
                 refreshSec++;
-                labelRefreshSec.setValue("(next in: " + String.valueOf(30 - refreshSec) + ")");
+                labelRefreshSec.setValue("(next in: " + String.valueOf(autoRefreshTime - refreshSec) + ")");
             }
         });
     }
@@ -687,5 +690,10 @@ public class MainView extends VerticalLayout implements View {
 
     public Button getBtnSettings() {
         return btnSettings;
+    }
+
+    public void setAutoRefreshTime(int autoRefreshTime) {
+        this.autoRefreshTime = autoRefreshTime;
+        chkAutoRefresh.setCaption("Auto refresh every " + autoRefreshTime + " sec");
     }
 }
