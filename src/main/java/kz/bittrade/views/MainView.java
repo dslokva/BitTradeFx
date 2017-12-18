@@ -62,6 +62,7 @@ public class MainView extends VerticalLayout implements View {
     private Label cexioBalanceStubLabel;
 
     private int autoRefreshTime;
+    private int nextRefreshSec;
 
     private ProgressBar refreshProgressBar;
     private Label labelRefreshSec;
@@ -73,7 +74,6 @@ public class MainView extends VerticalLayout implements View {
 
     private CheckBox chkAutoRefresh;
     private Timer timer;
-    private int refreshSec;
     private StackPanel topStackPanel;
 
     private VerticalLayout waitingStubPanel;
@@ -125,7 +125,7 @@ public class MainView extends VerticalLayout implements View {
                 labelRefreshSec.setValue("");
                 mainui.showNotification("Timer", "Auto-update disabled by user.", 3000, Position.BOTTOM_RIGHT, "tray dark");
             } else {
-                refreshSec = 0;
+                nextRefreshSec = 0;
                 timer.scheduleRepeatable(1000);
             }
         });
@@ -230,7 +230,7 @@ public class MainView extends VerticalLayout implements View {
 
         Panel topPanel = new Panel("User related information");
         topPanel.setContent(topLayer);
-        topPanel.setWidth("85%");
+        topPanel.setWidth("90%");
         topPanel.setIcon(VaadinIcons.DOLLAR);
         topStackPanel = StackPanel.extend(topPanel);
 
@@ -244,14 +244,30 @@ public class MainView extends VerticalLayout implements View {
 
         Panel middlePanel = new Panel("Coin markets monitoring");
         middlePanel.setContent(middleLayer);
-        middlePanel.setWidth("85%");
-        middlePanel.setIcon(VaadinIcons.SPLINE_AREA_CHART);
+        middlePanel.setWidth("90%");
+        middlePanel.setIcon(VaadinIcons.CHART_GRID);
+
+        CandlestickChart candlestickChart = new CandlestickChart();
+        Component chart = candlestickChart.getChart();
+
+        VerticalLayout chartLayer = new VerticalLayout();
+        chartLayer.addComponent(chart);
+        chartLayer.setComponentAlignment(chart, MIDDLE_CENTER);
+
+        Panel chartPanel = new Panel("Coin markets cumulative chart");
+        chartPanel.setContent(chartLayer);
+        chartPanel.setWidth("90%");
+        chartPanel.setIcon(VaadinIcons.SPLINE_AREA_CHART);
+
 
         setSpacing(true);
         addComponent(topPanel);
         addComponent(middlePanel);
+        addComponent(chartPanel);
         setComponentAlignment(topPanel, Alignment.TOP_CENTER);
         setComponentAlignment(middlePanel, Alignment.MIDDLE_CENTER);
+        setComponentAlignment(chartPanel, Alignment.BOTTOM_CENTER);
+
         initAutoRefreshTimer();
     }
 
@@ -328,13 +344,13 @@ public class MainView extends VerticalLayout implements View {
         timer = new Timer();
         addExtension(timer);
         timer.run(() -> {
-            if (refreshSec >= autoRefreshTime) {
+            if (nextRefreshSec >= autoRefreshTime) {
                 mainui.refreshCurrencyGrid(null);
-                refreshSec = 0;
+                nextRefreshSec = 0;
                 labelRefreshSec.setValue("");
             } else {
-                refreshSec++;
-                labelRefreshSec.setValue("(next in: " + String.valueOf(autoRefreshTime - refreshSec) + ")");
+                nextRefreshSec++;
+                labelRefreshSec.setValue("(next in: " + String.valueOf(autoRefreshTime - nextRefreshSec) + ")");
             }
         });
     }

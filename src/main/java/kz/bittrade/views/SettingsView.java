@@ -53,8 +53,8 @@ public class SettingsView extends VerticalLayout implements View {
 
     public SettingsView() {
         addStyleName("content-common");
-        String txtBoxWidth = "470px";
-        String txtBoxWidthNarrow = "455px";
+        String txtBoxWidth = "460px";
+        String txtBoxWidthNarrow = "445px";
 
         txtWexApiKey = new TextField();
         txtWexSecretKey = new PasswordField();
@@ -106,7 +106,7 @@ public class SettingsView extends VerticalLayout implements View {
         refreshSecSlider.setValue(20.0);
         refreshSecSlider.setWidth("13em");
         refreshSecSlider.addValueChangeListener(event -> {
-            Notification.show("Auto refresh time:", String.valueOf(event.getValue().intValue()) + " seconds", Notification.Type.TRAY_NOTIFICATION);
+            Notification.show("Auto refresh time", String.valueOf(event.getValue().intValue()) + " seconds", Notification.Type.TRAY_NOTIFICATION);
         });
 
         mainui = (BitTradeFx) UI.getCurrent();
@@ -172,7 +172,7 @@ public class SettingsView extends VerticalLayout implements View {
 
                     updateCoinsAndMarketsMaps();
 
-                    mainui.showNotification("Settings", "Settings are saved in browser local storage.", 3000, Position.BOTTOM_RIGHT, "tray success");
+                    mainui.showNotification("Settings", "Saved in browser local storage", 3000, Position.BOTTOM_RIGHT, "tray success");
                 }
         );
 
@@ -241,8 +241,8 @@ public class SettingsView extends VerticalLayout implements View {
         topOtherOptsHolder.addComponent(sortOptions, 0, 0);
         topOtherOptsHolder.addComponent(verticalDumbRefreshDuration, 1, 0);
         topOtherOptsHolder.setDefaultComponentAlignment(MIDDLE_LEFT);
-        topOtherOptsHolder.setColumnExpandRatio(0, 1);
-        topOtherOptsHolder.setColumnExpandRatio(1, 1);
+//        topOtherOptsHolder.setColumnExpandRatio(0, 1);
+//        topOtherOptsHolder.setColumnExpandRatio(1, 1);
         //topOtherOptsHolder.setWidth("100%");
         topOtherOptsHolder.setSpacing(true);
 
@@ -268,7 +268,7 @@ public class SettingsView extends VerticalLayout implements View {
 
         Panel settingsPanel = new Panel("Application settings");
         settingsPanel.setContent(allPanelsHolder);
-        settingsPanel.setWidth("50%");
+        settingsPanel.setWidth("60%");
         settingsPanel.setIcon(VaadinIcons.OPTIONS);
 
         addComponent(settingsPanel);
