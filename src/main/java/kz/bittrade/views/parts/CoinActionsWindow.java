@@ -1,4 +1,4 @@
-package kz.bittrade.views;
+package kz.bittrade.views.parts;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;

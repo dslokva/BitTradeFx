@@ -1,4 +1,4 @@
-package kz.bittrade.views;
+package kz.bittrade.views.parts;
 
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
@@ -16,7 +16,7 @@ public class CandlestickChart {
 
     }
 
-    protected Component getChart() {
+    public Component getChart() {
         final Chart chart = new Chart(ChartType.CANDLESTICK);
         chart.setHeight("350px");
         chart.setWidth("50%");

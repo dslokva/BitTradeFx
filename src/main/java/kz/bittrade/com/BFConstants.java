@@ -7,6 +7,14 @@ public final class BFConstants {
     public static final String KRAKEN_ID = "3";
     public static final String CEX_ID = "4";
 
+    public static final Integer BTC_ID = 1;
+    public static final Integer BCH_ID = 2;
+    public static final Integer LTC_ID = 3;
+    public static final Integer ETH_ID = 4;
+    public static final Integer ZEC_ID = 5;
+    public static final Integer DASH_ID = 6;
+    public static final Integer XRP_ID = 7;
+
     public static final String WEX = "WEX";
     public static final String BITFINEX = "Bitfinex";
     public static final String KRAKEN = "Kraken";

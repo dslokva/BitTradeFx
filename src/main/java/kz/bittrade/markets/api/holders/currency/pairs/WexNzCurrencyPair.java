@@ -3,6 +3,8 @@ package kz.bittrade.markets.api.holders.currency.pairs;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.sql.Timestamp;
+
 public class WexNzCurrencyPair extends CommonCurrencyPair {
     @SerializedName(value = "btc_usd", alternate = {"eth_usd", "zec_usd", "dsh_usd", "ltc_usd", "bch_usd"})
     private WexNzCurrencyPairInfo info;
@@ -15,13 +17,13 @@ public class WexNzCurrencyPair extends CommonCurrencyPair {
         return info;
     }
 
-    public  String getLastPrice() {
+    public String getLastPrice() {
         if (info != null) {
             if (getTickerName().equals("---")) return "n/a";
             else return String.format("%.2f", info.getLast());
-        }
-        else return "0.00";
+        } else return "0.00";
     }
+
 
     public double getLastPriceDouble() {
         if (info != null) return info.getLast();
@@ -31,5 +33,10 @@ public class WexNzCurrencyPair extends CommonCurrencyPair {
     public String getTimestamp() {
         if (info != null) return info.getTimestamp();
         else return "---";
+    }
+
+    public Timestamp getTimestampDate() {
+        if (info != null) return info.getTimestampDate();
+        else return new Timestamp(System.currentTimeMillis());
     }
 }

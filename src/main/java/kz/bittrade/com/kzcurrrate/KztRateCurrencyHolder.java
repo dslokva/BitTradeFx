@@ -1,4 +1,4 @@
-package kz.bittrade.com;
+package kz.bittrade.com.kzcurrrate;
 
 import java.util.HashMap;
 

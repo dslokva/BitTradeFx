@@ -14,6 +14,7 @@ import com.vaadin.ui.themes.ValoTheme;
 import kz.bittrade.BitTradeFx;
 import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
+import kz.bittrade.com.chartminer.MarketsRefresher;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import kz.bittrade.markets.api.holders.user.bitfinex.BitfinexBalance;
 import kz.bittrade.markets.api.holders.user.bitfinex.BitfinexBalancesList;
@@ -26,6 +27,9 @@ import kz.bittrade.markets.api.holders.user.wexnz.WexNzGetInfo;
 import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
 import kz.bittrade.markets.api.lib.CexAPILib;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
+import kz.bittrade.views.parts.CandlestickChart;
+import kz.bittrade.views.parts.CoinActionsWindow;
+import kz.bittrade.views.parts.MainGrid;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -42,6 +46,7 @@ import static com.vaadin.ui.Alignment.*;
 
 @SuppressWarnings("serial")
 public class MainView extends VerticalLayout implements View {
+    private final MarketsRefresher marketsRefresher;
     private AppSettingsHolder settings;
     private BitTradeFx mainui;
 
@@ -101,6 +106,8 @@ public class MainView extends VerticalLayout implements View {
         cexioBalanceStubLabel = getBalanceStubLabel();
 
         coinActionsWindow = new CoinActionsWindow();
+
+        marketsRefresher = MarketsRefresher.getInstance();
 
         btnRefreshTable = new Button("Refresh all");
         btnRefreshTable.addClickListener(e -> mainui.refreshCurrencyGrid(null));
@@ -268,7 +275,7 @@ public class MainView extends VerticalLayout implements View {
         setComponentAlignment(middlePanel, Alignment.MIDDLE_CENTER);
         setComponentAlignment(chartPanel, Alignment.BOTTOM_CENTER);
 
-        initAutoRefreshTimer();
+        initMainGridAutoRefreshTimer();
     }
 
     private Grid<BalanceHolder> initBalanceGrids(List userBalance) {
@@ -340,7 +347,7 @@ public class MainView extends VerticalLayout implements View {
         return btnClear;
     }
 
-    private void initAutoRefreshTimer() {
+    private void initMainGridAutoRefreshTimer() {
         timer = new Timer();
         addExtension(timer);
         timer.run(() -> {
@@ -659,7 +666,7 @@ public class MainView extends VerticalLayout implements View {
         /* Add section */
         for (String name : map.keySet()) {
             if (!containsName(currencyPairsHolderList, name) && map.get(name).equals(Boolean.TRUE)) {
-                currencyPairsHolderList.add(mainui.initNewCurrencyPair(name));
+                currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(name));
             }
         }
 

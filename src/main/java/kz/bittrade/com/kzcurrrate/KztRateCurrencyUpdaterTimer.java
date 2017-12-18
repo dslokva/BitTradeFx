@@ -1,5 +1,6 @@
-package kz.bittrade.com;
+package kz.bittrade.com.kzcurrrate;
 
+import kz.bittrade.com.BFConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

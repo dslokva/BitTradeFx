@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class CurrencyPairsHolder {
+    private Integer pairId;
     private String name;
     private String displayName;
     private HashMap<String, CommonCurrencyPair> currencyPairs;
@@ -154,6 +155,7 @@ public class CurrencyPairsHolder {
 
     public void setName(String name) {
         this.name = name;
+        setDisplayName(name);
     }
 
     public String getLastPriceWex() {
@@ -223,5 +225,13 @@ public class CurrencyPairsHolder {
 
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
+    }
+
+    public Integer getPairId() {
+        return pairId;
+    }
+
+    public void setPairId(Integer pairId) {
+        this.pairId = pairId;
     }
 }

@@ -1,7 +1,8 @@
 package kz.bittrade.markets.api.holders.currency.pairs;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.TimeZone;
 
 public class BitfinexCurrencyPair extends CommonCurrencyPair {
@@ -43,6 +44,10 @@ public class BitfinexCurrencyPair extends CommonCurrencyPair {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+6"));
         return sdf.format(date);
+    }
+
+    public Timestamp getTimestampDate() {
+        return new Timestamp((long) (timestamp * 1000L));
     }
 
     public double getLastPriceDouble() {

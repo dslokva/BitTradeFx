@@ -1,7 +1,5 @@
 package kz.bittrade;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
@@ -13,13 +11,10 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.ui.*;
 import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
-import kz.bittrade.com.KztRateCurrencyUpdaterTimer;
+import kz.bittrade.com.chartminer.MarketDataMiner;
+import kz.bittrade.com.chartminer.MarketsRefresher;
+import kz.bittrade.com.kzcurrrate.KztRateCurrencyUpdaterTimer;
 import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
-import kz.bittrade.markets.api.holders.currency.pairs.BitfinexCurrencyPair;
-import kz.bittrade.markets.api.holders.currency.pairs.CexCurrencyPair;
-import kz.bittrade.markets.api.holders.currency.pairs.KrakenCurrencyPair;
-import kz.bittrade.markets.api.holders.currency.pairs.WexNzCurrencyPair;
-import kz.bittrade.markets.api.lib.PublicApiAccessLib;
 import kz.bittrade.views.MainView;
 import kz.bittrade.views.SettingsView;
 
@@ -39,7 +34,8 @@ public class BitTradeFx extends UI {
     private MainView mainView;
     private SettingsView settingsView;
     private AppSettingsHolder settings;
-    private RefreshThread refreshThread;
+    private GridRefreshThread gridRefreshThread;
+    private MarketsRefresher marketsRefresher;
 
     @Override
     protected void init(VaadinRequest request) {
@@ -49,7 +45,8 @@ public class BitTradeFx extends UI {
 
         mainView = new MainView();
         settingsView = new SettingsView();
-        refreshThread = new RefreshThread();
+        gridRefreshThread = new GridRefreshThread();
+        marketsRefresher = MarketsRefresher.getInstance();
 
         navigator = new Navigator(this, this);
         navigator.addView("", mainView);
@@ -58,6 +55,64 @@ public class BitTradeFx extends UI {
         //Note: Read LocalStorage values at first app run (during first call in browser) available only after init() method fully complete.
         //I think that because registerRpc call completes only after extend(), but this magic not for me. So AfterInitThread - is a my own lifehack.
         new AfterInitThread().start();
+    }
+
+    public void refreshCurrencyGrid(CurrencyPairsHolder currencyPairRow) {
+        if (!gridRefreshThread.isAlive()) {
+            gridRefreshThread = new GridRefreshThread();
+            if (currencyPairRow == null) gridRefreshThread.refreshAll();
+            else gridRefreshThread.refreshOne(currencyPairRow);
+        } else
+            showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
+    }
+
+    private void refreshCurrencyInfo(CurrencyPairsHolder item) {
+        boolean wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
+        boolean bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
+        boolean kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
+        boolean cexEnabled = settings.isPropertyEnabled(BFConstants.CEX);
+
+        if (wexEnabled) {
+            marketsRefresher.refreshWexNzCurrencyInfo(item);
+        }
+
+        if (bitEnabled) {
+            marketsRefresher.refreshBitfinexCurrencyInfo(item);
+        }
+
+        if (kraEnabled) {
+            marketsRefresher.refreshKrakenCurrencyInfo(item);
+        }
+
+        if (cexEnabled) {
+            marketsRefresher.refreshCexCurrencyInfo(item);
+        }
+        item.defineMinMaxPrice(settings.getEnabledMarketsMap());
+    }
+
+    private void initCurrencyPairs() {
+        currencyPairsHolderList.clear();
+
+        if (settings.isPropertyEnabled(BFConstants.BITCOIN))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.BITCOIN));
+
+        if (settings.isPropertyEnabled(BFConstants.BITCOIN_CASH))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.BITCOIN_CASH));
+
+        if (settings.isPropertyEnabled(BFConstants.LITECOIN))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.LITECOIN));
+
+        if (settings.isPropertyEnabled(BFConstants.ETHERIUM_COIN))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.ETHERIUM_COIN));
+
+        if (settings.isPropertyEnabled(BFConstants.ZCASH_COIN))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.ZCASH_COIN));
+
+        if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.DASH_COIN));
+
+        if (settings.isPropertyEnabled(BFConstants.RIPPLE_COIN))
+            currencyPairsHolderList.add(marketsRefresher.initNewCurrencyPair(BFConstants.RIPPLE_COIN));
     }
 
     @WebServlet(urlPatterns = "/*", name = "BitTradeFxServlet", asyncSupported = true)
@@ -70,9 +125,13 @@ public class BitTradeFx extends UI {
             getService().addSessionDestroyListener(this);
             System.out.println("BitTradeFx app started");
 
-            TimerTask timerTask = new KztRateCurrencyUpdaterTimer();
-            java.util.Timer timer = new java.util.Timer(true);
-            timer.scheduleAtFixedRate(timerTask, 0, 43200 * 1000);
+            TimerTask kztRateTimerTask = new KztRateCurrencyUpdaterTimer();
+            java.util.Timer kztRateTimer = new java.util.Timer(true);
+            kztRateTimer.scheduleAtFixedRate(kztRateTimerTask, 0, 43200 * 1000); //12 hours
+
+            TimerTask marketMinerTimerTask = new MarketDataMiner();
+            java.util.Timer marketMinerTimer = new java.util.Timer(true);
+            marketMinerTimer.scheduleAtFixedRate(marketMinerTimerTask, 0, 30 * 1000); //30 sec
         }
 
         @Override
@@ -87,276 +146,6 @@ public class BitTradeFx extends UI {
         }
     }
 
-    public void refreshCurrencyGrid(CurrencyPairsHolder currencyPairRow) {
-        if (!refreshThread.isAlive()) {
-            refreshThread = new RefreshThread();
-            if (currencyPairRow == null) refreshThread.refreshAll();
-            else refreshThread.refreshOne(currencyPairRow);
-        } else
-            showNotification("Timer", "Refresh thread already running, so we skip this run", 3000, Position.BOTTOM_RIGHT, "tray failure");
-    }
-
-    private void refreshCurrencyInfo(CurrencyPairsHolder item) {
-        boolean wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
-        boolean bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
-        boolean kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
-        boolean cexEnabled = settings.isPropertyEnabled(BFConstants.CEX);
-
-        if (wexEnabled) {
-            refreshWexNzCurrencyInfo(item);
-        }
-
-        if (bitEnabled) {
-            refreshBitfinexCurrencyInfo(item);
-        }
-
-        if (kraEnabled) {
-            refreshKrakenCurrencyInfo(item);
-        }
-
-        if (cexEnabled) {
-            refreshCexCurrencyInfo(item);
-        }
-        item.defineMinMaxPrice(settings.getEnabledMarketsMap());
-    }
-
-    private void initCurrencyPairs() {
-        currencyPairsHolderList.clear();
-
-        if (settings.isPropertyEnabled(BFConstants.BITCOIN))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.BITCOIN));
-        if (settings.isPropertyEnabled(BFConstants.BITCOIN_CASH))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.BITCOIN_CASH));
-        if (settings.isPropertyEnabled(BFConstants.LITECOIN))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.LITECOIN));
-        if (settings.isPropertyEnabled(BFConstants.ETHERIUM_COIN))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ETHERIUM_COIN));
-        if (settings.isPropertyEnabled(BFConstants.ZCASH_COIN))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.ZCASH_COIN));
-        if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.DASH_COIN));
-        if (settings.isPropertyEnabled(BFConstants.RIPPLE_COIN))
-            currencyPairsHolderList.add(initNewCurrencyPair(BFConstants.RIPPLE_COIN));
-    }
-
-    private void refreshWexNzCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        PublicApiAccessLib.setBasicUrl(BFConstants.WEX_API_BASIC_URL);
-
-        String tickerName = currencyPairsHolder.getWexnzPair().getTickerName();
-        String urlToMarket = currencyPairsHolder.getWexnzPair().getUrlToMarket();
-        if (!tickerName.equals("---")) {
-            JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
-
-            if (result != null) {
-                WexNzCurrencyPair wexNzCurrencyPair = new Gson().fromJson(result, WexNzCurrencyPair.class);
-                if (wexNzCurrencyPair.getInfo() != null) {
-                    wexNzCurrencyPair.setTickerName(tickerName);
-                    wexNzCurrencyPair.setUrlToMarket(urlToMarket);
-                    wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
-                    currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
-                }
-            }
-        } else {
-            WexNzCurrencyPair wexNzCurrencyPair = new WexNzCurrencyPair();
-            wexNzCurrencyPair.setTickerName(tickerName);
-            wexNzCurrencyPair.setUrlToMarket(urlToMarket);
-            wexNzCurrencyPair.setMarketId(BFConstants.WEX_ID);
-            currencyPairsHolder.setWexnzPair(wexNzCurrencyPair);
-        }
-    }
-
-    private void refreshKrakenCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        PublicApiAccessLib.setBasicUrl(BFConstants.KRA_API_BASIC_URL);
-
-        String tickerName = currencyPairsHolder.getKrakenPair().getTickerName();
-        String urlToMarket = currencyPairsHolder.getKrakenPair().getUrlToMarket();
-        JsonObject result = PublicApiAccessLib.performBasicRequest("Ticker?pair=", tickerName);
-
-        if (result != null) {
-            KrakenCurrencyPair krakenCurrencyPair = new Gson().fromJson(result, KrakenCurrencyPair.class);
-
-            if (krakenCurrencyPair.getInfo() != null) {
-                krakenCurrencyPair.setTickerName(tickerName);
-                krakenCurrencyPair.setUrlToMarket(urlToMarket);
-                krakenCurrencyPair.setMarketId(BFConstants.KRAKEN_ID);
-                currencyPairsHolder.setKrakenPair(krakenCurrencyPair);
-            }
-        }
-    }
-
-    private void refreshBitfinexCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        PublicApiAccessLib.setBasicUrl(BFConstants.BIT_API_BASIC_URL);
-
-        String tickerName = currencyPairsHolder.getBitfinexPair().getTickerName();
-        String urlToMarket = currencyPairsHolder.getBitfinexPair().getUrlToMarket();
-        JsonObject result = PublicApiAccessLib.performBasicRequest("pubticker/", tickerName);
-
-        if (result != null) {
-            BitfinexCurrencyPair bitfinexCurrencyPair = new Gson().fromJson(result, BitfinexCurrencyPair.class);
-            if (bitfinexCurrencyPair != null) {
-                bitfinexCurrencyPair.setTickerName(tickerName);
-                bitfinexCurrencyPair.setUrlToMarket(urlToMarket);
-                bitfinexCurrencyPair.setMarketId(BFConstants.BITFINEX_ID);
-                currencyPairsHolder.setBitfinexPair(bitfinexCurrencyPair);
-            }
-        }
-    }
-
-    private void refreshCexCurrencyInfo(CurrencyPairsHolder currencyPairsHolder) {
-        PublicApiAccessLib.setBasicUrl(BFConstants.CEX_API_BASIC_URL);
-
-        String tickerName = currencyPairsHolder.getCexPair().getTickerName();
-        String urlToMarket = currencyPairsHolder.getCexPair().getUrlToMarket();
-        if (!tickerName.equals("---")) {
-            JsonObject result = PublicApiAccessLib.performBasicRequest("ticker/", tickerName);
-
-            if (result != null) {
-                CexCurrencyPair cexCurrencyPair = new Gson().fromJson(result, CexCurrencyPair.class);
-                if (cexCurrencyPair != null) {
-                    cexCurrencyPair.setTickerName(tickerName);
-                    cexCurrencyPair.setUrlToMarket(urlToMarket);
-                    cexCurrencyPair.setMarketId(BFConstants.CEX_ID);
-                    currencyPairsHolder.setCexPair(cexCurrencyPair);
-                }
-            }
-        } else {
-            CexCurrencyPair cexCurrencyPair = new CexCurrencyPair();
-            cexCurrencyPair.setLast(0.0);
-            cexCurrencyPair.setTickerName(tickerName);
-            cexCurrencyPair.setMarketId(BFConstants.CEX_ID);
-            currencyPairsHolder.setCexPair(cexCurrencyPair);
-        }
-    }
-
-    public CurrencyPairsHolder initNewCurrencyPair(String pairName) {
-        CurrencyPairsHolder ccp = new CurrencyPairsHolder();
-        ccp.setName(pairName);
-        ccp.setDisplayName(pairName);
-
-        String bitfinexTicker = "";
-        String wexnzTicker = "";
-        String krakenTicker = "";
-        String cexTicker = "";
-
-        String bitfinexUrl = "https://www.bitfinex.com/t/";
-        String wexnzUrl = "https://wex.nz/exchange/";
-        String krakenUrl = "https://www.kraken.com/u/trade";
-        String cexUrl = "https://cex.io/trade/";
-
-        switch (pairName) {
-            case BFConstants.BITCOIN: {
-                bitfinexTicker = "btcusd";
-                bitfinexUrl += "BTC:USD";
-
-                wexnzTicker = "btc_usd";
-                wexnzUrl += "btc_usd";
-
-                krakenTicker = "XBTUSD";
-
-                cexTicker = "BTC/USD";
-                cexUrl += "BTC-USD";
-                break;
-            }
-            case BFConstants.BITCOIN_CASH: {
-                bitfinexTicker = "bchusd";
-                bitfinexUrl += "BCH:USD";
-
-                wexnzTicker = "bch_usd";
-                wexnzUrl += "bch_usd";
-
-                krakenTicker = "BCHUSD";
-
-                cexTicker = "BCH/USD";
-                cexUrl += "BTC-USD";
-                break;
-            }
-            case BFConstants.LITECOIN: {
-                bitfinexTicker = "ltcusd";
-                bitfinexUrl += "LTC:USD";
-
-                wexnzTicker = "ltc_usd";
-                wexnzUrl += "ltc_usd";
-
-                krakenTicker = "LTCUSD";
-                cexTicker = "---";///this ticker name define unsupported coin by market
-                break;
-            }
-            case BFConstants.ETHERIUM_COIN: {
-                bitfinexTicker = "ethusd";
-                bitfinexUrl += "ETH:USD";
-
-                wexnzTicker = "eth_usd";
-                wexnzUrl += "eth_usd";
-
-                krakenTicker = "ETHUSD";
-
-                cexTicker = "ETH/USD";
-                cexUrl += "ETH-USD";
-                break;
-            }
-            case BFConstants.ZCASH_COIN: {
-                bitfinexTicker = "zecusd";
-                bitfinexUrl += "ZEC:USD";
-
-                wexnzTicker = "zec_usd";
-                wexnzUrl += "zec_usd";
-
-                krakenTicker = "ZECUSD";
-
-                cexTicker = "ZEC/USD";
-                cexUrl += "ZEC-USD";
-                break;
-            }
-            case BFConstants.DASH_COIN: {
-                bitfinexTicker = "dshusd";
-                bitfinexUrl += "DASH:USD";
-
-                wexnzTicker = "dsh_usd";
-                wexnzUrl += "dsh_usd";
-
-                krakenTicker = "DASHUSD";
-
-                cexTicker = "DASH/USD";
-                cexUrl += "DASH-USD";
-                break;
-            }
-            case BFConstants.RIPPLE_COIN: {
-                bitfinexTicker = "xrpusd";
-                bitfinexUrl += "XRP:USD";
-
-                wexnzTicker = "---";
-                krakenTicker = "XRPUSD";
-
-                cexTicker = "XRP/USD";
-                cexUrl += "XRP-USD";
-                break;
-            }
-            default: {
-                bitfinexTicker = "";
-                wexnzTicker = "";
-                krakenTicker = "";
-                cexTicker = "";
-                System.out.println("Unknown coin name given in pairHolder init method.");
-            }
-        }
-        BitfinexCurrencyPair bitfinexPair = ccp.getBitfinexPair();
-        bitfinexPair.setTickerName(bitfinexTicker);
-        bitfinexPair.setUrlToMarket(bitfinexUrl);
-
-        WexNzCurrencyPair wexnzPair = ccp.getWexnzPair();
-        wexnzPair.setTickerName(wexnzTicker);
-        wexnzPair.setUrlToMarket(wexnzUrl);
-
-        KrakenCurrencyPair krakenPair = ccp.getKrakenPair();
-        krakenPair.setTickerName(krakenTicker);
-        krakenPair.setUrlToMarket(krakenUrl);
-
-        CexCurrencyPair cexPair = ccp.getCexPair();
-        cexPair.setTickerName(cexTicker);
-        cexPair.setUrlToMarket(cexUrl);
-
-        return ccp;
-    }
 
     public AppSettingsHolder getSettings() {
         return settings;
@@ -403,7 +192,7 @@ public class BitTradeFx extends UI {
         }
     }
 
-    public class RefreshThread extends Thread {
+    public class GridRefreshThread extends Thread {
         Grid<CurrencyPairsHolder> currInfoGrid = mainView.getCurrInfoGrid();
         ProgressBar refreshProgressBar = mainView.getRefreshProgressBar();
         Label refreshLabel = mainView.getLabelRefresh();
@@ -432,7 +221,7 @@ public class BitTradeFx extends UI {
                     push();
                 });
 
-                synchronized (RefreshThread.this) {
+                synchronized (GridRefreshThread.this) {
                     for (CurrencyPairsHolder currencyPairsHolder : currencyPairsToRefresh) {
                         String oldName = currencyPairsHolder.getDisplayName();
                         currencyPairsHolder.setDisplayName("<b><font color ='#000066'> * " + oldName + "</font></b>");

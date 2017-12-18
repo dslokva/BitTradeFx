@@ -1,6 +1,7 @@
 package kz.bittrade.markets.api.holders.currency.pairs;
 
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -58,6 +59,12 @@ public class WexNzCurrencyPairInfo {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+6"));
         return sdf.format(date);
     }
+
+    public Timestamp getTimestampDate() {
+        return new Timestamp((long) (updated * 1000L));
+    }
+
+
     /*
             "high":109.88,
             "low":91.14,

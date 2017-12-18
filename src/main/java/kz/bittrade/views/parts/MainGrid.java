@@ -1,4 +1,4 @@
-package kz.bittrade.views;
+package kz.bittrade.views.parts;
 
 import com.vaadin.contextmenu.GridContextMenu;
 import com.vaadin.contextmenu.Menu;
