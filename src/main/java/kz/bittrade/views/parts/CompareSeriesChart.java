@@ -40,6 +40,7 @@ public class CompareSeriesChart {
         configuration.getTitle().setText("Bitcoin market price");
 
         YAxis yAxis = new YAxis();
+        yAxis.setTitle("Price changes");
         Labels label = new Labels();
         label.setFormatter("(this.value > 0 ? ' + ' : '') + this.value + '%'");
         yAxis.setLabels(label);
@@ -73,7 +74,10 @@ public class CompareSeriesChart {
         cexSeries.setName(BFConstants.CEX);
         extractCoinData(cexSeries, cexCoins);
 
-        configuration.setSeries(wexSeries, bitfinexSeries, krakenSeries, cexSeries);
+        configuration.addSeries(wexSeries);
+        configuration.addSeries(bitfinexSeries);
+        configuration.addSeries(krakenSeries);
+        configuration.addSeries(cexSeries);
 
         PlotOptionsSeries plotOptionsSeries = new PlotOptionsSeries();
         plotOptionsSeries.setCompare(Compare.PERCENT);
@@ -82,6 +86,19 @@ public class CompareSeriesChart {
         RangeSelector rangeSelector = new RangeSelector();
         rangeSelector.setSelected(4);
         configuration.setRangeSelector(rangeSelector);
+
+        Legend legend = new Legend();
+        legend.getTitle().setText("Market");
+        legend.setFloating(false);
+        legend.setLayout(LayoutDirection.HORIZONTAL);
+        legend.setAlign(HorizontalAlign.CENTER);
+        legend.setVerticalAlign(VerticalAlign.MIDDLE);
+        legend.setX(-250d);
+        legend.setY(127d);
+//        legend.setFloating(true);
+        legend.setShadow(true);
+        legend.setEnabled(true);
+        configuration.setLegend(legend);
 
         chart.drawChart(configuration);
         return chart;
