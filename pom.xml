@@ -150,6 +150,11 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <extraJvmArgs>
+                        -Dvaadin.touchkit.developer.license="5c3b1de4-3a4a-4786-ac74-4e2ab3861ed5" -Xmx1024M
+                    </extraJvmArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
