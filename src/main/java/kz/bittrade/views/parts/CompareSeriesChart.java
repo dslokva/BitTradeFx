@@ -33,11 +33,12 @@ public class CompareSeriesChart {
     public Component getChart() {
         final Chart chart = new Chart();
         chart.setHeight("450px");
-        chart.setWidth("80%");
+        chart.setWidth("100%");
         chart.setTimeline(true);
 
         Configuration configuration = chart.getConfiguration();
         configuration.getTitle().setText("Bitcoin market price");
+        configuration.getChart().setMarginLeft(120);
 
         YAxis yAxis = new YAxis();
         yAxis.setTitle("Price changes");
@@ -90,11 +91,11 @@ public class CompareSeriesChart {
         Legend legend = new Legend();
         legend.getTitle().setText("Market");
         legend.setFloating(false);
-        legend.setLayout(LayoutDirection.HORIZONTAL);
-        legend.setAlign(HorizontalAlign.CENTER);
+        legend.setLayout(LayoutDirection.VERTICAL);
+        legend.setAlign(HorizontalAlign.LEFT);
         legend.setVerticalAlign(VerticalAlign.MIDDLE);
-        legend.setX(-250d);
-        legend.setY(127d);
+        legend.setX(0);
+        legend.setY(0);
 //        legend.setFloating(true);
         legend.setShadow(true);
         legend.setEnabled(true);

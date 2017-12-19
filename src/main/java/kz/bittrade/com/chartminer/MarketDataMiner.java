@@ -66,23 +66,25 @@ public class MarketDataMiner extends TimerTask {
             for (CurrencyPairsHolder item : currencyPairsHolderList) {
                 Integer coinid = item.getPairId();
 
-                Integer marketid = Integer.parseInt(item.getBitfinexPair().getMarketId());
                 Timestamp timestamp = item.getBitfinexPair().getTimestampDate();
+
+                Integer marketid = Integer.parseInt(item.getBitfinexPair().getMarketId());
+//                Timestamp timestamp = item.getBitfinexPair().getTimestampDate();
                 Double rate = item.getBitfinexPair().getLastPriceDouble();
                 dbConnector.insert(coinid, marketid, timestamp, rate);
 
                 marketid = Integer.parseInt(item.getCexPair().getMarketId());
-                timestamp = item.getCexPair().getTimestampDate();
+//                timestamp = item.getCexPair().getTimestampDate();
                 rate = item.getCexPair().getLastPriceDouble();
                 dbConnector.insert(coinid, marketid, timestamp, rate);
 
                 marketid = Integer.parseInt(item.getWexnzPair().getMarketId());
-                timestamp = item.getWexnzPair().getTimestampDate();
+//                timestamp = item.getWexnzPair().getTimestampDate();
                 rate = item.getWexnzPair().getLastPriceDouble();
                 dbConnector.insert(coinid, marketid, timestamp, rate);
 
                 marketid = Integer.parseInt(item.getKrakenPair().getMarketId());
-                timestamp = new Timestamp(System.currentTimeMillis());
+//                timestamp = new Timestamp(System.currentTimeMillis());
                 rate = item.getKrakenPair().getLastPriceDouble();
                 dbConnector.insert(coinid, marketid, timestamp, rate);
             }
