@@ -13,7 +13,6 @@ import java.util.List;
 public class CandlestickChart {
 
     public CandlestickChart() {
-
     }
 
     public Component getChart() {
@@ -23,7 +22,7 @@ public class CandlestickChart {
         chart.setTimeline(true);
 
         Configuration configuration = chart.getConfiguration();
-        configuration.getTitle().setText("Example candlestick chart");
+        configuration.getTitle().setText("Candlestick chart for 1 coin");
 
         DataGrouping grouping = new DataGrouping();
         grouping.addUnit(new TimeUnitMultiples(TimeUnit.MINUTE, 1, 2, 3, 4, 5, 6));

@@ -27,8 +27,8 @@ import kz.bittrade.markets.api.holders.user.wexnz.WexNzGetInfo;
 import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
 import kz.bittrade.markets.api.lib.CexAPILib;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
-import kz.bittrade.views.parts.CandlestickChart;
 import kz.bittrade.views.parts.CoinActionsWindow;
+import kz.bittrade.views.parts.CompareSeriesChart;
 import kz.bittrade.views.parts.MainGrid;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -254,8 +254,11 @@ public class MainView extends VerticalLayout implements View {
         middlePanel.setWidth("90%");
         middlePanel.setIcon(VaadinIcons.CHART_GRID);
 
-        CandlestickChart candlestickChart = new CandlestickChart();
-        Component chart = candlestickChart.getChart();
+//        CandlestickChart candlestickChart = new CandlestickChart();
+//        Component chart = candlestickChart.getChart();
+
+        CompareSeriesChart compareSeriesChart = new CompareSeriesChart();
+        Component chart = compareSeriesChart.getChart();
 
         VerticalLayout chartLayer = new VerticalLayout();
         chartLayer.addComponent(chart);

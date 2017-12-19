@@ -54,43 +54,41 @@ public class MarketDataMiner extends TimerTask {
                 Thread.sleep(50);
 
             refreshCount++;
-            insertDataToDB();
-            selectAll();
         } catch (Exception e) {
             e.printStackTrace();
             errorCount++;
         }
+        insertDataToDB();
     }
 
     private void insertDataToDB() {
-        //here insert to DB
-        for (CurrencyPairsHolder item : currencyPairsHolderList) {
-            Integer coinid = item.getPairId();
+        try {
+            for (CurrencyPairsHolder item : currencyPairsHolderList) {
+                Integer coinid = item.getPairId();
 
-            Integer marketid = Integer.parseInt(item.getBitfinexPair().getMarketId());
-            Timestamp timestamp = item.getBitfinexPair().getTimestampDate();
-            Double rate = item.getBitfinexPair().getLastPriceDouble();
-            dbConnector.insert(coinid, marketid, timestamp, rate);
+                Integer marketid = Integer.parseInt(item.getBitfinexPair().getMarketId());
+                Timestamp timestamp = item.getBitfinexPair().getTimestampDate();
+                Double rate = item.getBitfinexPair().getLastPriceDouble();
+                dbConnector.insert(coinid, marketid, timestamp, rate);
 
-            marketid = Integer.parseInt(item.getCexPair().getMarketId());
-            timestamp = item.getCexPair().getTimestampDate();
-            rate = item.getCexPair().getLastPriceDouble();
-            dbConnector.insert(coinid, marketid, timestamp, rate);
+                marketid = Integer.parseInt(item.getCexPair().getMarketId());
+                timestamp = item.getCexPair().getTimestampDate();
+                rate = item.getCexPair().getLastPriceDouble();
+                dbConnector.insert(coinid, marketid, timestamp, rate);
 
-            marketid = Integer.parseInt(item.getWexnzPair().getMarketId());
-            timestamp = item.getWexnzPair().getTimestampDate();
-            rate = item.getWexnzPair().getLastPriceDouble();
-            dbConnector.insert(coinid, marketid, timestamp, rate);
+                marketid = Integer.parseInt(item.getWexnzPair().getMarketId());
+                timestamp = item.getWexnzPair().getTimestampDate();
+                rate = item.getWexnzPair().getLastPriceDouble();
+                dbConnector.insert(coinid, marketid, timestamp, rate);
 
-            marketid = Integer.parseInt(item.getKrakenPair().getMarketId());
-            timestamp = new Timestamp(System.currentTimeMillis());
-            rate = item.getKrakenPair().getLastPriceDouble();
-            dbConnector.insert(coinid, marketid, timestamp, rate);
+                marketid = Integer.parseInt(item.getKrakenPair().getMarketId());
+                timestamp = new Timestamp(System.currentTimeMillis());
+                rate = item.getKrakenPair().getLastPriceDouble();
+                dbConnector.insert(coinid, marketid, timestamp, rate);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    }
-
-    public void selectAll() {
-        dbConnector.selectAll();
     }
 
     private void initPairsToRefresh() {
