@@ -66,7 +66,7 @@ public class MarketDataMiner extends TimerTask {
             for (CurrencyPairsHolder item : currencyPairsHolderList) {
                 Integer coinid = item.getPairId();
 
-                Timestamp timestamp = item.getBitfinexPair().getTimestampDate();
+                Timestamp timestamp = item.getWexnzPair().getTimestampDate();
 
                 Integer marketid = Integer.parseInt(item.getBitfinexPair().getMarketId());
 //                Timestamp timestamp = item.getBitfinexPair().getTimestampDate();
