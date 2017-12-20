@@ -4,7 +4,7 @@ import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.ui.Component;
-import kz.bittrade.com.OhlcData;
+import kz.bittrade.com.chartminer.OhlcData;
 
 import java.util.ArrayList;
 import java.util.Date;
