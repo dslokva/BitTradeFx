@@ -3,8 +3,10 @@
     <Resource name="jdbc/bittradefx"
               auth="Container"
               type="javax.sql.DataSource"
-              driverClassName="org.sqlite.JDBC"
-              url="jdbc:sqlite:${user.home}/BitTradeFxDB.sqlite"
+              driverClassName="org.postgresql.Driver"
+              username="awodozku"
+              password="bb9I2W_-gGggEZv2e8eaR_fiJXDX4Awy"
+              url="jdbc:postgresql://baasu.db.elephantsql.com:5432/awodozku"
               factory="org.apache.tomcat.dbcp.dbcp2.BasicDataSourceFactory">
     </Resource>
 </Context>

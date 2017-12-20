@@ -14,7 +14,7 @@ import java.util.List;
 public class DBConnector {
 
     public DBConnector() {
-        System.out.println("[Tomcat user home directory]" + System.getProperty("user.home"));
+//        System.out.println("[Tomcat user home directory]" + System.getProperty("user.home"));
 //        File[] files = new File(System.getProperty("user.home")).listFiles();
 //        for (File file : files)
 //            System.out.println(file.getAbsolutePath());
@@ -25,19 +25,15 @@ public class DBConnector {
      *
      * @return the Connection object
      */
-    private Connection connect() {
+    public Connection getConnection() {
         String url = "java:comp/env/jdbc/bittradefx"; //for external file place + commented lines below
         Connection conn = null;
         try {
-            Class.forName("org.sqlite.JDBC");
+//            Class.forName("org.postgresql.Driver");
             Context ctx = new InitialContext();
             DataSource ds = (DataSource) ctx.lookup(url);
             conn = ds.getConnection();
 //            conn = DriverManager.getConnection("jdbc:sqlite::resource:BitTradeFxDB.sqlite");
-            if (conn != null)
-                System.out.println("metadata - " + conn.getMetaData());
-            else System.out.println("error get connection");
-
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -54,28 +50,23 @@ public class DBConnector {
      * @param timestamp
      * @param rate
      */
-    public void insert(Integer coinid, Integer marketid, Timestamp timestamp, double rate) {
-        String sql = "INSERT INTO main.flat_usdcoins_data(coinid, marketid, timestamp, rate) VALUES(?,?,?,?)";
+    public void insert(Connection conn, Integer coinid, Integer marketid, Timestamp timestamp, double rate) throws SQLException {
+        String sql = "INSERT INTO flat_usdcoins_data(coinid, marketid, timestamp, rate) VALUES(?,?,?,?)";
+        PreparedStatement pstmt = conn.prepareStatement(sql);
 
-        try (Connection conn = this.connect();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            if (rate > 0.0) {
-                pstmt.setInt(1, coinid);
-                pstmt.setInt(2, marketid);
-                pstmt.setTimestamp(3, timestamp);
-                pstmt.setDouble(4, rate);
-                pstmt.executeUpdate();
-            }
-            conn.close();
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        if (rate > 0.0) {
+            pstmt.setInt(1, coinid);
+            pstmt.setInt(2, marketid);
+            pstmt.setTimestamp(3, timestamp);
+            pstmt.setDouble(4, rate);
+            pstmt.executeUpdate();
         }
     }
 
     public void selectBetween(Timestamp minDate, Timestamp maxDate) {
-        String sql = "SELECT coinid, marketid, timestamp, rate FROM main.flat_usdcoins_data WHERE timestamp BETWEEN ? AND ?";
+        String sql = "SELECT coinid, marketid, timestamp, rate FROM flat_usdcoins_data WHERE timestamp BETWEEN ? AND ?";
 
-        try (Connection conn = this.connect();
+        try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setTimestamp(1, minDate);
@@ -96,9 +87,9 @@ public class DBConnector {
     }
 
     public void selectMinMaxDateRange() {
-        String sql = "SELECT MAX(timestamp) AS lastDate, MIN(timestamp) AS firstDate FROM main.flat_usdcoins_data";
+        String sql = "SELECT MAX(timestamp) AS lastDate, MIN(timestamp) AS firstDate FROM flat_usdcoins_data";
 
-        try (Connection conn = this.connect()) {
+        try (Connection conn = this.getConnection()) {
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
 
@@ -114,10 +105,10 @@ public class DBConnector {
     }
 
     public List<FlatUSDCoinData> selectDataCoinMarketId(String marketId, Integer coinId) {
-        String sql = "SELECT coinid, marketid, timestamp, rate FROM main.flat_usdcoins_data WHERE marketid = ? AND coinid = ?";
+        String sql = "SELECT coinid, marketid, timestamp, rate FROM flat_usdcoins_data WHERE marketid = ? AND coinid = ?";
         List<FlatUSDCoinData> coinDataArrayList = new ArrayList<>();
 
-        try (Connection conn = this.connect();
+        try (Connection conn = this.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, Integer.valueOf(marketId));
