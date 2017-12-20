@@ -177,6 +177,11 @@
                                     <version>8.5.23.0</version>
                                     <destFileName>webapp-runner.jar</destFileName>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.tomcat</groupId>
+                                    <artifactId>tomcat-dbcp</artifactId>
+                                    <version>8.5.23</version>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
