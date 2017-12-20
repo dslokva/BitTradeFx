@@ -6,6 +6,7 @@ import kz.bittrade.com.db.model.FlatUSDCoinData;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class DBConnector {
 
     public DBConnector() {
         System.out.println("[!!!!!!!!!!!!!!!!!!!!!!!!]" + System.getProperty("user.home"));
+        System.out.println(new File("/app").listFiles());
     }
 
     /**
