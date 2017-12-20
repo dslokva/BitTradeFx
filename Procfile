@@ -1,1 +1,1 @@
-web: java $JAVA_OPTS -jar target/dependency/webapp-runner.jar --context-xml target/BitTradeFx-1.1/META-INF/context.xml --port $PORT target/BitTradeFx-1.1.war
+web: java $JAVA_OPTS -cp target/dependency/*.jar webapp.runner.launch.Main target/*.war --enable-naming --port $PORT target/BitTradeFx-1.1.war
