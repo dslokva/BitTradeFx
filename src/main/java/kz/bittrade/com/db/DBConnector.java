@@ -34,7 +34,9 @@ public class DBConnector {
             DataSource ds = (DataSource) ctx.lookup(url);
             conn = ds.getConnection();
 //            conn = DriverManager.getConnection("jdbc:sqlite::resource:BitTradeFxDB.sqlite");
-            System.out.println(ds.getConnection().getMetaData());
+            if (conn != null)
+                System.out.println(conn.getMetaData());
+            else System.out.println("error get connection");
 
         } catch (NullPointerException e) {
             e.printStackTrace();
