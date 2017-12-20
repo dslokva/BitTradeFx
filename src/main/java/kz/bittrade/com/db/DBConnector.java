@@ -18,7 +18,7 @@ public class DBConnector {
         System.out.println("[!!!!!!!!!!!!!!!!!!!!!!!!]" + System.getProperty("user.home"));
         File[] files = new File(System.getProperty("user.home")).listFiles();
         for (File file : files)
-            System.out.println(file.getAbsolutePath() + "/" + file.getName());
+            System.out.println(file.getAbsolutePath());
     }
 
     /**
