@@ -80,6 +80,7 @@ public class MainView extends VerticalLayout implements View {
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private StackPanel topStackPanel;
+    private StackPanel middleStackPanel;
 
     private VerticalLayout waitingStubPanel;
     private CoinActionsWindow coinActionsWindow;
@@ -122,7 +123,7 @@ public class MainView extends VerticalLayout implements View {
         btnRefreshUserBalance.addClickListener(
                 e -> updateUserBalances());
 
-        chkAutoRefresh = new CheckBox("Auto refresh every 0 sec");
+        chkAutoRefresh = new CheckBox("Auto refreshDataByCoin every 0 sec");
         chkAutoRefresh.addValueChangeListener(event -> {
             boolean notChecked = !chkAutoRefresh.getValue();
             btnRefreshTable.setEnabled(notChecked);
@@ -253,16 +254,36 @@ public class MainView extends VerticalLayout implements View {
         middlePanel.setContent(middleLayer);
         middlePanel.setWidth("90%");
         middlePanel.setIcon(VaadinIcons.CHART_GRID);
-
-//        CandlestickChart candlestickChart = new CandlestickChart();
-//        Component chart = candlestickChart.getChart();
+        middleStackPanel = StackPanel.extend(middlePanel);
 
         CompareSeriesChart compareSeriesChart = new CompareSeriesChart();
         Component chart = compareSeriesChart.getChart();
 
         VerticalLayout chartLayer = new VerticalLayout();
         chartLayer.addComponent(chart);
+
+        Button btnChartSwichBTC = new Button("BTC");
+        btnChartSwichBTC.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                compareSeriesChart.refreshDataByCoin(BFConstants.BTC_ID);
+            }
+        });
+        Button btnChartSwichETH = new Button("ETH");
+        btnChartSwichETH.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                compareSeriesChart.refreshDataByCoin(BFConstants.ETH_ID);
+            }
+        });
+        GridLayout horizontalChartGrid = new GridLayout(2, 1);
+        horizontalChartGrid.setWidth("10%");
+        horizontalChartGrid.addComponent(btnChartSwichBTC, 0, 0);
+        horizontalChartGrid.addComponent(btnChartSwichETH, 1, 0);
+
+        chartLayer.addComponent(horizontalChartGrid);
         chartLayer.setComponentAlignment(chart, MIDDLE_CENTER);
+        chartLayer.setComponentAlignment(horizontalChartGrid, MIDDLE_LEFT);
 
         Panel chartPanel = new Panel("Coin markets cumulative chart");
         chartPanel.setContent(chartLayer);
@@ -308,7 +329,7 @@ public class MainView extends VerticalLayout implements View {
 
     private Label getBalanceStubLabel() {
         Label stubLabel = new Label();
-        stubLabel.setValue("Click refresh to show info");
+        stubLabel.setValue("Click refreshDataByCoin to show info");
         stubLabel.addStyleName(ValoTheme.LABEL_COLORED);
         stubLabel.addStyleName(ValoTheme.LABEL_LIGHT);
         stubLabel.addStyleName(ValoTheme.LABEL_H4);
@@ -618,7 +639,7 @@ public class MainView extends VerticalLayout implements View {
 
     private void initBalanceStubLabel(Label label, boolean keyPresent) {
         if (keyPresent) {
-            label.setValue("Click refresh to show info");
+            label.setValue("Click refreshDataByCoin to show info");
             label.setComponentError(null);
         } else {
             label.setValue("Set api key to get info");
@@ -720,6 +741,6 @@ public class MainView extends VerticalLayout implements View {
 
     public void setAutoRefreshTime(int autoRefreshTime) {
         this.autoRefreshTime = autoRefreshTime;
-        chkAutoRefresh.setCaption("Auto refresh every " + autoRefreshTime + " sec");
+        chkAutoRefresh.setCaption("Auto refreshDataByCoin every " + autoRefreshTime + " sec");
     }
 }

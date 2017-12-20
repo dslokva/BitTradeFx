@@ -18,27 +18,45 @@ public class CompareSeriesChart {
     private List<FlatUSDCoinData> krakenCoins;
     private List<FlatUSDCoinData> bitfinexCoins;
 
+    private DataSeries bitfinexSeries;
+    private DataSeries krakenSeries;
+    private DataSeries cexSeries;
+    private DataSeries wexSeries;
+    private Configuration chartConfiguration;
+    private Chart chart;
+
     public CompareSeriesChart() {
         dbConnector = new DBConnector();
-        getDataFromDB();
+        chart = new Chart();
+
+        wexSeries = new DataSeries();
+        bitfinexSeries = new DataSeries();
+        cexSeries = new DataSeries();
+        krakenSeries = new DataSeries();
+
+        wexSeries.setName(BFConstants.WEX);
+        bitfinexSeries.setName(BFConstants.BITFINEX);
+        krakenSeries.setName(BFConstants.KRAKEN);
+        cexSeries.setName(BFConstants.CEX);
+
+        getDataFromDB(BFConstants.BTC_ID);
     }
 
-    private void getDataFromDB() {
-        wexCoins = dbConnector.selectDataCoinMarketId(BFConstants.WEX_ID, BFConstants.BTC_ID);
-        cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, BFConstants.BTC_ID);
-        krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, BFConstants.BTC_ID);
-        bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, BFConstants.BTC_ID);
+    private void getDataFromDB(Integer coinId) {
+        wexCoins = dbConnector.selectDataCoinMarketId(BFConstants.WEX_ID, coinId);
+        cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, coinId);
+        krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, coinId);
+        bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, coinId);
     }
 
     public Component getChart() {
-        final Chart chart = new Chart();
         chart.setHeight("450px");
         chart.setWidth("100%");
         chart.setTimeline(true);
 
-        Configuration configuration = chart.getConfiguration();
-        configuration.getTitle().setText("Bitcoin market price");
-        configuration.getChart().setMarginLeft(120);
+        chartConfiguration = chart.getConfiguration();
+        chartConfiguration.getTitle().setText("Bitcoin price (comparig markets deviation for a period)");
+        chartConfiguration.getChart().setMarginLeft(120);
 
         YAxis yAxis = new YAxis();
         yAxis.setTitle("Price changes");
@@ -51,45 +69,33 @@ public class CompareSeriesChart {
         plotLine.setWidth(2);
         plotLine.setColor(SolidColor.SILVER);
         yAxis.setPlotLines(plotLine);
-        configuration.addyAxis(yAxis);
+        chartConfiguration.addyAxis(yAxis);
 
         Tooltip tooltip = new Tooltip();
         tooltip.setPointFormat("<span style=\"color:{series.color}\">{series.name}</span>: <b>{point.y}</b> ({point.change}%)<br/>");
         tooltip.setValueDecimals(2);
-        configuration.setTooltip(tooltip);
+        chartConfiguration.setTooltip(tooltip);
 
-        DataSeries wexSeries = new DataSeries();
-        wexSeries.setName(BFConstants.WEX);
-        if (wexCoins != null)
-            extractCoinData(wexSeries, wexCoins);
-
-        DataSeries bitfinexSeries = new DataSeries();
-        bitfinexSeries.setName(BFConstants.BITFINEX);
+        extractCoinData(wexSeries, wexCoins);
         extractCoinData(bitfinexSeries, bitfinexCoins);
-
-        DataSeries krakenSeries = new DataSeries();
-        krakenSeries.setName(BFConstants.KRAKEN);
         extractCoinData(krakenSeries, krakenCoins);
-
-        DataSeries cexSeries = new DataSeries();
-        cexSeries.setName(BFConstants.CEX);
         extractCoinData(cexSeries, cexCoins);
 
-        configuration.addSeries(wexSeries);
-        configuration.addSeries(bitfinexSeries);
-        configuration.addSeries(krakenSeries);
-        configuration.addSeries(cexSeries);
+        chartConfiguration.addSeries(wexSeries);
+        chartConfiguration.addSeries(bitfinexSeries);
+        chartConfiguration.addSeries(krakenSeries);
+        chartConfiguration.addSeries(cexSeries);
 
         PlotOptionsSeries plotOptionsSeries = new PlotOptionsSeries();
         plotOptionsSeries.setCompare(Compare.PERCENT);
-        configuration.setPlotOptions(plotOptionsSeries);
+        chartConfiguration.setPlotOptions(plotOptionsSeries);
 
         RangeSelector rangeSelector = new RangeSelector();
         rangeSelector.setSelected(4);
-        configuration.setRangeSelector(rangeSelector);
+        chartConfiguration.setRangeSelector(rangeSelector);
 
         Legend legend = new Legend();
-        legend.getTitle().setText("Market");
+        legend.getTitle().setText("Market:");
         legend.setFloating(false);
         legend.setLayout(LayoutDirection.VERTICAL);
         legend.setAlign(HorizontalAlign.LEFT);
@@ -99,18 +105,53 @@ public class CompareSeriesChart {
 //        legend.setFloating(true);
         legend.setShadow(true);
         legend.setEnabled(true);
-        configuration.setLegend(legend);
+        chartConfiguration.setLegend(legend);
 
-        chart.drawChart(configuration);
+        chart.drawChart(chartConfiguration);
         return chart;
     }
 
     private void extractCoinData(DataSeries chartSeries, List<FlatUSDCoinData> coinsList) {
+        chartSeries.clear();
         for (FlatUSDCoinData data : coinsList) {
             DataSeriesItem item = new DataSeriesItem();
             item.setX(data.getTimestamp());
             item.setY(data.getRate());
             chartSeries.add(item);
         }
+    }
+
+    public void removeListSeries(String seriesName) {
+        Configuration configuration = chart.getConfiguration();
+        List<Series> sc = configuration.getSeries();
+
+        Series[] aList = new Series[sc.size()];
+        int i = 0;
+        for (Series scq : sc) {
+            if (!scq.getName().equals(seriesName))
+                aList[i++] = scq;
+        }
+
+        chart.getConfiguration().setSeries(aList);
+        chart.drawChart();
+    }
+
+    public void refreshDataByCoin(Integer coinId) {
+        getDataFromDB(coinId);
+
+        extractCoinData(wexSeries, wexCoins);
+        extractCoinData(bitfinexSeries, bitfinexCoins);
+        extractCoinData(krakenSeries, krakenCoins);
+        extractCoinData(cexSeries, cexCoins);
+
+        removeListSeries(BFConstants.WEX_ID);
+        removeListSeries(BFConstants.CEX_ID);
+        removeListSeries(BFConstants.KRAKEN_ID);
+        removeListSeries(BFConstants.BITFINEX_ID);
+
+        chartConfiguration.addSeries(wexSeries);
+        chartConfiguration.addSeries(bitfinexSeries);
+        chartConfiguration.addSeries(krakenSeries);
+        chartConfiguration.addSeries(cexSeries);
     }
 }

@@ -95,7 +95,7 @@ public class SettingsView extends VerticalLayout implements View {
         sortColsMap.put("Delta %", BFConstants.GRID_DELTA_PERCENT_COLUMN);
         sortColsMap.put("Delta $", BFConstants.GRID_DELTA_DOUBLE_COLUMN);
 
-        sortOptions = new RadioButtonGroup<>("Auto sort column after refresh:", sortColsMap.keySet());
+        sortOptions = new RadioButtonGroup<>("Auto sort column after refreshDataByCoin:", sortColsMap.keySet());
         sortOptions.setItemCaptionGenerator(item -> "Column \"" + item + "\"");
         sortOptions.setValue(getKeyFromValue(sortColsMap, BFConstants.GRID_DELTA_PERCENT_COLUMN));
         sortOptions.setWidth("16em");
@@ -106,7 +106,7 @@ public class SettingsView extends VerticalLayout implements View {
         refreshSecSlider.setValue(20.0);
         refreshSecSlider.setWidth("13em");
         refreshSecSlider.addValueChangeListener(event -> {
-            Notification.show("Auto refresh time", String.valueOf(event.getValue().intValue()) + " seconds", Notification.Type.TRAY_NOTIFICATION);
+            Notification.show("Auto refreshDataByCoin time", String.valueOf(event.getValue().intValue()) + " seconds", Notification.Type.TRAY_NOTIFICATION);
         });
 
         mainui = (BitTradeFx) UI.getCurrent();
@@ -220,7 +220,7 @@ public class SettingsView extends VerticalLayout implements View {
         verticalDumbMarketChks.setComponentAlignment(marketCheckBoxesGrid, MIDDLE_CENTER);
 
         VerticalLayout verticalDumbRefreshDuration = new VerticalLayout();
-        Label labelDurationCaption = new Label("Auto refresh duration (in sec):");
+        Label labelDurationCaption = new Label("Auto refreshDataByCoin duration (in sec):");
         verticalDumbRefreshDuration.addComponent(labelDurationCaption);
         verticalDumbRefreshDuration.addComponent(refreshSecSlider);
         verticalDumbRefreshDuration.setComponentAlignment(labelDurationCaption, MIDDLE_LEFT);

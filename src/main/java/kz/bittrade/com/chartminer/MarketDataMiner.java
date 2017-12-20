@@ -7,6 +7,7 @@ import kz.bittrade.markets.api.holders.currency.CurrencyPairsHolder;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.CountDownLatch;
@@ -64,9 +65,10 @@ public class MarketDataMiner extends TimerTask {
 
     private void insertDataToDB() {
         Connection conn = dbConnector.getConnection();
-
         try {
-            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+            Timestamp timestamp = new Timestamp(System.currentTimeMillis()
+                    - Calendar.getInstance().getTimeZone().getOffset(System.currentTimeMillis()));
+
             if (conn == null) {
                 System.out.println("[ERROR] [INSERT] No DB connection.");
                 return;
