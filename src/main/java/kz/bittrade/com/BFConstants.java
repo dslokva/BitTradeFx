@@ -1,6 +1,31 @@
 package kz.bittrade.com;
 
+import java.util.HashMap;
+
 public final class BFConstants {
+    private static HashMap mapCoinNames;
+    private static HashMap mapCoinIds;
+
+    public BFConstants() {
+        mapCoinNames = new HashMap();
+        mapCoinNames.put(BITCOIN, BTC_ID);
+        mapCoinNames.put(BITCOIN_CASH, BCH_ID);
+        mapCoinNames.put(LITECOIN, LTC_ID);
+        mapCoinNames.put(ETHERIUM_COIN, ETH_ID);
+        mapCoinNames.put(ZCASH_COIN, ZEC_ID);
+        mapCoinNames.put(DASH_COIN, DASH_ID);
+        mapCoinNames.put(RIPPLE_COIN, XRP_ID);
+
+        mapCoinIds = new HashMap();
+        mapCoinIds.put(BTC_ID, BITCOIN);
+        mapCoinIds.put(BCH_ID, BITCOIN_CASH);
+        mapCoinIds.put(LTC_ID, LITECOIN);
+        mapCoinIds.put(ETH_ID, ETHERIUM_COIN);
+        mapCoinIds.put(ZEC_ID, ZCASH_COIN);
+        mapCoinIds.put(DASH_ID, DASH_COIN);
+        mapCoinIds.put(XRP_ID, RIPPLE_COIN);
+    }
+
     /* Simple markets Id's */
     public static final String WEX_ID = "1";
     public static final String BITFINEX_ID = "2";
@@ -70,32 +95,11 @@ public final class BFConstants {
 
     public static final String TOP_PANEL_FOLDED_AT_START = "topPanelFolded";
 
+    public static Integer getCoinIdByName(String coinName) {
+        return (Integer) mapCoinNames.get(coinName);
+    }
+
     public static String getCoinNameById(Integer coinId) {
-        switch (coinId) {
-            case 1: {
-                return BITCOIN;
-            }
-            case 2: {
-                return BITCOIN_CASH;
-            }
-            case 3: {
-                return LITECOIN;
-            }
-            case 4: {
-                return ETHERIUM_COIN;
-            }
-            case 5: {
-                return ZCASH_COIN;
-            }
-            case 6: {
-                return DASH_COIN;
-            }
-            case 7: {
-                return RIPPLE_COIN;
-            }
-            default: {
-                return "Unknown coin ID";
-            }
-        }
+        return (String) mapCoinIds.get(coinId);
     }
 }

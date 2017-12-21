@@ -81,6 +81,7 @@ public class MainView extends VerticalLayout implements View {
     private Timer timer;
     private StackPanel topStackPanel;
     private StackPanel middleStackPanel;
+    private StackPanel bottomStackPanel;
 
     private VerticalLayout waitingStubPanel;
     private CoinActionsWindow coinActionsWindow;
@@ -258,50 +259,42 @@ public class MainView extends VerticalLayout implements View {
 
         CompareSeriesChart compareSeriesChart = new CompareSeriesChart(settings);
 
-        VerticalLayout chartLayer = new VerticalLayout();
-        chartLayer.addComponent(compareSeriesChart);
+        MenuBar coinSelect = new MenuBar();
+        coinSelect.setCaption("Select coin:");
+        MenuBar.Command typeCommand = (MenuBar.Command) selectedItem -> {
+            compareSeriesChart.refreshDataByCoin(BFConstants.getCoinIdByName(selectedItem.getText()));
 
-        Button btnChartSwichBTC = new Button("BTC");
-        btnChartSwichBTC.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                compareSeriesChart.refreshDataByCoin(BFConstants.BTC_ID);
+            for (MenuBar.MenuItem item : coinSelect.getItems()) {
+                item.setChecked(false);
             }
-        });
+            selectedItem.setChecked(true);
+        };
 
-        Button btnChartSwichETH = new Button("ETH");
-        btnChartSwichETH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.ETH_ID));
+        MenuBar.MenuItem menuItemBTC = coinSelect.addItem("BTC", typeCommand);
+        menuItemBTC.setCheckable(true);
+        menuItemBTC.setChecked(true);
+        coinSelect.addItem(BFConstants.BITCOIN, typeCommand).setCheckable(true);
+        coinSelect.addItem(BFConstants.BITCOIN_CASH, typeCommand).setCheckable(true);
+        coinSelect.addItem(BFConstants.ETHERIUM_COIN, typeCommand).setCheckable(true);
+        coinSelect.addItem(BFConstants.ZCASH_COIN, typeCommand).setCheckable(true);
+        coinSelect.addItem(BFConstants.LITECOIN, typeCommand).setCheckable(true);
+        coinSelect.addItem(BFConstants.DASH_COIN, typeCommand).setCheckable(true);
 
-        Button btnChartSwichBCH = new Button("BCH");
-        btnChartSwichBCH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.BCH_ID));
-
-        Button btnChartSwichZEC = new Button("ZEC");
-        btnChartSwichZEC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.ZEC_ID));
-
-        Button btnChartSwichLTC = new Button("LTC");
-        btnChartSwichLTC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.LTC_ID));
-
-        Button btnChartSwichDASH = new Button("DASH");
-        btnChartSwichDASH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.DASH_ID));
-
-        GridLayout horizontalChartGrid = new GridLayout(6, 1);
+        GridLayout horizontalChartGrid = new GridLayout(1, 1);
         horizontalChartGrid.setWidth("10%");
-        horizontalChartGrid.addComponent(btnChartSwichBTC, 0, 0);
-        horizontalChartGrid.addComponent(btnChartSwichBCH, 1, 0);
-        horizontalChartGrid.addComponent(btnChartSwichETH, 2, 0);
-        horizontalChartGrid.addComponent(btnChartSwichZEC, 3, 0);
-        horizontalChartGrid.addComponent(btnChartSwichLTC, 4, 0);
-        horizontalChartGrid.addComponent(btnChartSwichDASH, 5, 0);
+        horizontalChartGrid.addComponent(coinSelect, 0, 0);
 
-        chartLayer.addComponent(horizontalChartGrid);
-        chartLayer.setComponentAlignment(compareSeriesChart, MIDDLE_CENTER);
-        chartLayer.setComponentAlignment(horizontalChartGrid, MIDDLE_LEFT);
+        VerticalLayout underChartLayer = new VerticalLayout();
+        underChartLayer.addComponent(compareSeriesChart);
+        underChartLayer.addComponent(horizontalChartGrid);
+        underChartLayer.setComponentAlignment(compareSeriesChart, MIDDLE_CENTER);
+        underChartLayer.setComponentAlignment(horizontalChartGrid, MIDDLE_LEFT);
 
         Panel chartPanel = new Panel("Coin markets cumulative chart");
-        chartPanel.setContent(chartLayer);
+        chartPanel.setContent(underChartLayer);
         chartPanel.setWidth("90%");
         chartPanel.setIcon(VaadinIcons.SPLINE_AREA_CHART);
-
+        bottomStackPanel = StackPanel.extend(chartPanel);
 
         setSpacing(true);
         addComponent(topPanel);
