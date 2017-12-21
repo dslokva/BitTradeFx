@@ -285,6 +285,7 @@ public class MainView extends VerticalLayout implements View {
         coinSelect.addItem(BFConstants.ZCASH_COIN, typeCommand).setCheckable(true);
         coinSelect.addItem(BFConstants.LITECOIN, typeCommand).setCheckable(true);
         coinSelect.addItem(BFConstants.DASH_COIN, typeCommand).setCheckable(true);
+        coinSelect.addItem(BFConstants.RIPPLE_COIN, typeCommand).setCheckable(true);
 
         GridLayout horizontalChartGrid = new GridLayout(1, 1);
         horizontalChartGrid.setWidth("10%");
@@ -306,7 +307,7 @@ public class MainView extends VerticalLayout implements View {
             if (bottomStackPanel.isOpen()) {
                 openAtStartup = Boolean.FALSE.toString();
             }
-            settings.setProperty(BFConstants.MIDDLE_PANEL_FOLDED_AT_START, openAtStartup);
+            settings.setProperty(BFConstants.BOTTOM_PANEL_FOLDED_AT_START, openAtStartup);
         });
 
         setSpacing(true);
@@ -751,6 +752,12 @@ public class MainView extends VerticalLayout implements View {
 
         if (settings.isPropertyEnabled(BFConstants.TOP_PANEL_FOLDED_AT_START))
             topStackPanel.close();
+
+        if (settings.isPropertyEnabled(BFConstants.MIDDLE_PANEL_FOLDED_AT_START))
+            middleStackPanel.close();
+
+        if (settings.isPropertyEnabled(BFConstants.BOTTOM_PANEL_FOLDED_AT_START))
+            bottomStackPanel.close();
     }
 
     public Button getBtnSettings() {
