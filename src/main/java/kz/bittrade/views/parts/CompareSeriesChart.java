@@ -118,7 +118,6 @@ public class CompareSeriesChart {
         legend.setVerticalAlign(VerticalAlign.MIDDLE);
         legend.setX(0);
         legend.setY(0);
-//        legend.setFloating(true);
         legend.setShadow(true);
         legend.setEnabled(true);
         chartConfiguration.setLegend(legend);
@@ -130,12 +129,19 @@ public class CompareSeriesChart {
     private void extractCoinsData() {
         if (wexEnabled) extractCoinData(wexSeries, wexCoins);
         else wexSeries.clear();
+        wexSeries.setVisible(wexEnabled);
+
         if (bitEnabled) extractCoinData(bitfinexSeries, bitfinexCoins);
         else bitfinexSeries.clear();
+        bitfinexSeries.setVisible(bitEnabled);
+
         if (kraEnabled) extractCoinData(krakenSeries, krakenCoins);
         else krakenSeries.clear();
+        krakenSeries.setVisible(kraEnabled);
+
         if (cexEnabled) extractCoinData(cexSeries, cexCoins);
         else cexSeries.clear();
+        cexSeries.setVisible(cexEnabled);
     }
 
     private void extractCoinData(DataSeries chartSeries, List<FlatUSDCoinData> coinsList) {
