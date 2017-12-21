@@ -34,6 +34,9 @@ public class DBConnector {
             DataSource ds = (DataSource) ctx.lookup(url);
             conn = ds.getConnection();
 //            conn = DriverManager.getConnection("jdbc:sqlite::resource:BitTradeFxDB.sqlite");
+            Statement st = conn.createStatement();
+            st.execute("SET TIME ZONE 'UTC'");
+
         } catch (NullPointerException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -104,8 +107,8 @@ public class DBConnector {
         }
     }
 
-    public List<FlatUSDCoinData> selectDataCoinMarketId(String marketId, Integer coinId) {
-        String sql = "SELECT coinid, marketid, timestamp, rate FROM flat_usdcoins_data WHERE marketid = ? AND coinid = ?";
+    public List<FlatUSDCoinData> selectDataCoinMarketId(String marketId, Integer coinId, int intervalInDays) {
+        String sql = "SELECT coinid, marketid, timestamp, rate FROM flat_usdcoins_data WHERE marketid = ? AND coinid = ? AND timestamp >= NOW() - '" + intervalInDays + " day'::INTERVAL";
         List<FlatUSDCoinData> coinDataArrayList = new ArrayList<>();
 
         try (Connection conn = this.getConnection();

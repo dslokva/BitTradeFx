@@ -795,6 +795,7 @@ public class MainView extends VerticalLayout implements View {
             MenuBar.MenuItem first = coinSelectItems.iterator().next();
             if (first != null) {
                 first.setChecked(true);
+                compareSeriesChart.refreshDataByCoin(BFConstants.getCoinIdByName(first.getText()));
             }
         }
     }

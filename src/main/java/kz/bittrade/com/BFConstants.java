@@ -26,6 +26,14 @@ public final class BFConstants {
         mapCoinIds.put(XRP_ID, RIPPLE_COIN);
     }
 
+    public static final int DAY_1 = 1;
+    public static final int DAY_2 = 2;
+    public static final int DAY_3 = 3;
+    public static final int DAY_5 = 5;
+    public static final int WEEK_1 = 7;
+    public static final int WEEK_2 = 14;
+    public static final int MONTH = 30;
+
     /* Simple markets Id's */
     public static final String WEX_ID = "1";
     public static final String BITFINEX_ID = "2";

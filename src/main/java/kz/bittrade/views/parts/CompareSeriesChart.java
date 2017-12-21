@@ -57,24 +57,6 @@ public class CompareSeriesChart extends Chart {
         initChart();
     }
 
-    private void updateSettings(AppSettingsHolder settings) {
-        wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
-        bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
-        kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
-        cexEnabled = settings.isPropertyEnabled(BFConstants.CEX);
-    }
-
-    private void getDataFromDB(Integer coinId) {
-        updateSettings(settings);
-
-        if (wexEnabled) wexCoins = dbConnector.selectDataCoinMarketId(BFConstants.WEX_ID, coinId);
-        if (cexEnabled) cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, coinId);
-        if (kraEnabled) krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, coinId);
-        if (bitEnabled) bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, coinId);
-
-        chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + " price (comparig markets deviation for a period)");
-    }
-
     private void initChart() {
         setHeight("450px");
         setWidth("100%");
@@ -117,7 +99,7 @@ public class CompareSeriesChart extends Chart {
                 new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 60, "1 h"),
                 new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 360, "6 h"),
                 new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 720, "12 h"),
-                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 1440, "24 h"));
+                new RangeSelectorButton(RangeSelectorTimespan.DAY, 1, "24 h"));
         rangeSelector.setSelected(4);
         chartConfiguration.setRangeSelector(rangeSelector);
 
@@ -134,6 +116,25 @@ public class CompareSeriesChart extends Chart {
         chartConfiguration.setLegend(legend);
 
         drawChart(chartConfiguration);
+    }
+
+    private void updateSettings(AppSettingsHolder settings) {
+        wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
+        bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
+        kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
+        cexEnabled = settings.isPropertyEnabled(BFConstants.CEX);
+    }
+
+    private void getDataFromDB(Integer coinId, int intervalInDays) {
+        updateSettings(settings);
+
+        if (wexEnabled) wexCoins = dbConnector.selectDataCoinMarketId(BFConstants.WEX_ID, coinId, intervalInDays);
+        if (cexEnabled) cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, coinId, intervalInDays);
+        if (kraEnabled) krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, coinId, intervalInDays);
+        if (bitEnabled)
+            bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, coinId, intervalInDays);
+
+        chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + " price (comparig markets deviation for a period)");
     }
 
     private void extractCoinsData() {
@@ -165,24 +166,25 @@ public class CompareSeriesChart extends Chart {
         chartSeries.setData(dataList);
     }
 
-//    public void removeListSeries(String seriesName) {
-//        Configuration configuration = chart.getConfiguration();
-//        List<Series> sc = configuration.getSeries();
-//
-//        Series[] aList = new Series[sc.size()];
-//        int i = 0;
-//        for (Series scq : sc) {
-//            if (!scq.getName().equals(seriesName))
-//                aList[i++] = scq;
-//        }
-//
-//        chart.getConfiguration().setSeries(aList);
-//        chart.drawChart();
-//    }
-
     public void refreshDataByCoin(Integer coinId) {
-        getDataFromDB(coinId);
+        getDataFromDB(coinId, BFConstants.DAY_1);
         extractCoinsData();
         drawChart(chartConfiguration);
     }
+
+
+    //    public void removeListSeries(String seriesName) {
+    //        chart.drawChart();
+    //        chart.getConfiguration().setSeries(aList);
+    //
+    //        }
+    //                aList[i++] = scq;
+    //            if (!scq.getName().equals(seriesName))
+    //        for (Series scq : sc) {
+    //        int i = 0;
+    //        Series[] aList = new Series[sc.size()];
+    //
+    //        List<Series> sc = configuration.getSeries();
+    //        Configuration configuration = chart.getConfiguration();
+    //    }
 }
