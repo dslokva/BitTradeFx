@@ -29,6 +29,7 @@ public class CompareSeriesChart {
     public CompareSeriesChart() {
         dbConnector = new DBConnector();
         chart = new Chart();
+        chartConfiguration = chart.getConfiguration();
 
         wexSeries = new DataSeries();
         bitfinexSeries = new DataSeries();
@@ -57,7 +58,6 @@ public class CompareSeriesChart {
         chart.setWidth("100%");
         chart.setTimeline(true);
 
-        chartConfiguration = chart.getConfiguration();
         chartConfiguration.getChart().setMarginLeft(120);
 
         YAxis yAxis = new YAxis();
