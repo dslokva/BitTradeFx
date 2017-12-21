@@ -181,7 +181,7 @@ public class BitTradeFx extends UI {
                 });
 
                 while (waitForJSLoopback.getCount() != 0)
-                    Thread.sleep(150);
+                    Thread.sleep(50);
 
                 Thread.sleep(1000);
                 access(() -> {
