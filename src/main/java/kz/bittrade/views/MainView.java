@@ -633,7 +633,7 @@ public class MainView extends VerticalLayout implements View {
         smartInitCurrencyPairs();
         initMarketColumns();
         initBalanceStubLabels();
-        prepareChart();
+        clearChartCoinSelection();
     }
 
     public void initBalanceStubLabels() {
@@ -764,6 +764,7 @@ public class MainView extends VerticalLayout implements View {
             }
             selectedItem.setChecked(true);
         };
+
         if (settings.isPropertyEnabled(BFConstants.BITCOIN)) {
             MenuBar.MenuItem menuItemBTC = coinSelect.addItem(BFConstants.BITCOIN, typeCommand);
             menuItemBTC.setCheckable(true);
@@ -782,13 +783,20 @@ public class MainView extends VerticalLayout implements View {
         if (settings.isPropertyEnabled(BFConstants.RIPPLE_COIN))
             coinSelect.addItem(BFConstants.RIPPLE_COIN, typeCommand).setCheckable(true);
 
+        clearChartCoinSelection();
+    }
+
+    private void clearChartCoinSelection() {
         List<MenuBar.MenuItem> coinSelectItems = coinSelect.getItems();
         for (MenuBar.MenuItem item : coinSelectItems) {
             item.setChecked(false);
         }
         if (coinSelectItems.iterator().hasNext()) {
             MenuBar.MenuItem first = coinSelectItems.iterator().next();
-            if (first != null) first.setChecked(true);
+            if (first != null) {
+                first.setChecked(true);
+            }
         }
     }
+
 }
