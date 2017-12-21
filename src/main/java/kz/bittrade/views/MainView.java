@@ -86,6 +86,9 @@ public class MainView extends VerticalLayout implements View {
     private VerticalLayout waitingStubPanel;
     private CoinActionsWindow coinActionsWindow;
 
+    private MenuBar coinSelect;
+    private CompareSeriesChart compareSeriesChart;
+
     public MainView() {
         addStyleName("content-common");
 
@@ -264,28 +267,10 @@ public class MainView extends VerticalLayout implements View {
             settings.setProperty(BFConstants.MIDDLE_PANEL_FOLDED_AT_START, openAtStartup);
         });
 
-        CompareSeriesChart compareSeriesChart = new CompareSeriesChart(settings);
+        compareSeriesChart = new CompareSeriesChart(settings);
 
-        MenuBar coinSelect = new MenuBar();
+        coinSelect = new MenuBar();
         coinSelect.setCaption("Select coin:");
-        MenuBar.Command typeCommand = (MenuBar.Command) selectedItem -> {
-            compareSeriesChart.refreshDataByCoin(BFConstants.getCoinIdByName(selectedItem.getText()));
-
-            for (MenuBar.MenuItem item : coinSelect.getItems()) {
-                item.setChecked(false);
-            }
-            selectedItem.setChecked(true);
-        };
-
-        MenuBar.MenuItem menuItemBTC = coinSelect.addItem(BFConstants.BITCOIN, typeCommand);
-        menuItemBTC.setCheckable(true);
-        menuItemBTC.setChecked(true);
-        coinSelect.addItem(BFConstants.BITCOIN_CASH, typeCommand).setCheckable(true);
-        coinSelect.addItem(BFConstants.ETHERIUM_COIN, typeCommand).setCheckable(true);
-        coinSelect.addItem(BFConstants.ZCASH_COIN, typeCommand).setCheckable(true);
-        coinSelect.addItem(BFConstants.LITECOIN, typeCommand).setCheckable(true);
-        coinSelect.addItem(BFConstants.DASH_COIN, typeCommand).setCheckable(true);
-        coinSelect.addItem(BFConstants.RIPPLE_COIN, typeCommand).setCheckable(true);
 
         GridLayout horizontalChartGrid = new GridLayout(1, 1);
         horizontalChartGrid.setWidth("10%");
@@ -648,6 +633,7 @@ public class MainView extends VerticalLayout implements View {
         smartInitCurrencyPairs();
         initMarketColumns();
         initBalanceStubLabels();
+        prepareChart();
     }
 
     public void initBalanceStubLabels() {
@@ -767,5 +753,42 @@ public class MainView extends VerticalLayout implements View {
     public void setAutoRefreshTime(int autoRefreshTime) {
         this.autoRefreshTime = autoRefreshTime;
         chkAutoRefresh.setCaption("Auto refresh every " + autoRefreshTime + " sec");
+    }
+
+    public void prepareChart() {
+        MenuBar.Command typeCommand = (MenuBar.Command) selectedItem -> {
+            compareSeriesChart.refreshDataByCoin(BFConstants.getCoinIdByName(selectedItem.getText()));
+
+            for (MenuBar.MenuItem item : coinSelect.getItems()) {
+                item.setChecked(false);
+            }
+            selectedItem.setChecked(true);
+        };
+        if (settings.isPropertyEnabled(BFConstants.BITCOIN)) {
+            MenuBar.MenuItem menuItemBTC = coinSelect.addItem(BFConstants.BITCOIN, typeCommand);
+            menuItemBTC.setCheckable(true);
+            menuItemBTC.setChecked(true);
+        }
+        if (settings.isPropertyEnabled(BFConstants.BITCOIN_CASH))
+            coinSelect.addItem(BFConstants.BITCOIN_CASH, typeCommand).setCheckable(true);
+        if (settings.isPropertyEnabled(BFConstants.ETHERIUM_COIN))
+            coinSelect.addItem(BFConstants.ETHERIUM_COIN, typeCommand).setCheckable(true);
+        if (settings.isPropertyEnabled(BFConstants.ZCASH_COIN))
+            coinSelect.addItem(BFConstants.ZCASH_COIN, typeCommand).setCheckable(true);
+        if (settings.isPropertyEnabled(BFConstants.LITECOIN))
+            coinSelect.addItem(BFConstants.LITECOIN, typeCommand).setCheckable(true);
+        if (settings.isPropertyEnabled(BFConstants.DASH_COIN))
+            coinSelect.addItem(BFConstants.DASH_COIN, typeCommand).setCheckable(true);
+        if (settings.isPropertyEnabled(BFConstants.RIPPLE_COIN))
+            coinSelect.addItem(BFConstants.RIPPLE_COIN, typeCommand).setCheckable(true);
+
+        List<MenuBar.MenuItem> coinSelectItems = coinSelect.getItems();
+        for (MenuBar.MenuItem item : coinSelectItems) {
+            item.setChecked(false);
+        }
+        if (coinSelectItems.iterator().hasNext()) {
+            MenuBar.MenuItem first = coinSelectItems.iterator().next();
+            if (first != null) first.setChecked(true);
+        }
     }
 }

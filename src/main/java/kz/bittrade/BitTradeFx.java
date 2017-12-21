@@ -183,7 +183,7 @@ public class BitTradeFx extends UI {
 
                 while (waitForJSLoopback.getCount() != 0) {
                     Thread.yield();
-                    Thread.sleep(150);
+                    Thread.sleep(200);
                 }
 
                 access(() -> {
@@ -191,6 +191,7 @@ public class BitTradeFx extends UI {
                     mainView.initMarketColumns();
                     mainView.initBalanceStubLabels();
                     mainView.setMainGridCorrectRowCount();
+                    mainView.prepareChart();
                     mainView.finishUIInit();
                 });
             } catch (InterruptedException e) {

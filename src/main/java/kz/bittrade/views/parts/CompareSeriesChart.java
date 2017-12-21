@@ -112,6 +112,12 @@ public class CompareSeriesChart extends Chart {
         chartConfiguration.setPlotOptions(plotOptionsSeries);
 
         RangeSelector rangeSelector = new RangeSelector();
+        rangeSelector.setButtons(new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 10, "10 m"),
+                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 30, "30 m"),
+                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 60, "1 h"),
+                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 360, "6 h"),
+                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 720, "12 h"),
+                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 1440, "24 h"));
         rangeSelector.setSelected(4);
         chartConfiguration.setRangeSelector(rangeSelector);
 

@@ -79,15 +79,25 @@ public class SettingsView extends VerticalLayout implements View {
         txtCexSecretKey.setWidth(txtBoxWidthNarrow);
 
         chkEnableBTC = new CheckBox(BFConstants.BITCOIN);
-        chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
+        chkEnableBTC.setValue(Boolean.TRUE);
+
         chkEnableLTC = new CheckBox(BFConstants.LITECOIN);
+        chkEnableLTC.setValue(Boolean.TRUE);
+
         chkEnableETH = new CheckBox(BFConstants.ETHERIUM_COIN);
+        chkEnableETH.setValue(Boolean.TRUE);
+
+        chkEnableBCH = new CheckBox(BFConstants.BITCOIN_CASH);
         chkEnableZEC = new CheckBox(BFConstants.ZCASH_COIN);
         chkEnableDSH = new CheckBox(BFConstants.DASH_COIN);
         chkEnableXRP = new CheckBox(BFConstants.RIPPLE_COIN);
 
         chkEnableWex = new CheckBox(BFConstants.WEX);
+        chkEnableWex.setValue(Boolean.TRUE);
+
         chkEnableBit = new CheckBox(BFConstants.BITFINEX);
+        chkEnableBit.setValue(Boolean.TRUE);
+
         chkEnableKra = new CheckBox(BFConstants.KRAKEN);
         chkEnableCex = new CheckBox(BFConstants.CEX);
 
