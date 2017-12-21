@@ -94,6 +94,8 @@ public final class BFConstants {
     public static final String NATIONAL_BANK_CURR_RATE_UPDATE_URL = "http://www.nationalbank.kz/rss/rates_all.xml";
 
     public static final String TOP_PANEL_FOLDED_AT_START = "topPanelFolded";
+    public static final String MIDDLE_PANEL_FOLDED_AT_START = "middlePanelFolded";
+    public static final String BOTTOM_PANEL_FOLDED_AT_START = "bottomPanelFolded";
 
     public static Integer getCoinIdByName(String coinName) {
         return (Integer) mapCoinNames.get(coinName);

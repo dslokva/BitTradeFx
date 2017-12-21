@@ -256,6 +256,13 @@ public class MainView extends VerticalLayout implements View {
         middlePanel.setWidth("90%");
         middlePanel.setIcon(VaadinIcons.CHART_GRID);
         middleStackPanel = StackPanel.extend(middlePanel);
+        middleStackPanel.addToggleListener(s -> {
+            String openAtStartup = Boolean.TRUE.toString();
+            if (middleStackPanel.isOpen()) {
+                openAtStartup = Boolean.FALSE.toString();
+            }
+            settings.setProperty(BFConstants.MIDDLE_PANEL_FOLDED_AT_START, openAtStartup);
+        });
 
         CompareSeriesChart compareSeriesChart = new CompareSeriesChart(settings);
 
@@ -270,10 +277,9 @@ public class MainView extends VerticalLayout implements View {
             selectedItem.setChecked(true);
         };
 
-        MenuBar.MenuItem menuItemBTC = coinSelect.addItem("BTC", typeCommand);
+        MenuBar.MenuItem menuItemBTC = coinSelect.addItem(BFConstants.BITCOIN, typeCommand);
         menuItemBTC.setCheckable(true);
         menuItemBTC.setChecked(true);
-        coinSelect.addItem(BFConstants.BITCOIN, typeCommand).setCheckable(true);
         coinSelect.addItem(BFConstants.BITCOIN_CASH, typeCommand).setCheckable(true);
         coinSelect.addItem(BFConstants.ETHERIUM_COIN, typeCommand).setCheckable(true);
         coinSelect.addItem(BFConstants.ZCASH_COIN, typeCommand).setCheckable(true);
@@ -295,6 +301,13 @@ public class MainView extends VerticalLayout implements View {
         chartPanel.setWidth("90%");
         chartPanel.setIcon(VaadinIcons.SPLINE_AREA_CHART);
         bottomStackPanel = StackPanel.extend(chartPanel);
+        bottomStackPanel.addToggleListener(s -> {
+            String openAtStartup = Boolean.TRUE.toString();
+            if (bottomStackPanel.isOpen()) {
+                openAtStartup = Boolean.FALSE.toString();
+            }
+            settings.setProperty(BFConstants.MIDDLE_PANEL_FOLDED_AT_START, openAtStartup);
+        });
 
         setSpacing(true);
         addComponent(topPanel);
