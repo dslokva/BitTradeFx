@@ -123,7 +123,7 @@ public class MainView extends VerticalLayout implements View {
         btnRefreshUserBalance.addClickListener(
                 e -> updateUserBalances());
 
-        chkAutoRefresh = new CheckBox("Auto refreshDataByCoin every 0 sec");
+        chkAutoRefresh = new CheckBox("Auto refresh every 0 sec");
         chkAutoRefresh.addValueChangeListener(event -> {
             boolean notChecked = !chkAutoRefresh.getValue();
             btnRefreshTable.setEnabled(notChecked);
@@ -257,10 +257,9 @@ public class MainView extends VerticalLayout implements View {
         middleStackPanel = StackPanel.extend(middlePanel);
 
         CompareSeriesChart compareSeriesChart = new CompareSeriesChart(settings);
-        Component chart = compareSeriesChart.getChart();
 
         VerticalLayout chartLayer = new VerticalLayout();
-        chartLayer.addComponent(chart);
+        chartLayer.addComponent(compareSeriesChart);
 
         Button btnChartSwichBTC = new Button("BTC");
         btnChartSwichBTC.addClickListener(new Button.ClickListener() {
@@ -295,7 +294,7 @@ public class MainView extends VerticalLayout implements View {
         horizontalChartGrid.addComponent(btnChartSwichDASH, 5, 0);
 
         chartLayer.addComponent(horizontalChartGrid);
-        chartLayer.setComponentAlignment(chart, MIDDLE_CENTER);
+        chartLayer.setComponentAlignment(compareSeriesChart, MIDDLE_CENTER);
         chartLayer.setComponentAlignment(horizontalChartGrid, MIDDLE_LEFT);
 
         Panel chartPanel = new Panel("Coin markets cumulative chart");

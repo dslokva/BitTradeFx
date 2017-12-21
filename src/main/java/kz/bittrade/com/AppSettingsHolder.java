@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.concurrent.CountDownLatch;
 
 public final class AppSettingsHolder {
     private LocalStorageExtension localStorage;
@@ -16,7 +17,7 @@ public final class AppSettingsHolder {
     private HashMap<String, Boolean> selectedCoinsMap;
     private HashMap<String, Boolean> enabledMarketsMap;
 
-    public AppSettingsHolder() {
+    public AppSettingsHolder(CountDownLatch waitForJSLoopback) {
         selectedCoinsMap = new HashMap<>();
         enabledMarketsMap = new HashMap<>();
 
@@ -25,7 +26,7 @@ public final class AppSettingsHolder {
         localStorage = new LocalStorageExtension();
         localStorage.extend(UI.getCurrent());
 
-        readLocalStorage();
+        readLocalStorage(waitForJSLoopback);
     }
 
     public synchronized void setProperty(String key, String value) {
@@ -44,7 +45,9 @@ public final class AppSettingsHolder {
         return Boolean.valueOf(getProperty(propName));
     }
 
-    private void readLocalStorage() {
+    private void readLocalStorage(CountDownLatch waitForJSLoopback) {
+        testCallback(waitForJSLoopback);
+
         getValueFromLocalStorage(BFConstants.WEX_API_KEY);
         getValueFromLocalStorage(BFConstants.WEX_API_SECRET);
 
@@ -78,6 +81,12 @@ public final class AppSettingsHolder {
         getValueFromLocalStorage(BFConstants.TOP_PANEL_FOLDED_AT_START);
     }
 
+    private void testCallback(CountDownLatch waitForJSLoopback) {
+        localStorage.get("testJSCallback", value -> {
+            waitForJSLoopback.countDown();
+        });
+    }
+
     private void getValueFromLocalStorage(String propName) {
         localStorage.get(propName, value -> {
             if (value != null) settings.setProperty(propName, value);
@@ -95,7 +104,6 @@ public final class AppSettingsHolder {
         long timeDelta = (System.currentTimeMillis() - oldTime) / 1000;
         return timeDelta + " sec.";
     }
-
 
 
     public void updateCoinSelectState(CheckBox... chkBoxes) {

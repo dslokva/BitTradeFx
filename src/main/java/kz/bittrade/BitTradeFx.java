@@ -36,12 +36,15 @@ public class BitTradeFx extends UI {
     private AppSettingsHolder settings;
     private GridRefreshThread gridRefreshThread;
     private MarketsRefresher marketsRefresher;
+    private CountDownLatch waitForJSLoopback;
 
     @Override
     protected void init(VaadinRequest request) {
         getPage().setTitle("BitTradeFx");
+        waitForJSLoopback = new CountDownLatch(1);
+
         currencyPairsHolderList = new ArrayList<>();
-        settings = new AppSettingsHolder();
+        settings = new AppSettingsHolder(waitForJSLoopback);
 
         mainView = new MainView();
         settingsView = new SettingsView();
@@ -177,7 +180,8 @@ public class BitTradeFx extends UI {
                     push();
                 });
 
-                Thread.sleep(300);
+                while (waitForJSLoopback.getCount() != 0)
+                    Thread.sleep(50);
 
                 access(() -> {
                     initCurrencyPairs();

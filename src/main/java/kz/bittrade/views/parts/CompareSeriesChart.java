@@ -4,7 +4,6 @@ package kz.bittrade.views.parts;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
 import com.vaadin.addon.charts.model.style.SolidColor;
-import com.vaadin.ui.Component;
 import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.com.db.DBConnector;
@@ -13,8 +12,11 @@ import kz.bittrade.com.db.model.FlatUSDCoinData;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CompareSeriesChart {
+public class CompareSeriesChart extends Chart {
     private final DBConnector dbConnector;
+    private AppSettingsHolder settings;
+
+    private Configuration chartConfiguration;
     private List<FlatUSDCoinData> wexCoins;
     private List<FlatUSDCoinData> cexCoins;
     private List<FlatUSDCoinData> krakenCoins;
@@ -24,32 +26,35 @@ public class CompareSeriesChart {
     private DataSeries krakenSeries;
     private DataSeries cexSeries;
     private DataSeries wexSeries;
-    private Configuration chartConfiguration;
-    private Chart chart;
-    private AppSettingsHolder settings;
+
     private boolean wexEnabled;
     private boolean bitEnabled;
     private boolean kraEnabled;
     private boolean cexEnabled;
 
     public CompareSeriesChart(AppSettingsHolder settings) {
+        super();
         this.settings = settings;
 
         dbConnector = new DBConnector();
-        chart = new Chart();
-        chartConfiguration = chart.getConfiguration();
+        chartConfiguration = getConfiguration();
 
         wexSeries = new DataSeries();
         bitfinexSeries = new DataSeries();
         cexSeries = new DataSeries();
         krakenSeries = new DataSeries();
 
+        wexCoins = new ArrayList<>();
+        bitfinexCoins = new ArrayList<>();
+        cexCoins = new ArrayList<>();
+        krakenCoins = new ArrayList<>();
+
         wexSeries.setName(BFConstants.WEX);
         bitfinexSeries.setName(BFConstants.BITFINEX);
         krakenSeries.setName(BFConstants.KRAKEN);
         cexSeries.setName(BFConstants.CEX);
 
-        getDataFromDB(BFConstants.BTC_ID);
+        initChart();
     }
 
     private void updateSettings(AppSettingsHolder settings) {
@@ -70,10 +75,10 @@ public class CompareSeriesChart {
         chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + " price (comparig markets deviation for a period)");
     }
 
-    public Component getChart() {
-        chart.setHeight("450px");
-        chart.setWidth("100%");
-        chart.setTimeline(true);
+    private void initChart() {
+        setHeight("450px");
+        setWidth("100%");
+        setTimeline(true);
 
         chartConfiguration.getChart().setMarginLeft(120);
 
@@ -122,8 +127,7 @@ public class CompareSeriesChart {
         legend.setEnabled(true);
         chartConfiguration.setLegend(legend);
 
-        chart.drawChart(chartConfiguration);
-        return chart;
+        drawChart(chartConfiguration);
     }
 
     private void extractCoinsData() {
@@ -173,6 +177,6 @@ public class CompareSeriesChart {
     public void refreshDataByCoin(Integer coinId) {
         getDataFromDB(coinId);
         extractCoinsData();
-        chart.drawChart(chartConfiguration);
+        drawChart(chartConfiguration);
     }
 }
