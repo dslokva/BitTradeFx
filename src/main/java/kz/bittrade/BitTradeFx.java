@@ -174,16 +174,18 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             try {
-                Thread.sleep(500);
+                Thread.sleep(1500);
                 access(() -> {
                     settingsView.updateValuesToUI();
                     push();
                 });
 
-                while (waitForJSLoopback.getCount() != 0)
-                    Thread.sleep(50);
+                while (waitForJSLoopback.getCount() != 0) {
+                    Thread.yield();
+                    Thread.sleep(150);
 
-                Thread.sleep(1000);
+                }
+
                 access(() -> {
                     initCurrencyPairs();
                     mainView.initMarketColumns();
