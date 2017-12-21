@@ -69,4 +69,33 @@ public final class BFConstants {
     public static final String NATIONAL_BANK_CURR_RATE_UPDATE_URL = "http://www.nationalbank.kz/rss/rates_all.xml";
 
     public static final String TOP_PANEL_FOLDED_AT_START = "topPanelFolded";
+
+    public static String getCoinNameById(Integer coinId) {
+        switch (coinId) {
+            case 1: {
+                return BITCOIN;
+            }
+            case 2: {
+                return BITCOIN_CASH;
+            }
+            case 3: {
+                return LITECOIN;
+            }
+            case 4: {
+                return ETHERIUM_COIN;
+            }
+            case 5: {
+                return ZCASH_COIN;
+            }
+            case 6: {
+                return DASH_COIN;
+            }
+            case 7: {
+                return RIPPLE_COIN;
+            }
+            default: {
+                return "Unknown coin ID";
+            }
+        }
+    }
 }

@@ -263,7 +263,12 @@ public class MainView extends VerticalLayout implements View {
         chartLayer.addComponent(chart);
 
         Button btnChartSwichBTC = new Button("BTC");
-        btnChartSwichBTC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.BTC_ID));
+        btnChartSwichBTC.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent event) {
+                compareSeriesChart.refreshDataByCoin(BFConstants.BTC_ID);
+            }
+        });
 
         Button btnChartSwichETH = new Button("ETH");
         btnChartSwichETH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.ETH_ID));
@@ -277,13 +282,17 @@ public class MainView extends VerticalLayout implements View {
         Button btnChartSwichLTC = new Button("LTC");
         btnChartSwichLTC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.LTC_ID));
 
-        GridLayout horizontalChartGrid = new GridLayout(5, 1);
+        Button btnChartSwichDASH = new Button("DASH");
+        btnChartSwichDASH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.DASH_ID));
+
+        GridLayout horizontalChartGrid = new GridLayout(6, 1);
         horizontalChartGrid.setWidth("10%");
         horizontalChartGrid.addComponent(btnChartSwichBTC, 0, 0);
         horizontalChartGrid.addComponent(btnChartSwichBCH, 1, 0);
         horizontalChartGrid.addComponent(btnChartSwichETH, 2, 0);
         horizontalChartGrid.addComponent(btnChartSwichZEC, 3, 0);
         horizontalChartGrid.addComponent(btnChartSwichLTC, 4, 0);
+        horizontalChartGrid.addComponent(btnChartSwichDASH, 5, 0);
 
         chartLayer.addComponent(horizontalChartGrid);
         chartLayer.setComponentAlignment(chart, MIDDLE_CENTER);
@@ -333,7 +342,7 @@ public class MainView extends VerticalLayout implements View {
 
     private Label getBalanceStubLabel() {
         Label stubLabel = new Label();
-        stubLabel.setValue("Click refreshDataByCoin to show info");
+        stubLabel.setValue("Click refresh to show info");
         stubLabel.addStyleName(ValoTheme.LABEL_COLORED);
         stubLabel.addStyleName(ValoTheme.LABEL_LIGHT);
         stubLabel.addStyleName(ValoTheme.LABEL_H4);
@@ -643,7 +652,7 @@ public class MainView extends VerticalLayout implements View {
 
     private void initBalanceStubLabel(Label label, boolean keyPresent) {
         if (keyPresent) {
-            label.setValue("Click refreshDataByCoin to show info");
+            label.setValue("Click refresh to show info");
             label.setComponentError(null);
         } else {
             label.setValue("Set api key to get info");
@@ -745,6 +754,6 @@ public class MainView extends VerticalLayout implements View {
 
     public void setAutoRefreshTime(int autoRefreshTime) {
         this.autoRefreshTime = autoRefreshTime;
-        chkAutoRefresh.setCaption("Auto refreshDataByCoin every " + autoRefreshTime + " sec");
+        chkAutoRefresh.setCaption("Auto refresh every " + autoRefreshTime + " sec");
     }
 }

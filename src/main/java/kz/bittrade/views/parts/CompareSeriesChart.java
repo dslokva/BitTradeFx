@@ -56,7 +56,7 @@ public class CompareSeriesChart {
         chart.setTimeline(true);
 
         chartConfiguration = chart.getConfiguration();
-        chartConfiguration.getTitle().setText("Bitcoin price (comparig markets deviation for a period)");
+        chartConfiguration.getTitle().setText("price (comparig markets deviation for a period)");
         chartConfiguration.getChart().setMarginLeft(120);
 
         YAxis yAxis = new YAxis();
@@ -123,20 +123,20 @@ public class CompareSeriesChart {
         chartSeries.setData(dataList);
     }
 
-    public void removeListSeries(String seriesName) {
-        Configuration configuration = chart.getConfiguration();
-        List<Series> sc = configuration.getSeries();
-
-        Series[] aList = new Series[sc.size()];
-        int i = 0;
-        for (Series scq : sc) {
-            if (!scq.getName().equals(seriesName))
-                aList[i++] = scq;
-        }
-
-        chart.getConfiguration().setSeries(aList);
-        chart.drawChart();
-    }
+//    public void removeListSeries(String seriesName) {
+//        Configuration configuration = chart.getConfiguration();
+//        List<Series> sc = configuration.getSeries();
+//
+//        Series[] aList = new Series[sc.size()];
+//        int i = 0;
+//        for (Series scq : sc) {
+//            if (!scq.getName().equals(seriesName))
+//                aList[i++] = scq;
+//        }
+//
+//        chart.getConfiguration().setSeries(aList);
+//        chart.drawChart();
+//    }
 
     public void refreshDataByCoin(Integer coinId) {
         getDataFromDB(coinId);
@@ -146,15 +146,8 @@ public class CompareSeriesChart {
         extractCoinData(krakenSeries, krakenCoins);
         extractCoinData(cexSeries, cexCoins);
 
-        chart.drawChart(chartConfiguration);
-//        removeListSeries(BFConstants.WEX_ID);
-//        removeListSeries(BFConstants.CEX_ID);
-//        removeListSeries(BFConstants.KRAKEN_ID);
-//        removeListSeries(BFConstants.BITFINEX_ID);
+        chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + "price (comparig markets deviation for a period)");
 
-//        chartConfiguration.addSeries(wexSeries);
-//        chartConfiguration.addSeries(bitfinexSeries);
-//        chartConfiguration.addSeries(krakenSeries);
-//        chartConfiguration.addSeries(cexSeries);
+        chart.drawChart(chartConfiguration);
     }
 }
