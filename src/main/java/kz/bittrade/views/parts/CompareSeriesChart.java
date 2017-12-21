@@ -48,6 +48,8 @@ public class CompareSeriesChart {
         cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, coinId);
         krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, coinId);
         bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, coinId);
+
+        chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + " price (comparig markets deviation for a period)");
     }
 
     public Component getChart() {
@@ -56,7 +58,6 @@ public class CompareSeriesChart {
         chart.setTimeline(true);
 
         chartConfiguration = chart.getConfiguration();
-        chartConfiguration.getTitle().setText("price (comparig markets deviation for a period)");
         chartConfiguration.getChart().setMarginLeft(120);
 
         YAxis yAxis = new YAxis();
@@ -145,8 +146,6 @@ public class CompareSeriesChart {
         extractCoinData(bitfinexSeries, bitfinexCoins);
         extractCoinData(krakenSeries, krakenCoins);
         extractCoinData(cexSeries, cexCoins);
-
-        chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + "price (comparig markets deviation for a period)");
 
         chart.drawChart(chartConfiguration);
     }
