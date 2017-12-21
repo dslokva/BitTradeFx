@@ -256,7 +256,7 @@ public class MainView extends VerticalLayout implements View {
         middlePanel.setIcon(VaadinIcons.CHART_GRID);
         middleStackPanel = StackPanel.extend(middlePanel);
 
-        CompareSeriesChart compareSeriesChart = new CompareSeriesChart();
+        CompareSeriesChart compareSeriesChart = new CompareSeriesChart(settings);
         Component chart = compareSeriesChart.getChart();
 
         VerticalLayout chartLayer = new VerticalLayout();

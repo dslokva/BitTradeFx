@@ -5,6 +5,7 @@ import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.*;
 import com.vaadin.addon.charts.model.style.SolidColor;
 import com.vaadin.ui.Component;
+import kz.bittrade.com.AppSettingsHolder;
 import kz.bittrade.com.BFConstants;
 import kz.bittrade.com.db.DBConnector;
 import kz.bittrade.com.db.model.FlatUSDCoinData;
@@ -25,8 +26,15 @@ public class CompareSeriesChart {
     private DataSeries wexSeries;
     private Configuration chartConfiguration;
     private Chart chart;
+    private AppSettingsHolder settings;
+    private boolean wexEnabled;
+    private boolean bitEnabled;
+    private boolean kraEnabled;
+    private boolean cexEnabled;
 
-    public CompareSeriesChart() {
+    public CompareSeriesChart(AppSettingsHolder settings) {
+        this.settings = settings;
+
         dbConnector = new DBConnector();
         chart = new Chart();
         chartConfiguration = chart.getConfiguration();
@@ -44,11 +52,20 @@ public class CompareSeriesChart {
         getDataFromDB(BFConstants.BTC_ID);
     }
 
+    private void updateSettings(AppSettingsHolder settings) {
+        wexEnabled = settings.isPropertyEnabled(BFConstants.WEX);
+        bitEnabled = settings.isPropertyEnabled(BFConstants.BITFINEX);
+        kraEnabled = settings.isPropertyEnabled(BFConstants.KRAKEN);
+        cexEnabled = settings.isPropertyEnabled(BFConstants.CEX);
+    }
+
     private void getDataFromDB(Integer coinId) {
-        wexCoins = dbConnector.selectDataCoinMarketId(BFConstants.WEX_ID, coinId);
-        cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, coinId);
-        krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, coinId);
-        bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, coinId);
+        updateSettings(settings);
+
+        if (wexEnabled) wexCoins = dbConnector.selectDataCoinMarketId(BFConstants.WEX_ID, coinId);
+        if (cexEnabled) cexCoins = dbConnector.selectDataCoinMarketId(BFConstants.CEX_ID, coinId);
+        if (kraEnabled) krakenCoins = dbConnector.selectDataCoinMarketId(BFConstants.KRAKEN_ID, coinId);
+        if (bitEnabled) bitfinexCoins = dbConnector.selectDataCoinMarketId(BFConstants.BITFINEX_ID, coinId);
 
         chartConfiguration.getTitle().setText(BFConstants.getCoinNameById(coinId) + " price (comparig markets deviation for a period)");
     }
@@ -78,10 +95,7 @@ public class CompareSeriesChart {
         tooltip.setValueDecimals(2);
         chartConfiguration.setTooltip(tooltip);
 
-        extractCoinData(wexSeries, wexCoins);
-        extractCoinData(bitfinexSeries, bitfinexCoins);
-        extractCoinData(krakenSeries, krakenCoins);
-        extractCoinData(cexSeries, cexCoins);
+        extractCoinsData();
 
         chartConfiguration.addSeries(wexSeries);
         chartConfiguration.addSeries(bitfinexSeries);
@@ -113,6 +127,13 @@ public class CompareSeriesChart {
         return chart;
     }
 
+    private void extractCoinsData() {
+        if (wexEnabled) extractCoinData(wexSeries, wexCoins);
+        if (bitEnabled) extractCoinData(bitfinexSeries, bitfinexCoins);
+        if (kraEnabled) extractCoinData(krakenSeries, krakenCoins);
+        if (cexEnabled) extractCoinData(cexSeries, cexCoins);
+    }
+
     private void extractCoinData(DataSeries chartSeries, List<FlatUSDCoinData> coinsList) {
         List<DataSeriesItem> dataList = new ArrayList<>();
         for (FlatUSDCoinData data : coinsList) {
@@ -141,12 +162,7 @@ public class CompareSeriesChart {
 
     public void refreshDataByCoin(Integer coinId) {
         getDataFromDB(coinId);
-
-        extractCoinData(wexSeries, wexCoins);
-        extractCoinData(bitfinexSeries, bitfinexCoins);
-        extractCoinData(krakenSeries, krakenCoins);
-        extractCoinData(cexSeries, cexCoins);
-
+        extractCoinsData();
         chart.drawChart(chartConfiguration);
     }
 }

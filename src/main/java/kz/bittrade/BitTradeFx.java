@@ -177,7 +177,7 @@ public class BitTradeFx extends UI {
                     push();
                 });
 
-                Thread.sleep(250);
+                Thread.sleep(300);
 
                 access(() -> {
                     initCurrencyPairs();
