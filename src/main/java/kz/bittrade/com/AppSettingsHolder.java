@@ -79,7 +79,6 @@ public final class AppSettingsHolder {
         getValueFromLocalStorage(BFConstants.CEX);
 
         getValueFromLocalStorage(BFConstants.TOP_PANEL_FOLDED_AT_START);
-        getValueFromLocalStorage(BFConstants.MIDDLE_PANEL_FOLDED_AT_START);
         getValueFromLocalStorage(BFConstants.BOTTOM_PANEL_FOLDED_AT_START);
     }
 

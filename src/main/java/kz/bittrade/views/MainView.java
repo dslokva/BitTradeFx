@@ -80,7 +80,6 @@ public class MainView extends VerticalLayout implements View {
     private CheckBox chkAutoRefresh;
     private Timer timer;
     private StackPanel topStackPanel;
-    private StackPanel middleStackPanel;
     private StackPanel bottomStackPanel;
 
     private VerticalLayout waitingStubPanel;
@@ -253,19 +252,11 @@ public class MainView extends VerticalLayout implements View {
             }
             settings.setProperty(BFConstants.TOP_PANEL_FOLDED_AT_START, openAtStartup);
         });
-
         Panel middlePanel = new Panel("Coin markets monitoring");
         middlePanel.setContent(middleLayer);
         middlePanel.setWidth("90%");
         middlePanel.setIcon(VaadinIcons.CHART_GRID);
-        middleStackPanel = StackPanel.extend(middlePanel);
-        middleStackPanel.addToggleListener(s -> {
-            String openAtStartup = Boolean.TRUE.toString();
-            if (middleStackPanel.isOpen()) {
-                openAtStartup = Boolean.FALSE.toString();
-            }
-            settings.setProperty(BFConstants.MIDDLE_PANEL_FOLDED_AT_START, openAtStartup);
-        });
+        StackPanel middleStackPanel = StackPanel.extend(middlePanel);
 
         compareSeriesChart = new CompareSeriesChart(settings);
 
@@ -739,8 +730,6 @@ public class MainView extends VerticalLayout implements View {
         if (settings.isPropertyEnabled(BFConstants.TOP_PANEL_FOLDED_AT_START))
             topStackPanel.close();
 
-        if (settings.isPropertyEnabled(BFConstants.MIDDLE_PANEL_FOLDED_AT_START))
-            middleStackPanel.close();
 
         if (settings.isPropertyEnabled(BFConstants.BOTTOM_PANEL_FOLDED_AT_START))
             bottomStackPanel.close();
