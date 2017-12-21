@@ -99,7 +99,7 @@ public class CompareSeriesChart extends Chart {
                 new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 60, "1 h"),
                 new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 360, "6 h"),
                 new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 720, "12 h"),
-                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 1430, "24 h"));
+                new RangeSelectorButton(RangeSelectorTimespan.MINUTE, 1440, "24 h"));
         rangeSelector.setSelected(4);
         chartConfiguration.setRangeSelector(rangeSelector);
 
