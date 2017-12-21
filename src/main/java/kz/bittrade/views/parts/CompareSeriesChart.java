@@ -9,6 +9,7 @@ import kz.bittrade.com.BFConstants;
 import kz.bittrade.com.db.DBConnector;
 import kz.bittrade.com.db.model.FlatUSDCoinData;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CompareSeriesChart {
@@ -112,13 +113,14 @@ public class CompareSeriesChart {
     }
 
     private void extractCoinData(DataSeries chartSeries, List<FlatUSDCoinData> coinsList) {
-        chartSeries.clear();
+        List<DataSeriesItem> dataList = new ArrayList<>();
         for (FlatUSDCoinData data : coinsList) {
             DataSeriesItem item = new DataSeriesItem();
             item.setX(data.getTimestamp());
             item.setY(data.getRate());
-            chartSeries.add(item);
+            dataList.add(item);
         }
+        chartSeries.setData(dataList);
     }
 
     public void removeListSeries(String seriesName) {
@@ -144,14 +146,15 @@ public class CompareSeriesChart {
         extractCoinData(krakenSeries, krakenCoins);
         extractCoinData(cexSeries, cexCoins);
 
-        removeListSeries(BFConstants.WEX_ID);
-        removeListSeries(BFConstants.CEX_ID);
-        removeListSeries(BFConstants.KRAKEN_ID);
-        removeListSeries(BFConstants.BITFINEX_ID);
+        chart.drawChart(chartConfiguration);
+//        removeListSeries(BFConstants.WEX_ID);
+//        removeListSeries(BFConstants.CEX_ID);
+//        removeListSeries(BFConstants.KRAKEN_ID);
+//        removeListSeries(BFConstants.BITFINEX_ID);
 
-        chartConfiguration.addSeries(wexSeries);
-        chartConfiguration.addSeries(bitfinexSeries);
-        chartConfiguration.addSeries(krakenSeries);
-        chartConfiguration.addSeries(cexSeries);
+//        chartConfiguration.addSeries(wexSeries);
+//        chartConfiguration.addSeries(bitfinexSeries);
+//        chartConfiguration.addSeries(krakenSeries);
+//        chartConfiguration.addSeries(cexSeries);
     }
 }

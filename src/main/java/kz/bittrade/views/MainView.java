@@ -263,23 +263,27 @@ public class MainView extends VerticalLayout implements View {
         chartLayer.addComponent(chart);
 
         Button btnChartSwichBTC = new Button("BTC");
-        btnChartSwichBTC.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                compareSeriesChart.refreshDataByCoin(BFConstants.BTC_ID);
-            }
-        });
+        btnChartSwichBTC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.BTC_ID));
+
         Button btnChartSwichETH = new Button("ETH");
-        btnChartSwichETH.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                compareSeriesChart.refreshDataByCoin(BFConstants.ETH_ID);
-            }
-        });
-        GridLayout horizontalChartGrid = new GridLayout(2, 1);
+        btnChartSwichETH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.ETH_ID));
+
+        Button btnChartSwichBCH = new Button("BCH");
+        btnChartSwichBCH.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.BCH_ID));
+
+        Button btnChartSwichZEC = new Button("ZEC");
+        btnChartSwichZEC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.ZEC_ID));
+
+        Button btnChartSwichLTC = new Button("LTC");
+        btnChartSwichLTC.addClickListener((Button.ClickListener) event -> compareSeriesChart.refreshDataByCoin(BFConstants.LTC_ID));
+
+        GridLayout horizontalChartGrid = new GridLayout(5, 1);
         horizontalChartGrid.setWidth("10%");
         horizontalChartGrid.addComponent(btnChartSwichBTC, 0, 0);
-        horizontalChartGrid.addComponent(btnChartSwichETH, 1, 0);
+        horizontalChartGrid.addComponent(btnChartSwichBCH, 1, 0);
+        horizontalChartGrid.addComponent(btnChartSwichETH, 2, 0);
+        horizontalChartGrid.addComponent(btnChartSwichZEC, 3, 0);
+        horizontalChartGrid.addComponent(btnChartSwichLTC, 4, 0);
 
         chartLayer.addComponent(horizontalChartGrid);
         chartLayer.setComponentAlignment(chart, MIDDLE_CENTER);
