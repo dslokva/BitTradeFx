@@ -129,9 +129,13 @@ public class CompareSeriesChart {
 
     private void extractCoinsData() {
         if (wexEnabled) extractCoinData(wexSeries, wexCoins);
+        else wexSeries.clear();
         if (bitEnabled) extractCoinData(bitfinexSeries, bitfinexCoins);
+        else bitfinexSeries.clear();
         if (kraEnabled) extractCoinData(krakenSeries, krakenCoins);
+        else krakenSeries.clear();
         if (cexEnabled) extractCoinData(cexSeries, cexCoins);
+        else cexSeries.clear();
     }
 
     private void extractCoinData(DataSeries chartSeries, List<FlatUSDCoinData> coinsList) {
