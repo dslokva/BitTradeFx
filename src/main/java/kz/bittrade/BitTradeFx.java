@@ -180,8 +180,10 @@ public class BitTradeFx extends UI {
                     push();
                 });
 
+                Thread.sleep(150);
                 while (waitForJSLoopback.getCount() != 0)
                     Thread.sleep(50);
+                Thread.sleep(150);
 
                 access(() -> {
                     initCurrencyPairs();
