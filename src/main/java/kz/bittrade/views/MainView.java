@@ -27,9 +27,10 @@ import kz.bittrade.markets.api.holders.user.wexnz.WexNzGetInfo;
 import kz.bittrade.markets.api.lib.BitfinexPrivateApiAccessLib;
 import kz.bittrade.markets.api.lib.CexAPILib;
 import kz.bittrade.markets.api.lib.WexNzPrivateApiAccessLib;
+import kz.bittrade.views.parts.BitTradeFxDataSeriesChart;
 import kz.bittrade.views.parts.CoinActionsWindow;
-import kz.bittrade.views.parts.CompareSeriesChart;
 import kz.bittrade.views.parts.MainGrid;
+import kz.bittrade.views.parts.SimpleLinesDataSeriesChart;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -86,7 +87,7 @@ public class MainView extends VerticalLayout implements View {
     private CoinActionsWindow coinActionsWindow;
 
     private MenuBar coinSelect;
-    private CompareSeriesChart compareSeriesChart;
+    private BitTradeFxDataSeriesChart compareSeriesChart;
 
     public MainView() {
         addStyleName("content-common");
@@ -258,7 +259,8 @@ public class MainView extends VerticalLayout implements View {
         middlePanel.setIcon(VaadinIcons.CHART_GRID);
         StackPanel middleStackPanel = StackPanel.extend(middlePanel);
 
-        compareSeriesChart = new CompareSeriesChart(settings);
+//        compareSeriesChart = new CompareSeriesDataSeriesChart(settings);
+        compareSeriesChart = new SimpleLinesDataSeriesChart(settings);
 
         coinSelect = new MenuBar();
         coinSelect.setCaption("Select coin:");

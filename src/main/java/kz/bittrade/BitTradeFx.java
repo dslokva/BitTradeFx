@@ -175,15 +175,15 @@ public class BitTradeFx extends UI {
         @Override
         public void run() {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(1300);
                 access(() -> {
                     settingsView.updateValuesToUI();
                     push();
                 });
-
+                Thread.sleep(300);
                 while (waitForJSLoopback.getCount() != 0) {
                     Thread.yield();
-                    Thread.sleep(200);
+                    Thread.sleep(300);
                 }
 
                 access(() -> {
